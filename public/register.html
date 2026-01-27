@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>Регистрация в школьном мессенджере</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <header class="header">
+    <h1>Регистрация</h1>
+    <nav>
+      <a href="/">Главная</a>
+      <a href="/login.html">Вход</a>
+      <a href="/register.html">Регистрация</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <div class="chat-card">
+      <h2>Создать аккаунт</h2>
+      <form method="POST" action="/register">
+        <div class="form-row">
+          <label>Логин</label>
+          <input type="text" name="username" required />
+        </div>
+        <div class="form-row">
+          <label>Пароль</label>
+          <input type="password" name="password" required />
+        </div>
+        <button type="submit">Зарегистрироваться</button>
+      </form>
+      <p>Уже есть аккаунт? <a href="/login.html">Войти</a></p>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <p>&copy; 2026 Школа №1</p>
+  </footer>
+    <script>
+    const form = document.querySelector("form");
+    const usernameInput = document.querySelector('input[name="username"]');
+    const submitButton = form.querySelector('button[type="submit"]');
+
+    // Проверяем, есть ли уже аккаунт на этом устройстве
+    const existingUser = localStorage.getItem("registeredUser");
+
+    if (existingUser) {
+      // Показываем сообщение и блокируем форму
+      const info = document.createElement("p");
+      info.style.color = "red";
+      info.style.marginTop = "10px";
+      info.textContent =
+        "На этом устройстве уже зарегистрирован аккаунт: " +
+        existingUser +
+        ". Создание второго аккаунта запрещено.";
+
+      form.parentElement.appendChild(info);
+      submitButton.disabled = true;
+    }
+
+    form.addEventListener("submit", function (e) {
+      const already = localStorage.getItem("registeredUser");
+      if (already) {
+        // На всякий случай ещё раз блокируем
+        e.preventDefault();
+        alert(
+          "На этом устройстве уже есть аккаунт: " +
+            already +
+            ". Второй создать нельзя."
+        );
+        return;
+      }
+
+      const username = usernameInput.value.trim();
+      if (username) {
+        // Запоминаем логин на этом устройстве
+        localStorage.setItem("registeredUser", username);
+      }
+      // Дальше форма отправится на сервер как обычно
+    });
+  </script>
+</body>
+</html>

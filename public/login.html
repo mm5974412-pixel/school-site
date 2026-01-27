@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>Вход в школьный мессенджер</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <header class="header">
+    <h1>Вход</h1>
+    <nav>
+      <a href="/">Главная</a>
+      <a href="/login.html">Вход</a>
+      <a href="/register.html">Регистрация</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <div class="chat-card">
+      <h2>Вход в аккаунт</h2>
+      <form method="POST" action="/login">
+        <div class="form-row">
+          <label>Логин</label>
+          <input type="text" name="username" required />
+        </div>
+        <div class="form-row">
+          <label>Пароль</label>
+          <input type="password" name="password" required />
+        </div>
+        <button type="submit">Войти</button>
+      </form>
+      <p>Нет аккаунта? <a href="/register.html">Зарегистрироваться</a></p>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <p>&copy; 2026 Школа №1</p>
+  </footer>
+</body>
+</html>

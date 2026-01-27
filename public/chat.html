@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>Школьный мессенджер</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <header class="header">
+    <h1>Школьный мессенджер</h1>
+    <nav>
+      <a href="/">Главная</a>
+      <a href="/login.html">Вход</a>
+      <a href="/register.html">Регистрация</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <div class="chat-card">
+      <div class="chat-header">
+        <label>Вы вошли как:</label>
+        <input id="username" type="text" readonly />
+      </div>
+
+      <div id="messages" class="chat-messages"></div>
+
+      <form id="chat-form" class="chat-form">
+        <input id="message-input" type="text" placeholder="Введите сообщение..." autocomplete="off" />
+        <button type="submit">Отправить</button>
+      </form>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <p>&copy; 2026 Школа №1</p>
+  </footer>
+
+  <!-- Socket.io будет доступен по этому пути -->
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+
+    const messagesDiv = document.getElementById("messages");
+    const form = document.getElementById("chat-form");
+    const input = document.getElementById("message-input");
+    const usernameInput = document.getElementById("username");
+
+    // Получаем имя пользователя из адресной строки ?user=...
+    const params = new URLSearchParams(window.location.search);
+    const currentUser = params.get("user");
+
+    if (!currentUser) {
+      // Если пользователь не передан — отправляем на страницу входа
+      window.location.href = "/login.html";
+    } else {
+      usernameInput.value = currentUser;
+    }
+
+    // Функция для добавления сообщения в чат
+    function addMessage(msg) {
+      const el = document.createElement("div");
+      el.classList.add("message");
+
+      const author = document.createElement("strong");
+      author.textContent = msg.author ? msg.author + ": " : "Аноним: ";
+
+      const text = document.createElement("span");
+      text.textContent = msg.text;
+
+      const time = document.createElement("span");
+      time.classList.add("message-time");
+      time.textContent = msg.time || "";
+
+      el.appendChild(author);
+      el.appendChild(text);
+      el.appendChild(time);
+      messagesDiv.appendChild(el);
+
+      // Прокрутка вниз
+      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+
+    // Получаем историю сообщений
+    socket.on("chat-history", (history) => {
+      messagesDiv.innerHTML = "";
+      history.forEach(addMessage);
+    });
+
+    // Новое сообщение от сервера
+    socket.on("chat-message", (msg) => {
+      addMessage(msg);
+    });
+
+    // Отправка сообщения
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const text = input.value.trim();
+      if (!text) return;
+
+      const author = usernameInput.value.trim() || "Аноним";
+      const time = new Date().toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" });
+
+      const msg = { author, text, time };
+      socket.emit("chat-message", msg);
+      input.value = "";
+    });
+  </script>
+</body>
+</html>
