@@ -1,7 +1,8 @@
 {
   "name": "NovaChat",
   "short_name": "NovaChat",
-  "start_url": "/chat",
+  "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#020617",
   "theme_color": "#020617",
