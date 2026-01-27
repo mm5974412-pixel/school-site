@@ -2,12 +2,12 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <title>Регистрация в школьном мессенджере</title>
+  <title>Регистрация — NovaChat</title>
   <link rel="stylesheet" href="/style.css" />
 </head>
 <body>
   <header class="header">
-    <h1>Регистрация</h1>
+    <h1>NovaChat</h1>
     <nav>
       <a href="/">Главная</a>
       <a href="/login.html">Вход</a>
@@ -16,7 +16,7 @@
   </header>
 
   <main class="container">
-    <div class="chat-card">
+    <div class="auth-card">
       <h2>Создать аккаунт</h2>
       <form method="POST" action="/register">
         <div class="form-row">
@@ -27,15 +27,16 @@
           <label>Пароль</label>
           <input type="password" name="password" required />
         </div>
-        <button type="submit">Зарегистрироваться</button>
+        <button type="submit" class="btn-primary">Зарегистрироваться</button>
       </form>
-      <p>Уже есть аккаунт? <a href="/login.html">Войти</a></p>
+      <p class="auth-alt">
+        Уже есть аккаунт? <a href="/login.html">Войти</a>
+      </p>
     </div>
   </main>
 
   <footer class="footer">
-    <p>&copy; 2026 Школа №1</p>
+    <p>&copy; 2026 NovaChat</p>
   </footer>
 </body>
 </html>
-
