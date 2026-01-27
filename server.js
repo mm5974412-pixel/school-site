@@ -210,26 +210,57 @@ app.post("/delete-account", async (req, res) => {
   }
 });
 
-// ======= SOCKET.IO (общий чат) =======
+// ======= SOCKET.IO (общий чат с БД сообщений) =======
 
 io.on("connection", (socket) => {
   console.log("Новое соединение:", socket.id);
 
-  // Отправляем историю сообщений
-  socket.emit("chat-history", messages);
+  // При подключении отправляем последние 100 сообщений из БД
+  (async () => {
+    try {
+      const result = await pool.query(
+        `
+        SELECT
+          author,
+          text,
+          to_char(created_at, 'HH24:MI') AS time
+        FROM messages
+        ORDER BY created_at ASC
+        LIMIT 100;
+      `
+      );
 
-  // Получаем новое сообщение
-  socket.on("chat-message", (msg) => {
-    // msg: { author, text, time }
+      socket.emit("chat-history", result.rows);
+    } catch (err) {
+      console.error("Ошибка загрузки истории сообщений:", err);
+    }
+  })();
+
+  // Получаем новое сообщение от клиента
+  socket.on("chat-message", async (msg) => {
     if (!msg || !msg.author || !msg.text) return;
 
-    messages.push(msg);
-    // Ограничиваем историю, чтобы не раздувать память
-    if (messages.length > 200) {
-      messages.shift();
-    }
+    try {
+      // Сохраняем сообщение в БД
+      const insertResult = await pool.query(
+        `
+        INSERT INTO messages (author, text)
+        VALUES ($1, $2)
+        RETURNING
+          author,
+          text,
+          to_char(created_at, 'HH24:MI') AS time;
+      `,
+        [msg.author, msg.text]
+      );
 
-    io.emit("chat-message", msg);
+      const savedMsg = insertResult.rows[0];
+
+      // Рассылаем всем уже сохранённое сообщение (с нормальным time)
+      io.emit("chat-message", savedMsg);
+    } catch (err) {
+      console.error("Ошибка при сохранении сообщения:", err);
+    }
   });
 
   socket.on("disconnect", () => {
@@ -242,4 +273,5 @@ io.on("connection", (socket) => {
 server.listen(PORT, () => {
   console.log(`Сервер запущен на порту ${PORT}`);
 });
+
 
