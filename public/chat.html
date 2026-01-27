@@ -45,16 +45,30 @@
     const input = document.getElementById("message-input");
     const usernameInput = document.getElementById("username");
 
-    // Получаем имя пользователя из адресной строки ?user=...
-    const params = new URLSearchParams(window.location.search);
-    const currentUser = params.get("user");
+    let currentUser = null;
 
-    if (!currentUser) {
-      // Если пользователь не передан — отправляем на страницу входа
-      window.location.href = "/login.html";
-    } else {
-      usernameInput.value = currentUser;
+    // Узнаём, кто вошёл, через /me
+    function loadCurrentUser() {
+      fetch("/me")
+        .then((res) => {
+          if (res.status === 401) {
+            // Не авторизован — на страницу входа
+            window.location.href = "/login.html";
+            return null;
+          }
+          return res.json();
+        })
+        .then((data) => {
+          if (!data) return;
+          currentUser = data.username;
+          usernameInput.value = currentUser;
+        })
+        .catch(() => {
+          window.location.href = "/login.html";
+        });
     }
+
+    loadCurrentUser();
 
     // Функция для добавления сообщения в чат
     function addMessage(msg) {
@@ -76,11 +90,10 @@
       el.appendChild(time);
       messagesDiv.appendChild(el);
 
-      // Прокрутка вниз
       messagesDiv.scrollTop = messagesDiv.scrollHeight;
     }
 
-    // Получаем историю сообщений
+    // История сообщений
     socket.on("chat-history", (history) => {
       messagesDiv.innerHTML = "";
       history.forEach(addMessage);
@@ -97,8 +110,11 @@
       const text = input.value.trim();
       if (!text) return;
 
-      const author = usernameInput.value.trim() || "Аноним";
-      const time = new Date().toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" });
+      const author = currentUser || "Аноним";
+      const time = new Date().toLocaleTimeString("ru-RU", {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
 
       const msg = { author, text, time };
       socket.emit("chat-message", msg);
