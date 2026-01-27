@@ -30,15 +30,9 @@
       </div>
 
       <div class="sidebar-section-title">Чаты</div>
-      <ul class="chat-list">
-        <li class="chat-item chat-item-active">
-          <div class="chat-avatar">GC</div>
-          <div class="chat-meta">
-            <div class="chat-name">Общий чат</div>
-            <div class="chat-last">Мгновенные сообщения</div>
-          </div>
-        </li>
-      </ul>
+     <ul class="chat-list" id="chat-list">
+  <!-- Пока нет чатов, список пустой -->
+</ul>
 
       <div class="sidebar-footer">
         <form action="/logout" method="POST">
@@ -55,15 +49,21 @@
     </aside>
 
     <main class="chat-main">
-      <header class="chat-main-header">
-        <div>
-          <div class="chat-main-title">Общий чат</div>
-          <div class="chat-main-subtitle">Все сообщения в одном месте</div>
-        </div>
+      <div class="chat-main-header">
+  <div class="chat-main-title" id="chat-title">Добро пожаловать в NovaChat</div>
+  <div class="chat-main-subtitle" id="chat-subtitle">
+    Создайте новый чат, чтобы начать переписку.
+  </div>
+</div>
       </header>
 
-      <section id="messages" class="chat-main-messages"></section>
-
+     <section id="messages" class="chat-main-messages">
+  <div class="empty-state">
+    <h2>Создайте новый чат</h2>
+    <p>Выберите пользователя или начните новый диалог.</p>
+  </div>
+</section>
+      
       <form id="chat-form" class="chat-main-input">
         <input
           id="message-input"
@@ -149,32 +149,33 @@
       messagesDiv.scrollTop = messagesDiv.scrollHeight;
     }
 
-    socket.on("chat-history", (history) => {
-      messagesDiv.innerHTML = "";
-      history.forEach(addMessage);
-    });
+ // socket.on("chat-history", (history) => {
+//   messagesDiv.innerHTML = "";
+//   history.forEach(addMessage);
+// });
 
-    socket.on("chat-message", (msg) => {
-      addMessage(msg);
-    });
+// socket.on("chat-message", (msg) => {
+//   addMessage(msg);
+// });
 
-    form.addEventListener("submit", (e) => {
-      e.preventDefault();
-      const text = input.value.trim();
-      if (!text || !currentUser) return;
-
-      const time = new Date().toLocaleTimeString("ru-RU", {
-        hour: "2-digit",
-        minute: "2-digit",
-      });
-
-      const msg = { author: currentUser, text, time };
-      socket.emit("chat-message", msg);
-      input.value = "";
-    });
+// form.addEventListener("submit", (e) => {
+//   e.preventDefault();
+//   const text = input.value.trim();
+//   if (!text || !currentUser) return;
+//
+//   const time = new Date().toLocaleTimeString("ru-RU", {
+//     hour: "2-digit",
+//     minute: "2-digit",
+//   });
+//
+//   const msg = { author: currentUser, text, time };
+//   socket.emit("chat-message", msg);
+//   input.value = "";
+// });
   </script>
 </body>
 </html>
+
 
 
 
