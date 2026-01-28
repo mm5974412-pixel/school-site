@@ -35,7 +35,7 @@
   ➕ Создать чат
 </button>
 
-<ul class="chat-list" id="chat-list"></ul>
+<ul class="chat-list" id="chat-list">
   <!-- Пока нет чатов, список пустой -->
 </ul>
 
@@ -62,12 +62,7 @@
 </div>
       </header>
 
-     <section id="messages" class="chat-main-messages">
-  <div class="empty-state">
-    <h2>Создайте новый чат</h2>
-    <p>Выберите пользователя или начните новый диалог.</p>
-  </div>
-</section>
+   <section id="messages" class="chat-main-messages"></section>
       
       <form id="chat-form" class="chat-main-input">
         <input
@@ -160,28 +155,49 @@
     messagesDiv.appendChild(el);
     messagesDiv.scrollTop = messagesDiv.scrollHeight;
   }
-
-  // РИСУЕМ СПИСОК СООБЩЕНИЙ
-  function renderMessages(messages) {
+  
+   // ПОКАЗАТЬ "ПУСТОЙ" ЭКРАН
+  function showEmptyState(mode) {
     if (!messagesDiv) return;
 
     messagesDiv.innerHTML = "";
 
-    if (!messages || messages.length === 0) {
-      const empty = document.createElement("div");
-      empty.classList.add("empty-state");
-      const h2 = document.createElement("h2");
+    const empty = document.createElement("div");
+    empty.classList.add("empty-state");
+
+    const h2 = document.createElement("h2");
+    const p = document.createElement("p");
+
+    if (mode === "no-chats") {
+      h2.textContent = "Создайте новый чат";
+      p.textContent = "Выберите пользователя или начните новый диалог.";
+    } else if (mode === "select-chat") {
+      h2.textContent = "Выберите чат";
+      p.textContent = "Слева отображаются ваши личные чаты.";
+    } else if (mode === "no-messages") {
       h2.textContent = "В этом чате пока нет сообщений";
-      const p = document.createElement("p");
       p.textContent = "Напишите первое сообщение, чтобы начать диалог.";
-      empty.appendChild(h2);
-      empty.appendChild(p);
-      messagesDiv.appendChild(empty);
-      return;
     }
 
-    messages.forEach(appendMessage);
+    empty.appendChild(h2);
+    empty.appendChild(p);
+    messagesDiv.appendChild(empty);
   }
+
+  // РИСУЕМ СПИСОК СООБЩЕНИЙ
+ function renderMessages(messages) {
+  if (!messagesDiv) return;
+
+  messagesDiv.innerHTML = "";
+
+  if (!messages || messages.length === 0) {
+    // Пустой чат — показываем соответствующую надпись
+    showEmptyState("no-messages");
+    return;
+  }
+
+  messages.forEach(appendMessage);
+}
 
   // ЗАГРУЗКА СООБЩЕНИЙ ДЛЯ ВЫБРАННОГО ЧАТА
   function loadMessages(chatId) {
@@ -202,7 +218,7 @@
   }
 
   // РИСУЕМ СПИСОК ЧАТОВ В САЙДБАРЕ
- function renderChats(chats) {
+function renderChats(chats) {
   if (!chatList) return;
 
   chatList.innerHTML = "";
@@ -216,21 +232,22 @@
     li.textContent = "У вас пока нет чатов.";
     chatList.appendChild(li);
 
-    // Шапка для пустого состояния
+    // Шапка и текст в центре для пустого состояния
     if (chatTitleEl) chatTitleEl.textContent = "Добро пожаловать в NovaChat";
     if (chatSubtitleEl)
       chatSubtitleEl.textContent = "Создайте новый чат, чтобы начать переписку.";
 
-    // В центре тоже покажем заглушку
-    renderMessages([]);
+    showEmptyState("no-chats");
 
     return;
   }
 
-  // Если хотя бы один чат есть — другая шапка
+  // Есть хотя бы один чат, но конкретный ещё не выбран
   if (chatTitleEl) chatTitleEl.textContent = "NovaChat";
   if (chatSubtitleEl)
     chatSubtitleEl.textContent = "Выберите чат слева, чтобы начать переписку.";
+
+  showEmptyState("select-chat");
 
   chats.forEach((chat) => {
     const li = document.createElement("li");
@@ -375,6 +392,7 @@
 </script>
 </body>
 </html>
+
 
 
 
