@@ -173,7 +173,7 @@ let joinedChatId = null; // какой чат сейчас подписан в s
         return res.json();
       })
       .then((data) => {
-        if (!data || !data.loggedIn) return;
+        if (!data) return;
         currentUser = data.username;
         if (currentUsernameSpan) {
           currentUsernameSpan.textContent = currentUser;
@@ -434,6 +434,7 @@ let joinedChatId = null; // какой чат сейчас подписан в s
 </script>
 </body>
 </html>
+
 
 
 
