@@ -280,6 +280,7 @@ form input[type="password"] {
   padding: 14px;
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
   gap: 12px;
 }
 
@@ -683,6 +684,7 @@ body.light .message.me {
     padding: 8px 14px;
   }
 }
+
 
 
 
