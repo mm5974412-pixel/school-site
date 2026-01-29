@@ -2,7 +2,7 @@
 (function () {
   function updateButton(btn) {
     if (!btn) return;
-    if (document.body.classList.contains('light')) {
+    if (document.documentElement.classList.contains('light')) {
       btn.textContent = '☀️';
       btn.classList.add('sun');
       btn.setAttribute('aria-label', 'Светлая тема');
@@ -21,11 +21,11 @@
     updateButton(btn);
 
     btn.addEventListener('click', function () {
-      if (document.body.classList.contains('light')) {
-        document.body.classList.remove('light');
+      if (document.documentElement.classList.contains('light')) {
+        document.documentElement.classList.remove('light');
         localStorage.setItem('theme', 'dark');
       } else {
-        document.body.classList.add('light');
+        document.documentElement.classList.add('light');
         localStorage.setItem('theme', 'light');
       }
       updateButton(btn);
