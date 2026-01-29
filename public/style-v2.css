@@ -581,6 +581,8 @@ form input[type="password"] {
   }
 
 <<<<<<< HEAD
+=======
+<<<<<<< HEAD
 /* ===== Тёмная и светлая тема ===== */
 
 /* Тёмная тема по умолчанию уже задана стилями выше */
@@ -691,6 +693,7 @@ body.light .theme-toggle:hover {
 }
 
 =======
+>>>>>>> fa0a4b35105acfda23a8c95eccb721aa50881e04
 /* ===== Тёмная и светлая тема ===== */
 
 /* Тёмная тема по умолчанию уже задана стилями выше */
@@ -781,6 +784,16 @@ body.light .preview-msg.right {
   background: #f59e0b;
 }
 
+body.light .theme-toggle {
+  background: #fbbf24;
+  border-color: #f59e0b;
+  color: #78350f;
+}
+
+body.light .theme-toggle:hover {
+  background: #f59e0b;
+}
+
 /* Адаптив для кнопки темы */
 @media (max-width: 640px) {
   .theme-toggle {
@@ -790,7 +803,33 @@ body.light .preview-msg.right {
   }
 }
 
->>>>>>> ccaeb1390b85e5b944d8315ab3751efa57aa59d3
+/* Chat selection colors */
+.chat-item-active {
+  background: #0f172a;
+}
+
+/* Ensure hover is sensible in light theme */
+body.light .chat-item:hover {
+  background: #f1f5f9;
+}
+
+/* In light theme the selected chat should be light (not black) */
+body.light .chat-item-active {
+  background: #eef2f7;
+  color: #020617;
+}
+
+body.light .chat-item-active .chat-avatar {
+  background: #111827;
+  color: #e5e7eb;
+}
+
+/* Keep dark-theme avatar readable */
+.chat-item-active .chat-avatar {
+  background: #1f2937;
+  color: #e5e7eb;
+}
+
 /* ===== Тёмная/светлая тема через body.light ===== */
 
 body.light {
