@@ -456,6 +456,7 @@ form input[type="password"] {
 .chat-main-title {
   font-size: 16px;
   font-weight: 600;
+  color: #e5e7eb;
 }
 
 .chat-main-subtitle {
@@ -618,6 +619,10 @@ html.light .current-user,
 html.light .chat-main-input input {
   background: #f1f5f9;
   border-color: #e2e8f0;
+  color: #020617;
+}
+
+html.light .chat-main-title {
   color: #020617;
 }
 
@@ -938,7 +943,8 @@ body {
  
  h t m l . l i g h t   . p r o f i l e - m o d a l   { 
      b a c k g r o u n d :   r g b a ( 2 5 5 ,   2 5 5 ,   2 5 5 ,   0 . 9 ) ; 
- }  
+ } 
+ 
  
 /* ===== Общий layout для скролла чата ===== */
 
