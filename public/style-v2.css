@@ -723,8 +723,15 @@ body.light .message.me {
   flex: 1;
   overflow-y: auto;
 }
+  
+  @media (min-width: 901px) {
+  html, body {
+    overflow: hidden;
+  }
+}
 
 }
+
 
 
 
