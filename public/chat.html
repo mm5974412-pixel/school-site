@@ -65,6 +65,13 @@
       <div class="chat-main-subtitle" id="chat-subtitle">
         Выберите чат слева, чтобы начать переписку.
       </div>
+      <button
+        id="delete-chat-btn"
+        class="btn-ghost"
+        style="margin-top: 8px; display: none;"
+      >
+        Удалить чат
+      </button>
     </div>
   </div>
 </div>
@@ -99,6 +106,7 @@
   const chatTitleEl = document.getElementById("chat-title");
   const chatSubtitleEl = document.getElementById("chat-subtitle");
   const backBtn = document.getElementById("back-to-chats");
+  const deleteChatBtn = document.getElementById("delete-chat-btn");
 
   // Текущий пользователь и текущий чат
   let currentUser = null;
@@ -224,6 +232,11 @@
       chatSubtitleEl.textContent = "Личный чат. Сообщения сохраняются.";
     }
 
+    // показываем кнопку удаления, когда чат открыт
+    if (deleteChatBtn) {
+      deleteChatBtn.style.display = "inline-flex";
+    }
+
     // Подписываем сокет на комнату этого чата
     socket.emit("join-chat", chat.id);
 
@@ -256,6 +269,12 @@
           "Создайте новый чат, чтобы начать переписку.";
 
       messagesDiv.innerHTML = "";
+
+      // 🔹 если чатов нет — прячем кнопку "Удалить чат"
+      if (deleteChatBtn) {
+        deleteChatBtn.style.display = "none";
+      }
+
       return;
     }
 
@@ -303,6 +322,11 @@
           .forEach((el) => el.classList.remove("chat-item-active"));
         li.classList.add("chat-item-active");
 
+        // 🔹 при выборе чата показываем кнопку "Удалить чат"
+        if (deleteChatBtn) {
+          deleteChatBtn.style.display = "inline-flex";
+        }
+
         openChat(chat);
       });
 
@@ -327,9 +351,9 @@
   }
   
   // 🔥 Когда сервер говорит, что чаты обновились — перезагружаем список
-socket.on("chats:updated", () => {
-  loadChats();
-});
+  socket.on("chats:updated", () => {
+    loadChats();
+  });
 
   // Кнопка "Создать чат"
   if (newChatBtn) {
@@ -370,6 +394,56 @@ socket.on("chats:updated", () => {
         })
         .catch(() => {
           alert("Ошибка сервера при создании чата");
+        });
+    });
+  }
+
+  // 🔥 Кнопка "Удалить чат"
+  if (deleteChatBtn) {
+    deleteChatBtn.addEventListener("click", () => {
+      if (!currentChatId) {
+        alert("Сначала выберите чат.");
+        return;
+      }
+
+      if (!confirm("Точно удалить этот чат? История переписки будет удалена.")) {
+        return;
+      }
+
+      fetch(`/chats/${currentChatId}`, {
+        method: "DELETE",
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (!data.ok) {
+            alert(data.error || "Не удалось удалить чат");
+            return;
+          }
+
+          // выходим из комнаты
+          socket.emit("leave-chat", currentChatId);
+
+          // сбрасываем состояние
+          currentChatId = null;
+          messagesDiv.innerHTML = "";
+
+          if (chatTitleEl) chatTitleEl.textContent = "NovaChat";
+          if (chatSubtitleEl)
+            chatSubtitleEl.textContent =
+              "Создайте новый чат, чтобы начать переписку.";
+
+          if (deleteChatBtn) {
+            deleteChatBtn.style.display = "none";
+          }
+
+          // на мобиле возвращаемся на список чатов
+          document.body.classList.remove("mobile-dialog-open");
+
+          // перезагружаем список чатов
+          loadChats();
+        })
+        .catch(() => {
+          alert("Ошибка сервера при удалении чата");
         });
     });
   }
@@ -443,20 +517,3 @@ socket.on("chats:updated", () => {
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
