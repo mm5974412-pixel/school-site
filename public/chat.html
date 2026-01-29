@@ -186,6 +186,10 @@
   function appendMessage(msg) {
     if (!messagesDiv) return;
 
+    // Удаляем "пустое состояние" при добавлении первого сообщения
+    const nonMessageElements = Array.from(messagesDiv.children).filter(el => !el.dataset.messageId);
+    nonMessageElements.forEach(el => el.remove());
+
     const el = document.createElement("div");
     el.classList.add("message");
 
