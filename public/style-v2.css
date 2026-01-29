@@ -615,19 +615,40 @@ body.light .message.me {
 
 @media (max-width: 900px) {
   .app {
-    grid-template-columns: minmax(0, 1fr);  /* одна колонка */
-    height: auto;
-    margin: 12px auto;
+    grid-template-columns: minmax(0, 1fr); /* одна колонка */
+    height: 100vh;
+    margin: 0;
     padding: 0 8px;
   }
 
+  /* по умолчанию показываем список чатов, скрываем диалог */
   .sidebar {
-    margin-bottom: 8px;
-    height: auto;
+    display: flex;
   }
 
   .chat-main {
-    height: calc(100vh - 260px);  /* чтобы влезала строка ввода и кнопка */
+    display: none;
+  }
+
+  /* когда открыт диалог – наоборот */
+  body.mobile-dialog-open .sidebar {
+    display: none;
+  }
+
+  body.mobile-dialog-open .chat-main {
+    display: flex;
+  }
+
+  /* на мобиле показываем кнопку "Чаты" */
+  .back-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* чуть уменьшим высоту диалога */
+  body.mobile-dialog-open .chat-main {
+    height: calc(100vh - 16px);
   }
 }
 
@@ -665,6 +686,7 @@ body.light .message.me {
     padding: 8px 14px;
   }
 }
+
 
 
 
