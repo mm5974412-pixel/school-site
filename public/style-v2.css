@@ -730,7 +730,19 @@ body.light .message.me {
   }
 }
 
+  @media (max-width: 900px) {
+  .chat-main-messages {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .chat-main-messages::-webkit-scrollbar {
+    display: none;
+  }
 }
+
+}
+
 
 
 
