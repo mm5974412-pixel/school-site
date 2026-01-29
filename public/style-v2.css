@@ -613,6 +613,7 @@ body.light .message.me {
 
 /* ===== Адаптив ===== */
 
+/* Мобильная логика переключения: список чатов <-> диалог */
 @media (max-width: 900px) {
   .app {
     grid-template-columns: minmax(0, 1fr); /* одна колонка */
@@ -637,6 +638,7 @@ body.light .message.me {
 
   body.mobile-dialog-open .chat-main {
     display: flex;
+    height: calc(100vh - 16px);
   }
 
   /* на мобиле показываем кнопку "Чаты" */
@@ -645,13 +647,9 @@ body.light .message.me {
     align-items: center;
     justify-content: center;
   }
-
-  /* чуть уменьшим высоту диалога */
-  body.mobile-dialog-open .chat-main {
-    height: calc(100vh - 16px);
-  }
 }
 
+/* Дополнительные уменьшения на маленьких экранах */
 @media (max-width: 640px) {
   .header {
     padding: 10px 16px;
@@ -686,32 +684,38 @@ body.light .message.me {
     padding: 8px 14px;
   }
 
-  /* Кнопка удаления сообщения */
-.msg-delete-btn {
-  border: none;
-  background: transparent;
-  color: #9ca3af;
-  font-size: 11px;
-  cursor: pointer;
-  padding: 0;
-  margin-top: 2px;
-  align-self: flex-end;
- }
+  /* Кнопка удаления сообщения (мобильный размер) */
+  .msg-delete-btn {
+    border: none;
+    background: transparent;
+    color: #9ca3af;
+    font-size: 11px;
+    cursor: pointer;
+    padding: 0;
+    margin-top: 2px;
+    align-self: flex-end;
+  }
 
-.msg-delete-btn:hover {
-  color: #fca5a5;
- }
-  
-  html, body {
+  .msg-delete-btn:hover {
+    color: #fca5a5;
+  }
+}
+
+/* ===== Общий layout для скролла чата ===== */
+
+/* Страница занимает всю высоту */
+html,
+body {
   height: 100%;
   margin: 0;
 }
 
+/* .app уже ограничена по высоте: height: calc(100vh - 120px); выше по файлу */
 .app {
   min-height: 100vh;
-  display: flex;
 }
 
+/* Внутри chat-main сообщения растягиваются и дают свой скролл */
 .chat-main {
   display: flex;
   flex-direction: column;
@@ -721,28 +725,13 @@ body.light .message.me {
 
 .chat-main-messages {
   flex: 1;
-  overflow-y: auto;
+  overflow-y: auto; /* отдельный скролл именно у чата */
 }
-  
-  @media (min-width: 901px) {
-  html, body {
-    overflow: hidden;  /* убираем полоску прокрутки у всей страницы на ПК */
+
+/* На ПК убираем скролл у всей страницы, оставляем только у чата */
+@media (min-width: 901px) {
+  html,
+  body {
+    overflow: hidden;
   }
 }
-
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
