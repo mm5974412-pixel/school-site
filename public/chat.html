@@ -53,17 +53,21 @@
 </aside>
 
     <main class="chat-main">
-  <div class="chat-main-header">
-    <!-- Кнопка назад для мобильной версии -->
-    <button id="back-to-chats" class="back-btn-mobile">
+ <div class="chat-main-header">
+  <div class="chat-main-top">
+    <!-- Кнопка "Чаты" для мобильного -->
+    <button id="back-to-chats" class="back-btn" type="button">
       ← Чаты
     </button>
 
-    <div class="chat-main-title" id="chat-title">NovaChat</div>
-    <div class="chat-main-subtitle" id="chat-subtitle">
-      Выберите чат слева, чтобы начать переписку.
+    <div class="chat-main-titles">
+      <div class="chat-main-title" id="chat-title">NovaChat</div>
+      <div class="chat-main-subtitle" id="chat-subtitle">
+        Выберите чат слева, чтобы начать переписку.
+      </div>
     </div>
   </div>
+</div>
 
   <section id="messages" class="chat-main-messages"></section>
 
@@ -372,6 +376,7 @@
 </script>
 </body>
 </html>
+
 
 
 
