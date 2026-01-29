@@ -186,10 +186,6 @@
   function appendMessage(msg) {
     if (!messagesDiv) return;
 
-    // Удаляем "пустое состояние" при добавлении первого сообщения
-    const nonMessageElements = Array.from(messagesDiv.children).filter(el => !el.dataset.messageId);
-    nonMessageElements.forEach(el => el.remove());
-
     const el = document.createElement("div");
     el.classList.add("message");
 
@@ -249,6 +245,41 @@
     messagesDiv.appendChild(el);
     // 🔥 автоскролл после добавления сообщения
     scrollMessagesToBottom();
+    // Обновляем состояние пустого чата
+    updateEmptyState();
+  }
+
+  // Показать/скрыть надпись о пустом чате
+  function updateEmptyState() {
+    if (!messagesDiv) return;
+
+    // Считаем реальные сообщения (элементы с data-message-id)
+    const messages = messagesDiv.querySelectorAll('[data-message-id]');
+    const hasMessages = messages.length > 0;
+
+    // Ищем существующее пустое состояние
+    const emptyState = messagesDiv.querySelector('.empty-state-message');
+
+    if (!hasMessages && !emptyState) {
+      // Нет сообщений и нет надписи - добавляем надпись
+      const info = document.createElement("div");
+      info.className = 'empty-state-message';
+      info.style.marginTop = "32px";
+      info.style.fontSize = "18px";
+      info.textContent = "В этом чате пока нет сообщений";
+      messagesDiv.appendChild(info);
+
+      const sub = document.createElement("div");
+      sub.className = 'empty-state-message';
+      sub.style.marginTop = "8px";
+      sub.style.fontSize = "14px";
+      sub.style.color = "#9ca3af";
+      sub.textContent = "Напишите первое сообщение, чтобы начать диалог.";
+      messagesDiv.appendChild(sub);
+    } else if (hasMessages && emptyState) {
+      // Есть сообщения и есть надпись - удаляем надпись
+      messagesDiv.querySelectorAll('.empty-state-message').forEach(el => el.remove());
+    }
   }
 
   // Рисуем список сообщений
@@ -259,12 +290,14 @@
 
     if (!messages || messages.length === 0) {
       const info = document.createElement("div");
+      info.className = 'empty-state-message';
       info.style.marginTop = "32px";
       info.style.fontSize = "18px";
       info.textContent = "В этом чате пока нет сообщений";
       messagesDiv.appendChild(info);
 
       const sub = document.createElement("div");
+      sub.className = 'empty-state-message';
       sub.style.marginTop = "8px";
       sub.style.fontSize = "14px";
       sub.style.color = "#9ca3af";
@@ -661,6 +694,8 @@
     );
     if (el) {
       el.remove();
+      // Проверяем стал ли чат пустым
+      updateEmptyState();
     }
   });
 
