@@ -80,6 +80,7 @@
     </div>
     
     <div class="chat-main-actions">
+      <button id="delete-chat-btn" class="btn-ghost" style="display: none;" title="Удалить чат">🗑️</button>
       <button id="theme-toggle" class="theme-toggle">🌙</button>
     </div>
   </div>
@@ -804,16 +805,19 @@ document.addEventListener('DOMContentLoaded', function() {
         .then((res) => res.json())
         .then((data) => {
           if (!data.ok) {
-            alert(data.error || "Не удалось создать чат");
+            showAlert(data.error || "Не удалось создать чат", "Ошибка", "ОК", "danger");
             return;
           }
 
           if (data.existing) {
-            alert(
-              `Чат с пользователем ${data.peerUsername} уже существует. Переключаюсь на него.`
+            showAlert(
+              `Чат с пользователем ${data.peerUsername} уже существует. Переключаюсь на него.`,
+              "Чат уже существует",
+              "ОК",
+              "primary"
             );
           } else {
-            alert(`Создан новый чат с пользователем ${data.peerUsername}.`);
+            showAlert(`Создан новый чат с пользователем ${data.peerUsername}.`, "Новый чат", "ОК", "primary");
           }
 
           // После создания/поиска — перезагружаем список и открываем чат
@@ -825,7 +829,7 @@ document.addEventListener('DOMContentLoaded', function() {
           });
         })
         .catch(() => {
-          alert("Ошибка сервера при создании чата");
+          showAlert("Ошибка сервера при создании чата", "Ошибка сервера", "ОК", "danger");
         });
     });
   }
@@ -1104,7 +1108,7 @@ document.addEventListener('DOMContentLoaded', function() {
       setRecordingUI(true);
     } catch (err) {
       console.error("Ошибка доступа к микрофону:", err);
-      alert("Не удалось получить доступ к микрофону.");
+      showAlert("Не удалось получить доступ к микрофону.", "Ошибка микрофона", "ОК", "danger");
     }
   }
 
@@ -1118,7 +1122,7 @@ document.addEventListener('DOMContentLoaded', function() {
   if (recordBtn) {
     recordBtn.addEventListener("click", async () => {
       if (!currentChatId) {
-        alert("Сначала выберите чат слева или создайте новый.");
+        showAlert("Сначала выберите чат слева или создайте новый.", "Чат не выбран", "ОК", "primary");
         return;
       }
 

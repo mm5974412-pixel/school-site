@@ -1808,6 +1808,47 @@ html.light .theme-toggle:hover {
   background: #f59e0b;
 }
 
+/* Стили для кнопки удаления чата */
+#delete-chat-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid #334155;
+  background: transparent;
+  color: #ef4444;
+  font-size: 18px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 14px rgba(239, 68, 68, 0.1);
+}
+
+#delete-chat-btn:hover {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: #ef4444;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(239, 68, 68, 0.2);
+}
+
+#delete-chat-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.1);
+}
+
+html.light #delete-chat-btn {
+  color: #ef4444;
+  border-color: #fca5a5;
+}
+
+html.light #delete-chat-btn:hover {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: #ef4444;
+}
+
 /* Адаптив для кнопки темы */
 
 /* ===== Мобильная адаптация (только телефоны/планшеты) ===== */
