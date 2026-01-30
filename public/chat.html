@@ -20,7 +20,11 @@
 </head>
 <body>
   <div class="app">
-<aside class="sidebar">
+    <!-- Кнопка открытия меню на мобильных -->
+    <button id="sidebar-toggle" class="btn-ghost" style="position:fixed;top:14px;left:14px;z-index:200;display:none;">
+      ☰ Меню
+    </button>
+<aside class="sidebar" id="sidebar">
   <!-- Шапка NovaChat -->
   <div class="sidebar-header">
     <div class="logo-circle">N</div>
@@ -115,6 +119,48 @@
   <script src="/socket.io/socket.io.js"></script>
   <script>
 document.addEventListener('DOMContentLoaded', function() {
+  // ======= Мобильное меню =======
+  const sidebar = document.getElementById('sidebar');
+  const sidebarToggle = document.getElementById('sidebar-toggle');
+  const backBtn = document.getElementById('back-to-chats');
+  function isMobile() {
+    return window.matchMedia('(max-width: 900px)').matches;
+  }
+  function updateSidebarMobile() {
+    if (isMobile()) {
+      sidebarToggle.style.display = 'block';
+      if (!sidebar.classList.contains('open')) {
+        sidebar.style.transform = 'translateX(-100%)';
+      }
+      backBtn.style.display = 'inline-block';
+    } else {
+      sidebarToggle.style.display = 'none';
+      sidebar.classList.remove('open');
+      sidebar.style.transform = '';
+      backBtn.style.display = 'none';
+    }
+  }
+  if (sidebarToggle) {
+    sidebarToggle.addEventListener('click', function() {
+      sidebar.classList.toggle('open');
+      if (sidebar.classList.contains('open')) {
+        sidebar.style.transform = 'translateX(0)';
+      } else {
+        sidebar.style.transform = 'translateX(-100%)';
+      }
+    });
+  }
+  if (backBtn) {
+    backBtn.addEventListener('click', function() {
+      if (isMobile()) {
+        sidebar.classList.remove('open');
+        sidebar.style.transform = 'translateX(-100%)';
+      }
+    });
+  }
+  window.addEventListener('resize', updateSidebarMobile);
+  updateSidebarMobile();
+
   const socket = io();
 
   // DOM-элементы
