@@ -55,9 +55,22 @@ async function initDb() {
     CREATE TABLE IF NOT EXISTS users (
       id SERIAL PRIMARY KEY,
       username TEXT UNIQUE NOT NULL,
-      password_hash TEXT NOT NULL
+      password_hash TEXT NOT NULL,
+      display_name TEXT,
+      avatar_url TEXT,
+      created_at TIMESTAMPTZ DEFAULT NOW()
     );
   `);
+  
+  // Добавляем новые колонки если их нет (миграция)
+  await pool.query(`
+    ALTER TABLE users 
+    ADD COLUMN IF NOT EXISTS display_name TEXT,
+    ADD COLUMN IF NOT EXISTS avatar_url TEXT,
+    ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW();
+  `).catch(() => {
+    // Игнорируем ошибки если колонки уже существуют
+  });
 
   // 2. Чаты
   await pool.query(`
@@ -268,16 +281,91 @@ app.post("/login", async (req, res) => {
 });
 
 // ======= /me =======
-app.get("/me", (req, res) => {
+app.get("/me", async (req, res) => {
   if (!req.session.user) {
     return res.status(401).json({ loggedIn: false });
   }
 
-  res.json({
-    loggedIn: true,
-    id: req.session.user.id,
-    username: req.session.user.username,
-  });
+  try {
+    const result = await pool.query(
+      "SELECT username, display_name, avatar_url, created_at FROM users WHERE id = $1",
+      [req.session.user.id]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(401).json({ loggedIn: false });
+    }
+
+    const user = result.rows[0];
+    res.json({
+      loggedIn: true,
+      id: req.session.user.id,
+      username: user.username,
+      displayName: user.display_name,
+      avatarUrl: user.avatar_url,
+      registeredAt: user.created_at,
+    });
+  } catch (err) {
+    console.error("Ошибка при получении информации пользователя:", err);
+    res.status(500).json({ loggedIn: false, error: "Ошибка сервера" });
+  }
+});
+
+// ======= ОБНОВЛЕНИЕ ПРОФИЛЯ =======
+app.post("/update-profile", upload.single("avatar"), async (req, res) => {
+  if (!req.session.user) {
+    return res.status(401).json({ ok: false, error: "Не авторизирован" });
+  }
+
+  try {
+    const { displayName } = req.body;
+    const userId = req.session.user.id;
+    let avatarUrl = null;
+
+    // Если загружен новый аватар
+    if (req.file) {
+      avatarUrl = `/uploads/${req.file.filename}`;
+      
+      // Удаляем старый аватар если он был
+      const oldUser = await pool.query(
+        "SELECT avatar_url FROM users WHERE id = $1",
+        [userId]
+      );
+      
+      if (oldUser.rows[0]?.avatar_url) {
+        const oldPath = path.join(__dirname, "public", oldUser.rows[0].avatar_url);
+        if (fs.existsSync(oldPath)) {
+          fs.unlinkSync(oldPath);
+        }
+      }
+    }
+
+    // Обновляем профиль
+    let query, params;
+    if (avatarUrl) {
+      query = "UPDATE users SET display_name = $1, avatar_url = $2 WHERE id = $3 RETURNING username, display_name, avatar_url";
+      params = [displayName || null, avatarUrl, userId];
+    } else {
+      query = "UPDATE users SET display_name = $1 WHERE id = $2 RETURNING username, display_name, avatar_url";
+      params = [displayName || null, userId];
+    }
+
+    const result = await pool.query(query, params);
+    const updatedUser = result.rows[0];
+
+    // Обновляем сессию
+    req.session.user.username = updatedUser.username;
+
+    res.json({
+      ok: true,
+      username: updatedUser.username,
+      displayName: updatedUser.display_name,
+      avatarUrl: updatedUser.avatar_url,
+    });
+  } catch (err) {
+    console.error("Ошибка при обновлении профиля:", err);
+    res.status(500).json({ ok: false, error: "Ошибка сервера" });
+  }
 });
 
 // ======= СПИСОК ЛИЧНЫХ ЧАТОВ =======
@@ -295,7 +383,9 @@ app.get("/chats/list", async (req, res) => {
         c.id,
         c.created_at,
         u.id AS peer_user_id,
-        u.username AS peer_username
+        u.username AS peer_username,
+        u.display_name AS peer_display_name,
+        u.avatar_url AS peer_avatar_url
       FROM chats c
       JOIN chat_members cm_self
         ON cm_self.chat_id = c.id

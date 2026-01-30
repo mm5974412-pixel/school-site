@@ -349,6 +349,8 @@ document.addEventListener('DOMContentLoaded', function() {
   let currentChatId = null;
   let currentPeerUserId = null;
   let currentPeerUsername = null;
+  let currentPeerDisplayName = null;
+  let currentPeerAvatarUrl = null;
   let amBlockedInCurrentChat = false; // заблокирован ли я в текущем чате
 
   // Проверка: мобильный ли экран
@@ -377,8 +379,9 @@ document.addEventListener('DOMContentLoaded', function() {
       .then((data) => {
         if (!data) return;
         currentUser = data;
+        const displayName = data.displayName || data.username;
         if (currentUsernameSpan) {
-          currentUsernameSpan.textContent = currentUser.username || "?";
+          currentUsernameSpan.textContent = displayName || "?";
         }
         // Добавляем обработчик клика для перехода в профиль
         const profileLink = document.getElementById("profile-link");
@@ -619,8 +622,10 @@ document.addEventListener('DOMContentLoaded', function() {
     currentPeerUserId = chat.peer_user_id || null;
     currentPeerUsername = chat.peer_username || null;
 
+    const displayName = chat.peer_display_name || chat.peer_username;
+    
     if (chatTitleEl) {
-      chatTitleEl.textContent = currentPeerUsername || "Чат";
+      chatTitleEl.textContent = displayName || "Чат";
     }
     if (chatSubtitleEl) {
       chatSubtitleEl.textContent = "Личный чат. Сообщения сохраняются.";
@@ -731,16 +736,24 @@ document.addEventListener('DOMContentLoaded', function() {
 
       const avatar = document.createElement("div");
       avatar.classList.add("chat-avatar");
-      avatar.textContent = chat.peer_username
-        ? chat.peer_username[0].toUpperCase()
-        : "?";
+      
+      // Отображаем аватар если есть, иначе первую букву имени
+      const displayName = chat.peer_display_name || chat.peer_username;
+      if (chat.peer_avatar_url) {
+        avatar.style.backgroundImage = `url('${chat.peer_avatar_url}')`;
+        avatar.style.backgroundSize = 'cover';
+        avatar.style.backgroundPosition = 'center';
+        avatar.textContent = '';
+      } else {
+        avatar.textContent = displayName ? displayName[0].toUpperCase() : "?";
+      }
 
       const meta = document.createElement("div");
       meta.classList.add("chat-meta");
 
       const name = document.createElement("div");
       name.classList.add("chat-name");
-      name.textContent = chat.peer_username;
+      name.textContent = displayName;
 
       const last = document.createElement("div");
       last.classList.add("chat-last");
@@ -1170,8 +1183,19 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   function openProfileModal() {
-    profileUsername.textContent = currentPeerUsername || 'Пользователь';
-    profileAvatar.textContent = (currentPeerUsername || '?')[0].toUpperCase();
+    const displayName = currentPeerDisplayName || currentPeerUsername || 'Пользователь';
+    profileUsername.textContent = displayName;
+    
+    // Отображаем аватар
+    if (currentPeerAvatarUrl) {
+      profileAvatar.style.backgroundImage = `url('${currentPeerAvatarUrl}')`;
+      profileAvatar.style.backgroundSize = 'cover';
+      profileAvatar.style.backgroundPosition = 'center';
+      profileAvatar.textContent = '';
+    } else {
+      profileAvatar.style.backgroundImage = '';
+      profileAvatar.textContent = displayName[0].toUpperCase();
+    }
     
     profileModal.classList.add('show');
     

@@ -112,6 +112,45 @@
       </div>
 
       <section class="profile-content">
+        <h2>✏️ Редактирование профиля</h2>
+        <div style="background: linear-gradient(135deg, rgba(37, 99, 235, 0.1), rgba(34, 197, 94, 0.05)); border-radius: 12px; padding: 20px; border: 1px solid rgba(37, 99, 235, 0.2); margin-bottom: 20px;">
+          <form id="profile-edit-form" enctype="multipart/form-data">
+            <div style="margin-bottom: 20px;">
+              <label style="display: block; margin-bottom: 8px; color: #e5e7eb; font-weight: 600;">
+                📸 Фото профиля
+              </label>
+              <div style="display: flex; align-items: center; gap: 20px;">
+                <div id="avatar-preview" class="profile-avatar" style="width: 80px; height: 80px; font-size: 32px;">
+                  ?
+                </div>
+                <div style="flex: 1;">
+                  <input type="file" id="avatar-input" name="avatar" accept="image/*" style="display: block; margin-bottom: 8px; color: #e5e7eb;">
+                  <small style="color: #9ca3af;">Поддерживаются форматы: JPG, PNG, GIF, WEBP</small>
+                </div>
+              </div>
+            </div>
+            
+            <div style="margin-bottom: 20px;">
+              <label for="display-name-input" style="display: block; margin-bottom: 8px; color: #e5e7eb; font-weight: 600;">
+                ✨ Отображаемое имя
+              </label>
+              <input 
+                type="text" 
+                id="display-name-input" 
+                name="displayName" 
+                placeholder="Введите ваше имя"
+                maxlength="50"
+                style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.1); background: rgba(0, 0, 0, 0.2); color: #e5e7eb; font-size: 14px;"
+              >
+              <small style="color: #9ca3af;">Это имя будут видеть другие пользователи</small>
+            </div>
+
+            <button type="submit" class="btn-secondary" style="width: 100%;">
+              💾 Сохранить изменения
+            </button>
+          </form>
+        </div>
+
         <h2>📊 Информация об аккаунте</h2>
         <div style="background: linear-gradient(135deg, rgba(37, 99, 235, 0.1), rgba(34, 197, 94, 0.05)); border-radius: 12px; padding: 16px; border: 1px solid rgba(37, 99, 235, 0.2); margin-bottom: 20px;">
           <p><strong>👤 Логин:</strong> <span id="profile-username" style="color: #e5e7eb;">Загрузка...</span></p>
@@ -239,6 +278,41 @@
     const profileRegisteredSpan = document.getElementById("profile-registered");
     const profileAvatar = document.querySelector(".profile-avatar");
     const backBtn = document.getElementById("back-to-chats");
+    const avatarPreview = document.getElementById("avatar-preview");
+    const avatarInput = document.getElementById("avatar-input");
+    const displayNameInput = document.getElementById("display-name-input");
+    const profileEditForm = document.getElementById("profile-edit-form");
+
+    // Переменная для хранения данных пользователя
+    let currentUserData = null;
+
+    // Функция для отображения аватара
+    function displayAvatar(element, avatarUrl, username) {
+      if (avatarUrl) {
+        element.style.backgroundImage = `url('${avatarUrl}')`;
+        element.style.backgroundSize = 'cover';
+        element.style.backgroundPosition = 'center';
+        element.textContent = '';
+      } else if (username) {
+        element.style.backgroundImage = '';
+        element.textContent = username[0].toUpperCase();
+      }
+    }
+
+    // Превью аватара при выборе файла
+    avatarInput.addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          avatarPreview.style.backgroundImage = `url('${event.target.result}')`;
+          avatarPreview.style.backgroundSize = 'cover';
+          avatarPreview.style.backgroundPosition = 'center';
+          avatarPreview.textContent = '';
+        };
+        reader.readAsDataURL(file);
+      }
+    });
 
     // Загрузка информации о пользователе
     function loadCurrentUser() {
@@ -253,20 +327,70 @@
         .then((data) => {
           if (!data) return;
 
+          currentUserData = data;
           const username = data.username;
-          currentUsernameSpan.textContent = username;
+          const displayName = data.displayName || username;
+          
+          currentUsernameSpan.textContent = displayName;
           profileUsernameSpan.textContent = username;
-          profileRegisteredSpan.textContent = new Date(data.registeredAt).toLocaleDateString('ru-RU');
+          profileRegisteredSpan.textContent = data.registeredAt 
+            ? new Date(data.registeredAt).toLocaleDateString('ru-RU')
+            : 'Н/Д';
 
-          // Устанавливаем первую букву как аватар
-          if (profileAvatar && username) {
-            profileAvatar.textContent = username[0].toUpperCase();
-          }
+          // Устанавливаем значение в поле ввода
+          displayNameInput.value = data.displayName || '';
+
+          // Устанавливаем аватар в сайдбаре
+          displayAvatar(profileAvatar, data.avatarUrl, displayName);
+          
+          // Устанавливаем аватар в превью
+          displayAvatar(avatarPreview, data.avatarUrl, displayName);
         })
         .catch(() => {
           window.location.href = "/login.html";
         });
     }
+
+    // Обработчик отправки формы редактирования профиля
+    profileEditForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const formData = new FormData();
+      formData.append("displayName", displayNameInput.value);
+      
+      if (avatarInput.files[0]) {
+        formData.append("avatar", avatarInput.files[0]);
+      }
+
+      try {
+        const response = await fetch("/update-profile", {
+          method: "POST",
+          body: formData,
+        });
+
+        const result = await response.json();
+
+        if (result.ok) {
+          showAlert("Профиль успешно обновлен!", "Успех", "ОК", "primary");
+          
+          // Обновляем отображение
+          currentUserData.displayName = result.displayName;
+          currentUserData.avatarUrl = result.avatarUrl;
+          
+          const displayName = result.displayName || result.username;
+          currentUsernameSpan.textContent = displayName;
+          
+          // Обновляем аватары
+          displayAvatar(profileAvatar, result.avatarUrl, displayName);
+          displayAvatar(avatarPreview, result.avatarUrl, displayName);
+        } else {
+          showAlert(result.error || "Не удалось обновить профиль", "Ошибка", "ОК", "danger");
+        }
+      } catch (err) {
+        console.error("Ошибка при обновлении профиля:", err);
+        showAlert("Произошла ошибка при обновлении профиля", "Ошибка", "ОК", "danger");
+      }
+    });
 
     // Кнопка "�� Чаты"
     if (backBtn) {
