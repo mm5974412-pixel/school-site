@@ -20,7 +20,7 @@
 </head>
 <body>
   <div class="app">
-<aside class="sidebar">
+<aside class="sidebar" id="sidebar">
   <!-- Шапка NovaChat -->
   <div class="sidebar-header">
     <div class="logo-circle">N</div>
@@ -115,6 +115,53 @@
   <script src="/socket.io/socket.io.js"></script>
   <script>
 document.addEventListener('DOMContentLoaded', function() {
+  // ======= Мобильное меню в стиле Telegram =======
+  const sidebar = document.getElementById('sidebar');
+  const chatMain = document.querySelector('.chat-main');
+  const backBtn = document.getElementById('back-to-chats');
+  
+  function isMobile() {
+    return window.matchMedia('(max-width: 900px)').matches;
+  }
+  
+  function showChatOnMobile() {
+    if (isMobile()) {
+      sidebar.classList.add('hide');
+      chatMain.classList.add('show');
+      backBtn.style.display = 'inline-block';
+    }
+  }
+  
+  function showSidebarOnMobile() {
+    if (isMobile()) {
+      sidebar.classList.remove('hide');
+      chatMain.classList.remove('show');
+      backBtn.style.display = 'none';
+    }
+  }
+  
+  function updateMobileView() {
+    if (isMobile()) {
+      backBtn.style.display = currentChatId ? 'inline-block' : 'none';
+      if (!currentChatId) {
+        showSidebarOnMobile();
+      }
+    } else {
+      sidebar.classList.remove('hide');
+      chatMain.classList.remove('show');
+      backBtn.style.display = 'none';
+    }
+  }
+  
+  if (backBtn) {
+    backBtn.addEventListener('click', function() {
+      showSidebarOnMobile();
+    });
+  }
+  
+  window.addEventListener('resize', updateMobileView);
+  updateMobileView();
+
   const socket = io();
 
   // DOM-элементы
@@ -426,10 +473,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Проверяем заблокирован ли я этим пользователем
     checkIfBlocked();
 
-    // На телефоне переключаемся в режим "диалога"
-    if (isMobile()) {
-      document.body.classList.add("mobile-dialog-open");
-    }
+    // На мобильном переключаемся в режим диалога
+    showChatOnMobile();
   }
 
   // Проверить заблокирован ли я этим пользователем

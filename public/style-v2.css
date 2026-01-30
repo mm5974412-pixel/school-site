@@ -63,62 +63,148 @@
 }
 
 /* ======= Адаптив для мобильных и планшетов ======= */
-@media (max-width: 768px) {
+@media (max-width: 900px) {
   .app {
-    grid-template-columns: 1fr;
-    height: 100vh;
-    margin: 0;
-    padding: 0;
-    gap: 0;
+    flex-direction: column !important;
+    min-height: 100vh;
   }
-  
   .sidebar {
-    display: none;
+    width: 100vw !important;
+    min-width: 0 !important;
+    max-width: 100vw !important;
+    border-radius: 0 !important;
+    position: fixed !important;
+    left: 0 !important;
+    top: 0 !important;
+    height: 100vh !important;
+    z-index: 100 !important;
+    background: #0f172a !important;
+    transform: translateX(0) !important;
+    transition: transform 0.3s cubic-bezier(0.4,0,0.2,1) !important;
+    box-shadow: none !important;
   }
-  
+  .sidebar.hide {
+    transform: translateX(-100%) !important;
+  }
   .chat-main {
-    border-radius: 0;
-    height: 100vh;
-    margin: 0;
+    width: 100vw !important;
+    min-width: 0 !important;
+    max-width: 100vw !important;
+    margin-left: 0 !important;
+    border-radius: 0 !important;
+    min-height: 100vh !important;
+    padding-bottom: 60px !important;
+    position: fixed !important;
+    left: 0 !important;
+    top: 0 !important;
+    z-index: 101 !important;
+    transform: translateX(100%) !important;
+    transition: transform 0.3s cubic-bezier(0.4,0,0.2,1) !important;
   }
-  
+  .chat-main.show {
+    transform: translateX(0) !important;
+  }
+  .chat-main-header {
+    padding: 10px 8px 0 8px !important;
+  }
   .chat-main-input {
-    position: sticky;
-    bottom: 0;
-    background: rgba(15, 23, 42, 0.98);
-    padding: 12px;
+    padding: 8px 8px 8px 8px !important;
+    border-radius: 0 0 18px 18px !important;
+    position: absolute !important;
+    left: 0 !important;
+    bottom: 0 !important;
+    width: 100vw !important;
+    background: #0f172a !important;
+    z-index: 102 !important;
+    border-top: 1px solid #1e293b !important;
   }
-  
   .chat-main-messages {
-    height: calc(100vh - 180px);
-    overflow-y: auto;
+    padding-bottom: 80px !important;
+    min-height: 60vh !important;
+    max-height: calc(100vh - 180px) !important;
+    overflow-y: auto !important;
   }
-  
-  .message {
-    max-width: 85%;
-    font-size: 15px;
+  .sidebar-header, .sidebar-section-title, .current-user, .chat-list {
+    padding-left: 12px !important;
+    padding-right: 12px !important;
   }
-  
-  .message img, .message video {
-    max-width: 250px;
+  .sidebar-footer {
+    padding: 12px !important;
   }
-  
-  .btn-primary, .btn-secondary {
-    padding: 12px 18px;
-    font-size: 15px;
-  }
-  
-  .chat-main-title {
-    font-size: 18px;
-  }
-  
-  .chat-main-subtitle {
-    font-size: 13px;
-  }
-  
   .profile-modal-content {
-    width: 90vw;
-    min-width: 0;
+    min-width: 90vw !important;
+    min-height: 0 !important;
+    padding: 18px 6vw 18px 6vw !important;
+  }
+  .chat-main-title {
+    font-size: 17px !important;
+  }
+  .chat-main-subtitle {
+    font-size: 13px !important;
+  }
+  .btn-primary, .btn-secondary, .btn-ghost {
+    font-size: 15px !important;
+    padding: 10px 16px !important;
+  }
+  .chat-avatar {
+    width: 38px !important;
+    height: 38px !important;
+    font-size: 16px !important;
+  }
+  .message {
+    max-width: 90vw !important;
+    font-size: 15px !important;
+    padding: 10px 12px !important;
+  }
+  .message-file {
+    max-width: 90vw !important;
+  }
+  .message img, .message video {
+    max-width: 80vw !important;
+    height: auto !important;
+  }
+  .profile-modal {
+    align-items: flex-end !important;
+  }
+  .back-btn {
+    display: inline-block !important;
+    background: none !important;
+    border: none !important;
+    color: #22c55e !important;
+    font-size: 18px !important;
+    margin-right: 10px !important;
+    cursor: pointer !important;
+  }
+  .sidebar-footer {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+  }
+}
+
+@media (max-width: 600px) {
+  .profile-modal-content {
+    min-width: 98vw;
+    padding: 10px 1vw 10px 1vw;
+  }
+  .chat-main-title {
+    font-size: 15px;
+  }
+  .chat-main-subtitle {
+    font-size: 12px;
+  }
+  .message {
+    font-size: 14px;
+    padding: 8px 6px;
+  }
+  .btn-primary, .btn-secondary, .btn-ghost {
+    font-size: 13px;
+    padding: 8px 10px;
+  }
+  .chat-avatar {
+    width: 32px;
+    height: 32px;
+    font-size: 13px;
   }
 }
 *,
