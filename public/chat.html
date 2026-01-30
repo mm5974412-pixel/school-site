@@ -795,42 +795,44 @@ document.addEventListener('DOMContentLoaded', function() {
         (username) => {
           if (!username) return;
 
-      fetch("/chats/new", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ username: username.trim() }),
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          if (!data.ok) {
-            showAlert(data.error || "Не удалось создать чат", "Ошибка", "ОК", "danger");
-            return;
-          }
+          fetch("/chats/new", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ username: username.trim() }),
+          })
+            .then((res) => res.json())
+            .then((data) => {
+              if (!data.ok) {
+                showAlert(data.error || "Не удалось создать чат", "Ошибка", "ОК", "danger");
+                return;
+              }
 
-          if (data.existing) {
-            showAlert(
-              `Чат с пользователем ${data.peerUsername} уже существует. Переключаюсь на него.`,
-              "Чат уже существует",
-              "ОК",
-              "primary"
-            );
-          } else {
-            showAlert(`Создан новый чат с пользователем ${data.peerUsername}.`, "Новый чат", "ОК", "primary");
-          }
+              if (data.existing) {
+                showAlert(
+                  `Чат с пользователем ${data.peerUsername} уже существует. Переключаюсь на него.`,
+                  "Чат уже существует",
+                  "ОК",
+                  "primary"
+                );
+              } else {
+                showAlert(`Создан новый чат с пользователем ${data.peerUsername}.`, "Новый чат", "ОК", "primary");
+              }
 
-          // После создания/поиска — перезагружаем список и открываем чат
-          loadChats();
-          openChat({
-            id: data.chatId,
-            peer_username: data.peerUsername,
-            peer_user_id: data.peerUserId
-          });
-        })
-        .catch(() => {
-          showAlert("Ошибка сервера при создании чата", "Ошибка сервера", "ОК", "danger");
-        });
+              // После создания/поиска — перезагружаем список и открываем чат
+              loadChats();
+              openChat({
+                id: data.chatId,
+                peer_username: data.peerUsername,
+                peer_user_id: data.peerUserId
+              });
+            })
+            .catch(() => {
+              showAlert("Ошибка сервера при создании чата", "Ошибка сервера", "ОК", "danger");
+            });
+        }
+      );
     });
   }
 
