@@ -24,6 +24,8 @@
     <button id="sidebar-toggle" class="btn-ghost" style="position:fixed;top:14px;left:14px;z-index:200;display:none;">
       ☰ Меню
     </button>
+    <!-- Оверлей для закрытия меню -->
+    <div id="sidebar-overlay" style="position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.5);z-index:99;display:none;"></div>
 <aside class="sidebar" id="sidebar">
   <!-- Шапка NovaChat -->
   <div class="sidebar-header">
@@ -122,6 +124,7 @@ document.addEventListener('DOMContentLoaded', function() {
   // ======= Мобильное меню =======
   const sidebar = document.getElementById('sidebar');
   const sidebarToggle = document.getElementById('sidebar-toggle');
+  const sidebarOverlay = document.getElementById('sidebar-overlay');
   const backBtn = document.getElementById('back-to-chats');
   function isMobile() {
     return window.matchMedia('(max-width: 900px)').matches;
@@ -131,30 +134,36 @@ document.addEventListener('DOMContentLoaded', function() {
       sidebarToggle.style.display = 'block';
       if (!sidebar.classList.contains('open')) {
         sidebar.style.transform = 'translateX(-100%)';
+        sidebarOverlay.style.display = 'none';
+      } else {
+        sidebarOverlay.style.display = 'block';
       }
       backBtn.style.display = 'inline-block';
     } else {
       sidebarToggle.style.display = 'none';
       sidebar.classList.remove('open');
       sidebar.style.transform = '';
+      sidebarOverlay.style.display = 'none';
       backBtn.style.display = 'none';
     }
   }
   if (sidebarToggle) {
     sidebarToggle.addEventListener('click', function() {
       sidebar.classList.toggle('open');
-      if (sidebar.classList.contains('open')) {
-        sidebar.style.transform = 'translateX(0)';
-      } else {
-        sidebar.style.transform = 'translateX(-100%)';
-      }
+      updateSidebarMobile();
+    });
+  }
+  if (sidebarOverlay) {
+    sidebarOverlay.addEventListener('click', function() {
+      sidebar.classList.remove('open');
+      updateSidebarMobile();
     });
   }
   if (backBtn) {
     backBtn.addEventListener('click', function() {
       if (isMobile()) {
         sidebar.classList.remove('open');
-        sidebar.style.transform = 'translateX(-100%)';
+        updateSidebarMobile();
       }
     });
   }
