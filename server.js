@@ -7,6 +7,8 @@ const session = require("express-session");
 const pgSession = require("connect-pg-simple")(session);
 const bcrypt = require("bcryptjs");
 const { Pool } = require("pg");
+const multer = require("multer");
+const fs = require("fs");
 
 const app = express();
 const server = http.createServer(app);
@@ -80,7 +82,10 @@ async function initDb() {
       id SERIAL PRIMARY KEY,
       chat_id INTEGER NOT NULL REFERENCES chats(id) ON DELETE CASCADE,
       author_id INTEGER NOT NULL REFERENCES users(id) ON DELETE SET NULL,
-      text TEXT NOT NULL,
+      text TEXT,
+      file_url TEXT,
+      file_type TEXT,
+      file_name TEXT,
       created_at TIMESTAMPTZ DEFAULT NOW()
     );
   `);
@@ -126,6 +131,41 @@ app.use(
     },
   })
 );
+
+// ======= MULTER: конфигурация для загрузки файлов =======
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const uploadDir = path.join(__dirname, "public", "uploads");
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+    cb(null, uploadDir);
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    const ext = path.extname(file.originalname);
+    cb(null, uniqueSuffix + ext);
+  },
+});
+
+const upload = multer({
+  storage: storage,
+  limits: {
+    fileSize: 50 * 1024 * 1024, // 50MB макс размер файла
+  },
+  fileFilter: (req, file, cb) => {
+    // Разрешаем изображения, видео и документы
+    const allowedTypes = /jpeg|jpg|png|gif|webp|mp4|mov|avi|pdf|doc|docx|txt|zip|rar/;
+    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+    const mimetype = allowedTypes.test(file.mimetype);
+    
+    if (mimetype && extname) {
+      return cb(null, true);
+    } else {
+      cb(new Error("Неподдерживаемый тип файла"));
+    }
+  },
+});
 
 // ======= РОУТ ДЛЯ ЧАТА (ПРОВЕРКА ВХОДА) =======
 app.get("/chat", (req, res) => {
@@ -382,6 +422,9 @@ app.get("/chats/:chatId/messages", async (req, res) => {
         m.id,
         u.username AS author,
         m.text,
+        m.file_url,
+        m.file_type,
+        m.file_name,
         to_char(m.created_at, 'HH24:MI') AS time
       FROM messages m
       JOIN users u ON u.id = m.author_id
@@ -471,6 +514,87 @@ app.post("/chats/:chatId/messages", async (req, res) => {
     return res.json({ ok: true });
   } catch (err) {
     console.error("Ошибка при отправке сообщения:", err);
+    return res.status(500).json({ ok: false, error: "Ошибка сервера" });
+  }
+});
+
+// ======= ЗАГРУЗКА ФАЙЛА В ЧАТ =======
+app.post("/chats/:chatId/upload", upload.single("file"), async (req, res) => {
+  if (!req.session.user) {
+    return res.status(401).json({ ok: false, error: "Не авторизован" });
+  }
+
+  const userId = req.session.user.id;
+  const chatId = parseInt(req.params.chatId, 10);
+
+  if (!chatId || Number.isNaN(chatId)) {
+    return res.status(400).json({ ok: false, error: "Некорректный chatId" });
+  }
+
+  if (!req.file) {
+    return res.status(400).json({ ok: false, error: "Файл не загружен" });
+  }
+
+  try {
+    // Проверяем, что пользователь участник чата
+    const memberCheck = await pool.query(
+      "SELECT 1 FROM chat_members WHERE chat_id = $1 AND user_id = $2 LIMIT 1;",
+      [chatId, userId]
+    );
+
+    if (memberCheck.rowCount === 0) {
+      return res
+        .status(403)
+        .json({ ok: false, error: "У вас нет доступа к этому чату" });
+    }
+
+    // Определяем тип файла
+    const fileType = req.file.mimetype.split("/")[0]; // image, video, application, etc
+    const fileUrl = `/uploads/${req.file.filename}`;
+    const fileName = req.file.originalname;
+    const caption = req.body.caption || ""; // Опциональная подпись к файлу
+
+    // Сохраняем сообщение с файлом в БД
+    const insertResult = await pool.query(
+      `
+      INSERT INTO messages (chat_id, author_id, text, file_url, file_type, file_name)
+      VALUES ($1, $2, $3, $4, $5, $6)
+      RETURNING id, created_at;
+      `,
+      [chatId, userId, caption, fileUrl, fileType, fileName]
+    );
+
+    const row = insertResult.rows[0];
+
+    // Узнаём логин автора
+    const userResult = await pool.query(
+      "SELECT username FROM users WHERE id = $1;",
+      [userId]
+    );
+    const authorUsername =
+      userResult.rowCount > 0 ? userResult.rows[0].username : "Unknown";
+
+    // Объект сообщения, который пойдёт по сокету
+    const msg = {
+      id: row.id,
+      chatId,
+      author: authorUsername,
+      text: caption,
+      fileUrl: fileUrl,
+      fileType: fileType,
+      fileName: fileName,
+      time: new Date(row.created_at).toLocaleTimeString("ru-RU", {
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
+    };
+
+    // 🔥 Отправляем сообщение всем в комнате этого чата
+    io.to(`chat:${chatId}`).emit("chat:new-message", msg);
+
+    return res.json({ ok: true, message: msg });
+  } catch (err) {
+    console.error("Ошибка при загрузке файла:", err);
     return res.status(500).json({ ok: false, error: "Ошибка сервера" });
   }
 });

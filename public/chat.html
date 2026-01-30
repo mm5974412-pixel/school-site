@@ -88,6 +88,8 @@
   <section id="messages" class="chat-main-messages"></section>
 
   <form id="chat-form" class="chat-main-input">
+    <input type="file" id="file-input" style="display: none;" accept="image/*,video/*,.pdf,.doc,.docx,.txt,.zip,.rar" />
+    <button type="button" id="attach-btn" class="btn-ghost" style="padding: 10px 12px; border-radius: 50%;" title="Прикрепить файл">📎</button>
     <input id="message-input" type="text" placeholder="Напишите сообщение..." autocomplete="off"/>
     <button type="submit" class="btn-primary" id="send-btn">Отправить</button>
   </form>
@@ -129,6 +131,8 @@ document.addEventListener('DOMContentLoaded', function() {
   const chatSubtitleEl = document.getElementById("chat-subtitle");
   const backBtn = document.getElementById("back-to-chats");
   const deleteChatBtn = document.getElementById("delete-chat-btn");
+  const fileInput = document.getElementById("file-input");
+  const attachBtn = document.getElementById("attach-btn");
 
   // 🔥 Автоскролл к последнему сообщению
   function scrollMessagesToBottom() {
@@ -210,15 +214,71 @@ document.addEventListener('DOMContentLoaded', function() {
     const authorEl = document.createElement("strong");
     authorEl.textContent = msg.author || "Аноним";
 
-    const textEl = document.createElement("span");
-    textEl.textContent = msg.text;
+    el.appendChild(authorEl);
+
+    // 🔥 Если есть файл - отображаем его
+    if (msg.fileUrl || msg.file_url) {
+      const fileUrl = msg.fileUrl || msg.file_url;
+      const fileType = msg.fileType || msg.file_type || '';
+      const fileName = msg.fileName || msg.file_name || 'файл';
+
+      if (fileType === 'image') {
+        // Отображаем изображение
+        const img = document.createElement("img");
+        img.src = fileUrl;
+        img.alt = fileName;
+        img.style.maxWidth = "300px";
+        img.style.maxHeight = "300px";
+        img.style.borderRadius = "8px";
+        img.style.marginTop = "6px";
+        img.style.cursor = "pointer";
+        img.addEventListener("click", () => {
+          window.open(fileUrl, "_blank");
+        });
+        el.appendChild(img);
+      } else if (fileType === 'video') {
+        // Отображаем видео
+        const video = document.createElement("video");
+        video.src = fileUrl;
+        video.controls = true;
+        video.style.maxWidth = "300px";
+        video.style.maxHeight = "300px";
+        video.style.borderRadius = "8px";
+        video.style.marginTop = "6px";
+        el.appendChild(video);
+      } else {
+        // Отображаем ссылку на файл
+        const fileLink = document.createElement("a");
+        fileLink.href = fileUrl;
+        fileLink.target = "_blank";
+        fileLink.download = fileName;
+        fileLink.textContent = `📎 ${fileName}`;
+        fileLink.style.display = "block";
+        fileLink.style.marginTop = "6px";
+        fileLink.style.color = "#22c55e";
+        fileLink.style.textDecoration = "underline";
+        el.appendChild(fileLink);
+      }
+
+      // Если есть подпись к файлу
+      if (msg.text && msg.text.trim()) {
+        const captionEl = document.createElement("span");
+        captionEl.textContent = msg.text;
+        captionEl.style.display = "block";
+        captionEl.style.marginTop = "6px";
+        el.appendChild(captionEl);
+      }
+    } else {
+      // Обычное текстовое сообщение
+      const textEl = document.createElement("span");
+      textEl.textContent = msg.text;
+      el.appendChild(textEl);
+    }
 
     const timeEl = document.createElement("span");
     timeEl.classList.add("message-time");
     timeEl.textContent = msg.time || "";
 
-    el.appendChild(authorEl);
-    el.appendChild(textEl);
     el.appendChild(timeEl);
 
     // 🔥 Кнопка удаления только на своих сообщениях
@@ -658,6 +718,66 @@ document.addEventListener('DOMContentLoaded', function() {
         .catch(() => {
           alert("Ошибка сервера при отправке сообщения");
         });
+    });
+  }
+
+  // 🔥 Обработчик кнопки прикрепления файла
+  if (attachBtn && fileInput) {
+    attachBtn.addEventListener("click", () => {
+      fileInput.click();
+    });
+
+    fileInput.addEventListener("change", async () => {
+      const file = fileInput.files[0];
+      if (!file) return;
+
+      if (!currentChatId) {
+        alert("Сначала выберите чат слева или создайте новый.");
+        fileInput.value = "";
+        return;
+      }
+
+      // Проверка размера файла (50MB)
+      if (file.size > 50 * 1024 * 1024) {
+        alert("Файл слишком большой. Максимальный размер: 50MB");
+        fileInput.value = "";
+        return;
+      }
+
+      // Опционально запрашиваем подпись к файлу
+      const caption = prompt(`Отправить файл "${file.name}"?\nВведите подпись (необязательно):`);
+      if (caption === null) {
+        fileInput.value = "";
+        return; // Пользователь отменил
+      }
+
+      // Создаём FormData для отправки файла
+      const formData = new FormData();
+      formData.append("file", file);
+      if (caption) {
+        formData.append("caption", caption);
+      }
+
+      try {
+        const res = await fetch(`/chats/${currentChatId}/upload`, {
+          method: "POST",
+          body: formData,
+        });
+
+        const data = await res.json();
+
+        if (!data.ok) {
+          alert(data.error || "Не удалось загрузить файл");
+          return;
+        }
+
+        // Файл успешно загружен, сообщение придёт через socket
+        fileInput.value = ""; // Очищаем input
+      } catch (err) {
+        console.error("Ошибка загрузки файла:", err);
+        alert("Ошибка сервера при загрузке файла");
+        fileInput.value = "";
+      }
     });
   }
 
