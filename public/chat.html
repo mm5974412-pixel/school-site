@@ -1227,24 +1227,59 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   function openProfileModal() {
-    const displayName = currentPeerDisplayName || currentPeerUsername || 'Пользователь';
-    profileUsername.textContent = displayName;
+    // Загружаем актуальную информацию о пользователе
+    if (!currentPeerUserId) return;
     
-    // Отображаем аватар
-    if (currentPeerAvatarUrl) {
-      profileAvatar.style.backgroundImage = `url('${currentPeerAvatarUrl}')`;
-      profileAvatar.style.backgroundSize = 'cover';
-      profileAvatar.style.backgroundPosition = 'center';
-      profileAvatar.textContent = '';
-    } else {
-      profileAvatar.style.backgroundImage = '';
-      profileAvatar.textContent = displayName[0].toUpperCase();
-    }
-    
-    profileModal.classList.add('show');
-    
-    // Загрузить статус блокировки
-    loadBlockStatus();
+    fetch(`/api/user/${currentPeerUserId}`)
+      .then(res => res.json())
+      .then(data => {
+        if (!data.ok) {
+          console.error('Ошибка при загрузке профиля:', data.error);
+          return;
+        }
+
+        // Обновляем переменные актуальными данными
+        currentPeerDisplayName = data.displayName;
+        currentPeerAvatarUrl = data.avatarUrl;
+
+        const displayName = data.displayName || data.username || 'Пользователь';
+        profileUsername.textContent = displayName;
+        
+        // Отображаем аватар
+        if (data.avatarUrl) {
+          profileAvatar.style.backgroundImage = `url('${data.avatarUrl}')`;
+          profileAvatar.style.backgroundSize = 'cover';
+          profileAvatar.style.backgroundPosition = 'center';
+          profileAvatar.textContent = '';
+        } else {
+          profileAvatar.style.backgroundImage = '';
+          profileAvatar.textContent = displayName[0].toUpperCase();
+        }
+        
+        profileModal.classList.add('show');
+        
+        // Загрузить статус блокировки
+        loadBlockStatus();
+      })
+      .catch(err => {
+        console.error('Ошибка при загрузке профиля пользователя:', err);
+        // Показываем данные из памяти если загрузка не сработала
+        const displayName = currentPeerDisplayName || currentPeerUsername || 'Пользователь';
+        profileUsername.textContent = displayName;
+        
+        if (currentPeerAvatarUrl) {
+          profileAvatar.style.backgroundImage = `url('${currentPeerAvatarUrl}')`;
+          profileAvatar.style.backgroundSize = 'cover';
+          profileAvatar.style.backgroundPosition = 'center';
+          profileAvatar.textContent = '';
+        } else {
+          profileAvatar.style.backgroundImage = '';
+          profileAvatar.textContent = displayName[0].toUpperCase();
+        }
+        
+        profileModal.classList.add('show');
+        loadBlockStatus();
+      });
   }
 
   function loadBlockStatus() {

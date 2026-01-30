@@ -833,6 +833,37 @@ app.post("/delete-account", async (req, res) => {
   }
 });
 
+// ======= ПОЛУЧЕНИЕ ИНФОРМАЦИИ О ПОЛЬЗОВАТЕЛЕ =======
+app.get("/api/user/:userId", async (req, res) => {
+  if (!req.session.user) {
+    return res.status(401).json({ ok: false, error: "Не авторизирован" });
+  }
+
+  try {
+    const { userId } = req.params;
+    const result = await pool.query(
+      "SELECT id, username, display_name, avatar_url FROM users WHERE id = $1",
+      [userId]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ ok: false, error: "Пользователь не найден" });
+    }
+
+    const user = result.rows[0];
+    return res.json({
+      ok: true,
+      id: user.id,
+      username: user.username,
+      displayName: user.display_name,
+      avatarUrl: user.avatar_url,
+    });
+  } catch (err) {
+    console.error("Ошибка при получении информации о пользователе:", err);
+    return res.status(500).json({ ok: false, error: "Ошибка сервера" });
+  }
+});
+
 // ======= БЛОКИРОВКА/РАЗБЛОКИРОВКА ПОЛЬЗОВАТЕЛЕЙ =======
 
 // Получить статус блокировки
