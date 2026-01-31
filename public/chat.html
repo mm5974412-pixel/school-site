@@ -1748,9 +1748,36 @@ document.addEventListener('DOMContentLoaded', function() {
         const messageRight = elementRect.right;
         const messageTop = elementRect.top;
         
-        // Позиционируем меню сверху от сообщения и справа
-        let x = Math.min(messageRight - menuWidth - 10, window.innerWidth - menuWidth - padding);
-        let y = messageTop - menuHeight - 10;
+        // Проверяем, является ли это последним сообщением в чате
+        const allMessages = messagesDiv.querySelectorAll('.message');
+        const isLastMessage = allMessages.length > 0 && allMessages[allMessages.length - 1] === element;
+        
+        let x, y;
+        
+        if (isLastMessage) {
+          // Для последнего сообщения - позиционируем сверху
+          x = Math.min(messageRight - menuWidth - 10, window.innerWidth - menuWidth - padding);
+          y = messageTop - menuHeight - 10;
+          
+          // Если меню выходит за верхнюю границу - показываем снизу
+          if (y < padding) {
+            y = messageTop + elementRect.height + 10;
+          }
+        } else {
+          // Для остальных сообщений - позиционируем от курсора
+          x = event.clientX + 10;
+          y = event.clientY + 10;
+          
+          // Проверяем, не выходит ли меню за правую границу
+          if (x + menuWidth + padding > window.innerWidth) {
+            x = Math.max(padding, event.clientX - menuWidth - 10);
+          }
+          
+          // Проверяем, не выходит ли меню за нижнюю границу
+          if (y + menuHeight + padding > window.innerHeight) {
+            y = Math.max(padding, event.clientY - menuHeight - 10);
+          }
+        }
         
         // Убедимся что x не выходит за левую границу
         if (x < padding) {
@@ -1760,11 +1787,6 @@ document.addEventListener('DOMContentLoaded', function() {
         // Убедимся что x не выходит за правую границу
         if (x + menuWidth + padding > window.innerWidth) {
           x = Math.max(padding, window.innerWidth - menuWidth - padding);
-        }
-        
-        // Если меню выходит за верхнюю границу - показываем снизу
-        if (y < padding) {
-          y = messageTop + elementRect.height + 10;
         }
         
         // Финальная проверка y - не даем уйти за нижнюю границу вообще
