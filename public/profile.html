@@ -8,24 +8,28 @@
   <style>
     /* Переопределяем глобальные стили для страницы профиля */
     html {
-      overflow: auto !important;
+      overflow: visible !important;
+      overflow-y: scroll !important;
       height: auto !important;
+      min-height: 100vh !important;
       scroll-behavior: smooth;
       -webkit-overflow-scrolling: touch;
       width: 100%;
     }
 
     body {
+      overflow: visible !important;
       overflow-x: hidden !important;
-      overflow-y: auto !important;
+      overflow-y: scroll !important;
       width: 100%;
-      height: auto;
-      min-height: 100vh;
+      height: auto !important;
+      min-height: 100vh !important;
       -webkit-overflow-scrolling: touch;
-      touch-action: pan-y;
+      touch-action: pan-y pinch-zoom;
       overscroll-behavior-y: contain;
       margin: 0;
       padding: 0;
+      position: relative !important;
     }
 
     .profile-page {
