@@ -410,7 +410,8 @@ function requireAuth(req, res, next) {
   next();
 }
 
-const NEXUS_HANDLE_REGEX = /^[a-zA-Z0-9_-]{3,30}$/;
+// Ник нексуса: минимум 5 символов, обязательно латинские буквы, остальное - цифры и спец.символы
+const NEXUS_HANDLE_REGEX = /^(?=.*[a-zA-Z])[a-zA-Z0-9_-]{5,30}$/;
 
 // ======= MULTER: конфигурация для загрузки файлов =======
 const storage = multer.diskStorage({
@@ -701,6 +702,35 @@ app.get("/api/user/:userId", async (req, res) => {
   }
 });
 
+// ======= ПОИСК ПОЛЬЗОВАТЕЛЕЙ =======
+app.get("/api/users", async (req, res) => {
+  try {
+    const search = req.query.search || "";
+    const searchLower = search.toLowerCase().trim();
+    
+    if (searchLower.length === 0) {
+      return res.json({ users: [] });
+    }
+
+    const result = await pool.query(
+      `
+        SELECT id, username, display_name, avatar_data
+        FROM users
+        WHERE 
+          username ILIKE $1 
+          OR display_name ILIKE $1
+        LIMIT 20
+      `,
+      [`%${searchLower}%`]
+    );
+
+    res.json({ users: result.rows });
+  } catch (err) {
+    console.error("Ошибка при поиске пользователей:", err);
+    res.status(500).json({ ok: false, error: "Ошибка сервера" });
+  }
+});
+
 // ======= НЕКСУСЫ (API) =======
 app.post("/api/nexus", requireAuth, upload.single("avatar"), async (req, res) => {
   try {
@@ -714,7 +744,7 @@ app.post("/api/nexus", requireAuth, upload.single("avatar"), async (req, res) =>
     }
 
     if (!NEXUS_HANDLE_REGEX.test(rawHandle)) {
-      return res.status(400).json({ ok: false, error: "Ник нексуса должен быть 3-30 символов (буквы, цифры, _ или -)" });
+      return res.status(400).json({ ok: false, error: "Ник должен быть 5-30 символов, содержать минимум одну латинскую букву (a-z или A-Z), остальное - цифры, подчеркивание или дефис" });
     }
 
     const existingHandle = await pool.query(
@@ -952,12 +982,35 @@ app.post("/api/nexus/:nexusId/posts", requireAuth, async (req, res) => {
       `
         INSERT INTO nexus_posts (nexus_id, author_id, text)
         VALUES ($1, $2, $3)
-        RETURNING id, text, created_at
+        RETURNING id, text, created_at, author_id
       `,
       [nexusId, userId, text]
     );
 
-    res.json({ ok: true, post: result.rows[0] });
+    const post = result.rows[0];
+
+    // Получить информацию об авторе для трансляции
+    const authorResult = await pool.query(
+      "SELECT username, display_name FROM users WHERE id = $1",
+      [userId]
+    );
+    const author = authorResult.rows[0] || { username: "Unknown", display_name: "Unknown" };
+
+    // Транслировать новый пост всем подписчикам в реальном времени
+    io.emit("nexus-post-new", {
+      nexusId,
+      post: {
+        id: post.id,
+        text: post.text,
+        created_at: post.created_at,
+        author_id: post.author_id,
+        author_username: author.username,
+        author_display_name: author.display_name,
+        comments_count: 0
+      }
+    });
+
+    res.json({ ok: true, post });
   } catch (err) {
     console.error("Ошибка при создании поста нексуса:", err);
     res.status(500).json({ ok: false, error: "Ошибка сервера" });

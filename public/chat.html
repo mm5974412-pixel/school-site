@@ -39,22 +39,22 @@
   <!-- Кнопка переключения темы -->
   <button id="theme-toggle" class="theme-toggle" style="width: 100%; margin-bottom: 10px;">🌙</button>
 
-  <!-- Кнопка "Создать чат" сразу под блоком пользователя -->
+  <!-- Кнопка "Нексация" - поиск и создание -->
   <button
-    id="new-chat-btn"
+    id="nexus-btn"
     class="btn-secondary"
     style="width: 100%; margin: 10px 0 6px;"
   >
-    ➕ Создать новый чат
+    🔍 Нексация
   </button>
 
-  <a
-    href="/nexus"
+  <button
+    id="create-nexus-btn"
     class="btn-secondary"
-    style="width: 100%; margin: 6px 0; text-align: center; text-decoration: none;"
+    style="width: 100%; margin: 6px 0;"
   >
-    🧭 Нексусы
-  </a>
+    ➕ Создать нексус
+  </button>
 
   <!-- Кнопка Админ-панели (только для админов) -->
   <a
@@ -67,7 +67,7 @@
   </a>
 
   <!-- Заголовок и список чатов -->
-  <div class="sidebar-section-title">Чаты</div>
+  <div class="sidebar-section-title">Чаты и нексусы</div>
   <ul class="chat-list" id="chat-list"></ul>
 
   <!-- Кнопки внизу (временно скрыты) -->
@@ -195,16 +195,38 @@
     </div>
   </div>
 
-  <!-- Модальное окно выбора чата для пересылки -->
-  <div id="forward-chat-modal" class="confirm-modal">
+  <!-- Модальное окно поиска (Нексация) -->
+  <div id="nexus-search-modal" class="confirm-modal" style="display: none;">
     <div class="confirm-modal-backdrop"></div>
     <div class="confirm-modal-content">
-      <div class="confirm-modal-title">Переслать сообщение</div>
-      <div class="confirm-modal-message">Выберите чат:</div>
-      <div id="forward-chat-list" class="forward-chat-list"></div>
+      <div class="confirm-modal-title">Нексация - поиск собеседника или нексуса</div>
+      <input type="text" id="nexus-search-input" placeholder="Введите ник или имя..." style="width: 100%; padding: 8px; margin: 10px 0; border: 1px solid #666; border-radius: 8px; background: rgba(15,23,42,0.6); color: #e5e7eb;">
+      <div id="nexus-search-results" style="max-height: 300px; overflow-y: auto; margin: 10px 0;"></div>
       <div class="confirm-modal-buttons">
-        <button id="forward-chat-cancel" class="confirm-btn confirm-btn-cancel">Отмена</button>
+        <button id="nexus-search-cancel" class="confirm-btn confirm-btn-cancel">Закрыть</button>
       </div>
+    </div>
+  </div>
+
+  <!-- Модальное окно создания нексуса -->
+  <div id="create-nexus-modal" class="confirm-modal" style="display: none;">
+    <div class="confirm-modal-backdrop"></div>
+    <div class="confirm-modal-content" style="max-width: 500px;">
+      <div class="confirm-modal-title">Создать нексус</div>
+      <form id="create-nexus-form" style="display: flex; flex-direction: column; gap: 10px;">
+        <input type="text" id="nexus-create-title" placeholder="Название нексуса" required style="padding: 8px; border: 1px solid #666; border-radius: 8px; background: rgba(15,23,42,0.6); color: #e5e7eb;">
+        <div style="display: flex; gap: 4px; align-items: center;">
+          <span style="color: #a78bfa;">@</span>
+          <input type="text" id="nexus-create-handle" placeholder="ник_нексуса" required style="flex: 1; padding: 8px; border: 1px solid #666; border-radius: 8px; background: rgba(15,23,42,0.6); color: #e5e7eb;">
+        </div>
+        <textarea id="nexus-create-desc" placeholder="Описание (опционально)" rows="3" style="padding: 8px; border: 1px solid #666; border-radius: 8px; background: rgba(15,23,42,0.6); color: #e5e7eb;"></textarea>
+        <input type="file" id="nexus-create-avatar" accept="image/*" style="padding: 8px;">
+        <div id="nexus-create-error" style="color: #f87171; font-size: 12px;"></div>
+        <div class="confirm-modal-buttons">
+          <button type="button" id="nexus-create-cancel" class="confirm-btn confirm-btn-cancel">Отмена</button>
+          <button type="submit" class="confirm-btn confirm-btn-ok">Создать</button>
+        </div>
+      </form>
     </div>
   </div>
 
@@ -402,12 +424,19 @@
     };
 
 document.addEventListener('DOMContentLoaded', function() {
+  // Функция для экранирования HTML-символов
+  function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
   const socket = io();
 
   // DOM-элементы
   const currentUsernameSpan = document.getElementById("current-username");
   const chatList = document.getElementById("chat-list");
-  const newChatBtn = document.getElementById("new-chat-btn");
+  const nexusBtnEl = document.getElementById("nexus-btn");
   const logoHeader = document.querySelector(".sidebar-header");
 
   const messagesDiv = document.getElementById("messages");
@@ -1013,11 +1042,72 @@ document.addEventListener('DOMContentLoaded', function() {
       })
       .then((data) => {
         if (!data.ok) throw new Error(data.error || "Ошибка");
+        // Загружаем чаты
         renderChats(data.chats);
+        // Также загружаем нексусы, если есть
+        loadNexusForChat();
       })
       .catch((err) => {
         console.error(err);
       });
+  }
+
+  // Загрузить нексусы для отображения в списке чатов
+  function loadNexusForChat() {
+    fetch("/api/nexus")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.ok && data.nexus) {
+          renderNexusInChat(data.nexus);
+        }
+      })
+      .catch((err) => {
+        console.error("Ошибка при загрузке нексусов:", err);
+      });
+  }
+
+  // Отрисовка нексусов в списке чатов
+  function renderNexusInChat(nexuses) {
+    nexuses.forEach((nexus) => {
+      const li = document.createElement("li");
+      li.classList.add("chat-item");
+      li.dataset.nexusId = nexus.id;
+
+      const avatar = document.createElement("div");
+      avatar.classList.add("chat-avatar");
+      if (nexus.avatar_data) {
+        avatar.style.backgroundImage = `url(${nexus.avatar_data})`;
+      } else {
+        avatar.textContent = (nexus.title || "N").charAt(0).toUpperCase();
+      }
+
+      const meta = document.createElement("div");
+      meta.classList.add("chat-meta");
+
+      const name = document.createElement("div");
+      name.classList.add("chat-name");
+      name.textContent = nexus.title;
+
+      const last = document.createElement("div");
+      last.classList.add("chat-last");
+      last.textContent = `🧭 ${nexus.posts_count} постов · ${nexus.subscribers_count} подписчиков`;
+
+      meta.appendChild(name);
+      meta.appendChild(last);
+      li.appendChild(avatar);
+      li.appendChild(meta);
+
+      li.addEventListener("click", () => {
+        // Переключаемся на нексус
+        document
+          .querySelectorAll(".chat-item")
+          .forEach((el) => el.classList.remove("chat-item-active"));
+        li.classList.add("chat-item-active");
+        openNexus(nexus);
+      });
+
+      chatList.appendChild(li);
+    });
   }
   
   // 🔥 Когда сервер говорит, что чаты обновились — перезагружаем список и сообщения
@@ -1029,56 +1119,244 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 
-  // Кнопка "Создать чат"
-  if (newChatBtn) {
-    newChatBtn.addEventListener("click", () => {
-      showPrompt(
-        "Укажите логин пользователя для начала переписки",
-        "Создать новый чат",
-        "",
-        (username) => {
-          if (!username) return;
+  // Кнопка "Нексация" - поиск
+  const nexusBtnEl = document.getElementById("nexus-btn");
+  const createNexusBtnEl = document.getElementById("create-nexus-btn");
+  const nexusSearchModalEl = document.getElementById("nexus-search-modal");
+  const createNexusModalEl = document.getElementById("create-nexus-modal");
+  const nexusSearchInputEl = document.getElementById("nexus-search-input");
+  const nexusSearchResultsEl = document.getElementById("nexus-search-results");
+  const nexusSearchCancelEl = document.getElementById("nexus-search-cancel");
+  const nexusCreateFormEl = document.getElementById("create-nexus-form");
+  const nexusCreateCancelEl = document.getElementById("create-nexus-cancel");
+  const nexusCreateErrorEl = document.getElementById("nexus-create-error");
 
-          fetch("/chats/new", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ username: username.trim() }),
-          })
-            .then((res) => res.json())
-            .then((data) => {
-              if (!data.ok) {
-                showAlert(data.error || "Не удалось создать чат", "Ошибка", "ОК", "danger");
-                return;
-              }
-
-              if (data.existing) {
-                showAlert(
-                  `Чат с пользователем ${data.peerUsername} уже существует. Переключаюсь на него.`,
-                  "Чат уже существует",
-                  "ОК",
-                  "primary"
-                );
-              } else {
-                showAlert(`Создан новый чат с пользователем ${data.peerUsername}.`, "Новый чат", "ОК", "primary");
-              }
-
-              // После создания/поиска — перезагружаем список и открываем чат
-              loadChats();
-              openChat({
-                id: data.chatId,
-                peer_username: data.peerUsername,
-                peer_user_id: data.peerUserId
-              });
-            })
-            .catch(() => {
-              showAlert("Ошибка сервера при создании чата", "Ошибка сервера", "ОК", "danger");
-            });
-        }
-      );
+  if (nexusBtnEl) {
+    nexusBtnEl.addEventListener("click", () => {
+      nexusSearchModalEl.style.display = "flex";
     });
   }
+
+  if (nexusSearchCancelEl) {
+    nexusSearchCancelEl.addEventListener("click", () => {
+      nexusSearchModalEl.style.display = "none";
+    });
+  }
+
+  if (nexusSearchInputEl) {
+    nexusSearchInputEl.addEventListener("input", async (e) => {
+      const query = e.target.value.toLowerCase().trim();
+      if (query.length === 0) {
+        nexusSearchResultsEl.innerHTML = "";
+        return;
+      }
+
+      // Загружаем пользователей и нексусы
+      const [usersRes, nexusRes] = await Promise.all([
+        fetch(`/api/users?search=${encodeURIComponent(query)}`).catch(() => ({ json: async () => ({ users: [] }) })),
+        fetch("/api/nexus").catch(() => ({ json: async () => ({ nexus: [] }) }))
+      ]);
+
+      const usersData = usersRes && usersRes.json ? await usersRes.json() : { users: [] };
+      const nexusData = nexusRes && nexusRes.json ? await nexusRes.json() : { nexus: [] };
+
+      nexusSearchResultsEl.innerHTML = "";
+
+      // Показываем соответствующих пользователей
+      const users = usersData.users || [];
+      users
+        .filter(u => u.username.toLowerCase().includes(query) || (u.display_name && u.display_name.toLowerCase().includes(query)))
+        .slice(0, 5)
+        .forEach((user) => {
+          const item = document.createElement("div");
+          item.style.cssText = "padding: 8px; border-bottom: 1px solid #333; cursor: pointer; display: flex; align-items: center; gap: 8px;";
+          item.innerHTML = `<span>👤</span> <span>${user.display_name || user.username}</span>`;
+          item.onclick = () => {
+            nexusSearchModalEl.style.display = "none";
+            // Создаем чат с этим пользователем
+            fetch("/chats/new", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ username: user.username })
+            })
+              .then(r => r.json())
+              .then(d => {
+                if (d.ok) {
+                  loadChats();
+                  openChat({ id: d.chatId, peer_username: d.peerUsername, peer_user_id: d.peerUserId });
+                }
+              });
+          };
+          nexusSearchResultsEl.appendChild(item);
+        });
+
+      // Показываем соответствующие нексусы
+      const nexuses = (nexusData.nexus || []).filter(n => 
+        n.title.toLowerCase().includes(query) || n.handle.toLowerCase().includes(query)
+      ).slice(0, 5);
+
+      nexuses.forEach((nexus) => {
+        const item = document.createElement("div");
+        item.style.cssText = "padding: 8px; border-bottom: 1px solid #333; cursor: pointer; display: flex; align-items: center; gap: 8px;";
+        item.innerHTML = `<span>🧭</span> <span>${nexus.title}</span> <span style="color: #a78bfa;">@${nexus.handle}</span>`;
+        item.onclick = () => {
+          nexusSearchModalEl.style.display = "none";
+          loadChats();
+          openNexus(nexus);
+        };
+        nexusSearchResultsEl.appendChild(item);
+      });
+
+      if (users.length === 0 && nexuses.length === 0) {
+        nexusSearchResultsEl.innerHTML = "<div style='padding: 10px; color: #999;'>Ничего не найдено</div>";
+      }
+    });
+  }
+
+  // Кнопка "Создать нексус"
+  if (createNexusBtnEl) {
+    createNexusBtnEl.addEventListener("click", () => {
+      createNexusModalEl.style.display = "flex";
+      nexusCreateFormEl.reset();
+      nexusCreateErrorEl.textContent = "";
+    });
+  }
+
+  if (nexusCreateCancelEl) {
+    nexusCreateCancelEl.addEventListener("click", () => {
+      createNexusModalEl.style.display = "none";
+    });
+  }
+
+  if (nexusCreateFormEl) {
+    nexusCreateFormEl.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      nexusCreateErrorEl.textContent = "";
+
+      const formData = new FormData();
+      formData.append("title", document.getElementById("nexus-create-title").value);
+      formData.append("handle", document.getElementById("nexus-create-handle").value);
+      formData.append("description", document.getElementById("nexus-create-desc").value);
+      
+      const avatar = document.getElementById("nexus-create-avatar").files[0];
+      if (avatar) {
+        formData.append("avatar", avatar);
+      }
+
+      try {
+        const res = await fetch("/api/nexus", {
+          method: "POST",
+          body: formData
+        });
+        const data = await res.json();
+        if (!data.ok) {
+          nexusCreateErrorEl.textContent = data.error || "Ошибка при создании";
+          return;
+        }
+        createNexusModalEl.style.display = "none";
+        loadChats();
+        openNexus(data.nexus);
+      } catch (err) {
+        nexusCreateErrorEl.textContent = "Ошибка сервера";
+      }
+    });
+  }
+
+  // Открыть нексус
+  function openNexus(nexus) {
+    currentChatId = null;
+    currentPeerUserId = null;
+
+    const isOwner = nexus.author_id === currentUser.id || nexus.my_role === "owner";
+
+    chatTitleEl.textContent = nexus.title;
+    chatSubtitleEl.textContent = `@${nexus.handle} · ${nexus.subscribers_count} подписчиков`;
+
+    // Очищаем область сообщений
+    messagesDiv.innerHTML = "";
+
+    // Если владелец - показываем форму для поста
+    if (isOwner) {
+      const postForm = document.createElement("div");
+      postForm.style.cssText = "padding: 16px; background: linear-gradient(135deg, #111827 0%, #0f172a 100%); border-radius: 16px; margin-bottom: 16px;";
+      postForm.innerHTML = `
+        <textarea id="nexus-post-input" rows="4" placeholder="Напишите пост..." style="width: 100%; padding: 10px; border: 1px solid #666; border-radius: 8px; background: rgba(15,23,42,0.6); color: #e5e7eb;"></textarea>
+        <button id="nexus-post-btn" class="btn-primary" style="margin-top: 10px; width: 100%;">Опубликовать пост</button>
+      `;
+      messagesDiv.appendChild(postForm);
+
+      const postBtn = postForm.querySelector("#nexus-post-btn");
+      postBtn.addEventListener("click", async () => {
+        const text = postForm.querySelector("#nexus-post-input").value.trim();
+        if (!text) return;
+
+        const res = await fetch(`/api/nexus/${nexus.id}/posts`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text })
+        });
+        const result = await res.json();
+        if (result.ok) {
+          postForm.querySelector("#nexus-post-input").value = "";
+          loadNexusPosts(nexus.id);
+        }
+      });
+    }
+
+    loadNexusPosts(nexus.id);
+  }
+
+  // Загрузить посты нексуса
+  function loadNexusPosts(nexusId) {
+    fetch(`/api/nexus/${nexusId}/posts`)
+      .then(r => r.json())
+      .then(data => {
+        if (data.ok) {
+          const existing = messagesDiv.querySelector("[data-nexus-posts]");
+          if (existing) existing.remove();
+
+          const postsContainer = document.createElement("div");
+          postsContainer.setAttribute("data-nexus-posts", nexusId);
+
+          data.posts.forEach((post) => {
+            const postEl = document.createElement("div");
+            postEl.classList.add("message");
+            postEl.innerHTML = `
+              <div style="font-size: 12px; color: #9ca3af; margin-bottom: 4px;">
+                ${post.author_display_name || post.author_username} · ${new Date(post.created_at).toLocaleString('ru-RU')}
+              </div>
+              <div style="color: #e5e7eb; margin-bottom: 8px;">${escapeHtml(post.text)}</div>
+              <button class="btn-ghost" style="font-size: 12px;" onclick="alert('Комментарии скоро будут доступны')">💬 ${post.comments_count || 0} комментариев</button>
+            `;
+            postsContainer.appendChild(postEl);
+          });
+
+          if (data.posts.length === 0) {
+            postsContainer.innerHTML = "<div style='text-align: center; color: #9ca3af; padding: 20px;'>Постов еще нет</div>";
+          }
+
+          messagesDiv.appendChild(postsContainer);
+        }
+      });
+  }
+
+  // Socket.io для новых постов в реальном времени
+  socket.on("nexus-post-new", (data) => {
+    const postsContainer = messagesDiv.querySelector(`[data-nexus-posts="${data.nexusId}"]`);
+    if (postsContainer) {
+      const postEl = document.createElement("div");
+      postEl.classList.add("message");
+      postEl.innerHTML = `
+        <div style="font-size: 12px; color: #9ca3af; margin-bottom: 4px;">
+          ${data.post.author_display_name || data.post.author_username} · ${new Date(data.post.created_at).toLocaleString('ru-RU')}
+        </div>
+        <div style="color: #e5e7eb; margin-bottom: 8px;">${escapeHtml(data.post.text)}</div>
+        <button class="btn-ghost" style="font-size: 12px;">💬 0 комментариев</button>
+      `;
+      postsContainer.appendChild(postEl);
+      scrollMessagesToBottom();
+    }
+  });
 
   // ===== ОТПРАВКА СТАТУСА ПЕЧАТИ =====
   let typingTimeout;
