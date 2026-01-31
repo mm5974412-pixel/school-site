@@ -419,11 +419,6 @@
     function renderNexusCard(item) {
       const card = document.createElement('div');
       card.className = 'nexus-card';
-      
-      // Добавляем класс для отличия нексфер от нексусов
-      if (item.type === 'nexfery') {
-        card.classList.add('nexus-card-nexfery');
-      }
 
       const header = document.createElement('div');
       header.className = 'nexus-card-header';
@@ -440,12 +435,7 @@
       title.addEventListener('click', (e) => {
         e.preventDefault();
         e.stopPropagation();
-        // Для нексфер открываем нексферы.html, для нексусов открываем профиль
-        if (item.type === 'nexfery') {
-          window.location.href = `/nexferies.html?id=${item.id}`;
-        } else {
-          openNexusProfile(item.id);
-        }
+        openNexusProfile(item.id);
       });
 
       const handle = document.createElement('div');
@@ -455,9 +445,7 @@
       const meta = document.createElement('div');
       meta.className = 'nexus-meta';
       const authorName = item.author_display_name || item.author_username;
-      const label = item.type === 'nexfery' ? 'Участники' : 'Подписчики';
-      const postLabel = item.type === 'nexfery' ? 'Сообщения' : 'Посты';
-      meta.textContent = `Автор: ${authorName} · ${label}: ${item.subscribers_count} · ${postLabel}: ${item.posts_count}`;
+      meta.textContent = `Автор: ${authorName} · Подписчики: ${item.subscribers_count} · Посты: ${item.posts_count}`;
 
       info.appendChild(title);
       info.appendChild(handle);
@@ -478,31 +466,19 @@
       openBtn.textContent = 'Открыть';
       openBtn.onclick = (e) => {
         e.preventDefault();
-        if (item.type === 'nexfery') {
-          // Нексферы управляются в чатах
-          alert('Нексфера управляется в разделе чатов. Перейдите в чаты для взаимодействия с ней.');
+        // На мобилях открываем в модальном окне
+        if (window.innerWidth <= 768) {
+          openNexusModal(item.id);
         } else {
-          // Для нексусов открываем профиль
-          if (window.innerWidth <= 768) {
-            // На мобилях открываем в модальном окне
-            openNexusModal(item.id);
-          } else {
-            // На десктопе открываем на новой странице
-            window.location.href = `/nexus/profile?id=${item.id}`;
-          }
+          // На десктопе открываем на новой странице
+          window.location.href = `/nexus/profile?id=${item.id}`;
         }
       };
 
       actions.appendChild(openBtn);
 
       const role = item.my_role;
-      if (item.type === 'nexfery') {
-        // Для нексфер показываем статус "Участник"
-        const memberBadge = document.createElement('span');
-        memberBadge.className = 'nexus-badge';
-        memberBadge.textContent = 'Участник';
-        actions.appendChild(memberBadge);
-      } else if (role === 'owner') {
+      if (role === 'owner') {
         const ownerBadge = document.createElement('span');
         ownerBadge.className = 'nexus-badge';
         ownerBadge.textContent = 'Владелец';
@@ -640,9 +616,9 @@
         loadNexus();
       });
 
-      // Слушаем события обновления нексфер
-      socket.on('nexferies:updated', () => {
-        console.log('Нексферы обновлены, перезагружаем ленту...');
+      // Слушаем события обновления нексусов
+      socket.on('nexus:updated', () => {
+        console.log('Нексусы обновлены, перезагружаем ленту...');
         loadNexus();
       });
     }

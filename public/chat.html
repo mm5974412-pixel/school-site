@@ -215,7 +215,7 @@
   <div id="nexus-search-modal" class="confirm-modal" style="display: none;">
     <div class="confirm-modal-backdrop"></div>
     <div class="confirm-modal-content">
-      <div class="confirm-modal-title">Нексация - поиск Нексара, нексуса или нексферы</div>
+      <div class="confirm-modal-title">Нексация - поиск нексуса</div>
       <input type="text" id="nexus-search-input" placeholder="Введите ник или имя..." style="width: 100%; padding: 8px; margin: 10px 0; border: 1px solid #666; border-radius: 8px; background: rgba(15,23,42,0.6); color: #e5e7eb;">
       <div id="nexus-search-results" style="max-height: 300px; overflow-y: auto; margin: 10px 0;"></div>
       <div class="confirm-modal-buttons">
@@ -253,42 +253,10 @@
       <span style="font-size: 18px; margin-right: 8px;">✨</span>
       <span>Создать нексус</span>
     </button>
-    <button id="create-nexfery-option" class="create-menu-item">
-      <span style="font-size: 18px; margin-right: 8px;">🫂</span>
-      <span>Создать нексферу</span>
-    </button>
   </div>
-
-  <!-- Модальное окно создания нексферы -->
-  <div id="create-nexfery-modal" class="confirm-modal" style="display: none;">
-    <div class="confirm-modal-backdrop"></div>
-    <div class="confirm-modal-content" style="max-width: 500px;">
-      <div class="confirm-modal-title">✨ Создать нексферу</div>
-      <form id="create-nexfery-form" class="nexus-form" enctype="multipart/form-data" style="display: flex; flex-direction: column; gap: 10px;">
-        <input type="text" name="title" id="nexfery-title-input" placeholder="Название нексферы" required style="padding: 8px; border: 1px solid #666; border-radius: 8px; background: rgba(15,23,42,0.6); color: #e5e7eb;">
-        <div style="display: flex; gap: 4px; align-items: center;">
-          <span style="color: #a78bfa;">@</span>
-          <input type="text" name="handle" id="nexfery-handle-input" placeholder="ник_нексферы" required style="flex: 1; padding: 8px; border: 1px solid #666; border-radius: 8px; background: rgba(15,23,42,0.6); color: #e5e7eb;">
-        </div>
-        <textarea name="description" id="nexfery-description-input" rows="3" placeholder="Описание (опционально)" style="padding: 8px; border: 1px solid #666; border-radius: 8px; background: rgba(15,23,42,0.6); color: #e5e7eb;"></textarea>
-        <input type="file" name="avatar" id="nexfery-avatar-input" accept="image/*" style="padding: 8px;">
-        <div id="nexfery-create-error" style="color: #f87171; font-size: 12px;"></div>
-        <div class="confirm-modal-buttons">
-          <button type="button" class="confirm-btn confirm-btn-cancel" id="nexfery-create-cancel">Отмена</button>
-          <button type="submit" class="confirm-btn confirm-btn-ok">Создать</button>
-        </div>
-      </form>
     </div>
   </div>
 
-  <!-- Модальное окно нексферы (старое, для совместимости) -->
-  <div id="nexfery-container" class="nexfery-modal" style="display: none;">
-    <div class="nexfery-modal-backdrop"></div>
-    <div class="nexfery-modal-content">
-      <button id="close-nexfery-btn" class="nexfery-close-btn" title="Закрыть">✕</button>
-      <iframe id="nexfery-iframe" src="/nexferies.html" class="nexfery-iframe"></iframe>
-    </div>
-  </div>
 
   <!-- Модальное окно уведомления (alert) -->
   <div id="alert-modal" class="confirm-modal">
@@ -1280,22 +1248,18 @@
         return;
       }
 
-      // Загружаем пользователей, нексусы и нексферы
-      const [usersRes, nexusRes, nexferiesRes] = await Promise.all([
+      // Загружаем пользователей и нексусы
+      const [usersRes, nexusRes] = await Promise.all([
         fetch(`/api/users?search=${encodeURIComponent(query)}`)
           .then(r => r.json())
           .catch(() => ({ users: [] })),
         fetch(`/api/nexus/search/all?q=${encodeURIComponent(query)}`)
           .then(r => r.json())
-          .catch(() => ({ nexus: [] })),
-        fetch(`/api/nexferies/search/all?q=${encodeURIComponent(query)}`)
-          .then(r => r.json())
-          .catch(() => ({ nexferies: [] }))
+          .catch(() => ({ nexus: [] }))
       ]);
 
       const usersData = usersRes || { users: [] };
       const nexusData = nexusRes || { nexus: [] };
-      const nexferiesData = nexferiesRes || { nexferies: [] };
 
       nexusSearchResultsEl.innerHTML = "";
 
@@ -1356,31 +1320,7 @@
         nexusSearchResultsEl.appendChild(item);
       });
 
-      // Показываем соответствующие нексферы (только по нику)
-      const nexferies = (nexferiesData.nexferies || [])
-        .filter(n => n.handle.toLowerCase().includes(query))
-        .slice(0, 5);
-
-      nexferies.forEach((nexfery) => {
-        const item = document.createElement("div");
-        item.style.cssText = "padding: 8px; border-bottom: 1px solid #333; cursor: pointer; display: flex; align-items: center; gap: 8px;";
-        item.innerHTML = `<span>🫂</span> <span>${nexfery.title}</span> <span style="color: #a78bfa;">@${nexfery.handle}</span>`;
-        item.onclick = () => {
-          nexusSearchModalEl.classList.add("closing");
-          setTimeout(() => {
-            nexusSearchModalEl.style.display = "none";
-            nexusSearchModalEl.classList.remove("closing");
-            if (nexusSearchInputEl) nexusSearchInputEl.value = "";
-            if (nexusSearchResultsEl) nexusSearchResultsEl.innerHTML = "";
-            // Логика открытия нексферы
-            // Для простоты - переходим на страницу нексферы или открываем в модальном окне
-            alert("Нексфера: " + nexfery.title);
-          }, 200);
-        };
-        nexusSearchResultsEl.appendChild(item);
-      });
-
-      if (users.length === 0 && nexuses.length === 0 && nexferies.length === 0) {
+      if (users.length === 0 && nexuses.length === 0) {
         nexusSearchResultsEl.innerHTML = "<div style='padding: 10px; color: #999;'>Ничего не найдено</div>";
       }
     });
@@ -3053,8 +2993,6 @@
   const createBtn = document.getElementById("create-btn");
   const createMenu = document.getElementById("create-menu");
   const createMenuBackdrop = document.getElementById("create-menu-backdrop");
-  const nexferyContainer = document.getElementById("nexfery-container");
-  const closeNexferyBtn = document.getElementById("close-nexfery-btn");
 
   // Открыть/закрыть меню
   if (createBtn) {
@@ -3099,95 +3037,6 @@
       createNexusModalEl.style.display = "flex";
       nexusCreateFormEl.reset();
       nexusCreateErrorEl.textContent = "";
-    });
-  }
-
-  // Клик на "Создать нексферу"
-  const createNexferyOption = document.getElementById("create-nexfery-option");
-  if (createNexferyOption) {
-    createNexferyOption.addEventListener("click", () => {
-      closeCreateMenu();
-      const createNexferyModalEl = document.getElementById("create-nexfery-modal");
-      const createNexferyFormEl = document.getElementById("create-nexfery-form");
-      if (createNexferyModalEl) {
-        createNexferyModalEl.style.display = "flex";
-        createNexferyFormEl.reset();
-      }
-    });
-  }
-
-  // Закрыть нексферу
-  if (closeNexferyBtn) {
-    closeNexferyBtn.addEventListener("click", () => {
-      nexferyContainer.style.display = "none";
-    });
-  }
-
-  // Закрыть нексферу при клике на фон
-  if (nexferyContainer) {
-    nexferyContainer.addEventListener("click", (e) => {
-      if (e.target === nexferyContainer) {
-        nexferyContainer.style.display = "none";
-      }
-    });
-  }
-
-  // Обработчик закрытия модального окна создания нексферы
-  const createNexferyModalEl = document.getElementById("create-nexfery-modal");
-  const createNexferyCloseEl = document.getElementById("nexfery-create-cancel");
-  const createNexferyFormEl = document.getElementById("create-nexfery-form");
-  const createNexferyCancelEl = document.getElementById("nexfery-create-cancel");
-
-  const closeCreateNexferyModal = () => {
-    if (createNexferyModalEl) {
-      createNexferyModalEl.style.display = "none";
-    }
-  };
-
-  if (createNexferyCloseEl) {
-    createNexferyCloseEl.addEventListener("click", closeCreateNexferyModal);
-  }
-
-  if (createNexferyCancelEl) {
-    createNexferyCancelEl.addEventListener("click", closeCreateNexferyModal);
-  }
-
-  // Закрытие при клике на фон
-  if (createNexferyModalEl) {
-    createNexferyModalEl.addEventListener("click", (e) => {
-      if (e.target === createNexferyModalEl || e.target.classList.contains("confirm-modal-backdrop")) {
-        closeCreateNexferyModal();
-      }
-    });
-  }
-
-  // Отправка формы создания нексферы
-  if (createNexferyFormEl) {
-    createNexferyFormEl.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const errorEl = document.getElementById("nexfery-create-error");
-      errorEl.textContent = "";
-
-      try {
-        const formData = new FormData(createNexferyFormEl);
-        const res = await fetch("/api/nexferies", {
-          method: "POST",
-          body: formData
-        });
-        const data = await res.json();
-        
-        if (!data.ok) {
-          errorEl.textContent = data.error || "Не удалось создать нексферу";
-          return;
-        }
-
-        createNexferyFormEl.reset();
-        createNexferyModalEl.style.display = "none";
-        showAlert("Нексфера создана!", "Готово", "ОК", "primary");
-      } catch (err) {
-        console.error(err);
-        errorEl.textContent = "Ошибка при создании нексферы";
-      }
     });
   }
 
