@@ -2010,8 +2010,10 @@ html.light #delete-chat-btn:hover {
 
   .chat-main-messages {
     padding-right: 0;
-    max-height: 60vh;
+    max-height: calc(100vh - 280px);
     flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
   }
 
   .chat-main-input {
@@ -2021,6 +2023,7 @@ html.light #delete-chat-btn:hover {
     position: sticky;
     bottom: 0;
     background: rgba(15, 23, 42, 0.98);
+    flex-shrink: 0;
   }
 
   .chat-main-input input {
@@ -2047,7 +2050,18 @@ html.light #delete-chat-btn:hover {
   }
 
   .chat-main {
-    min-height: 55vh;
+    min-height: 100vh;
+    height: 100vh;
+    max-height: 100vh;
+  }
+
+  .chat-main-messages {
+    max-height: calc(100vh - 250px);
+    min-height: 0;
+  }
+
+  .chat-main-input {
+    flex-shrink: 0;
   }
 
   .chat-main-title {
