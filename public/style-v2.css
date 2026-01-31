@@ -1555,11 +1555,27 @@ html.light .chat-main-messages::-webkit-scrollbar-thumb {
   background: linear-gradient(135deg, rgba(99, 102, 241, 0.25), rgba(79, 70, 229, 0.25));
   border-left: 3px solid #6366f1;
   backdrop-filter: blur(10px);
+  transition: all 0.2s ease;
+}
+
+.message-reply-block[data-reply-to-id] {
+  cursor: pointer;
+}
+
+.message-reply-block[data-reply-to-id]:hover {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.35), rgba(79, 70, 229, 0.35));
+  transform: translateX(2px);
+  border-left-color: #818cf8;
 }
 
 .message.me .message-reply-block {
   background: linear-gradient(135deg, rgba(147, 197, 253, 0.3), rgba(125, 211, 252, 0.3));
   border-left: 3px solid #93c5fd;
+}
+
+.message.me .message-reply-block[data-reply-to-id]:hover {
+  background: linear-gradient(135deg, rgba(147, 197, 253, 0.45), rgba(125, 211, 252, 0.45));
+  border-left-color: #bfdbfe;
 }
 
 .message-reply-author {

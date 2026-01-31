@@ -594,6 +594,20 @@ document.addEventListener('DOMContentLoaded', function() {
           const replyBlock = document.createElement("div");
           replyBlock.classList.add("message-reply-block");
           
+          // Сохраняем ID оригинального сообщения если есть
+          if (msg.reply_to_id || msg.replyToId) {
+            replyBlock.dataset.replyToId = msg.reply_to_id || msg.replyToId;
+            replyBlock.style.cursor = "pointer";
+            
+            // Добавляем обработчик клика для перехода к сообщению
+            replyBlock.addEventListener("click", () => {
+              const replyToId = replyBlock.dataset.replyToId;
+              if (replyToId) {
+                scrollToMessage(replyToId);
+              }
+            });
+          }
+          
           const replyAuthorEl = document.createElement("div");
           replyAuthorEl.classList.add("message-reply-author");
           replyAuthorEl.textContent = replyAuthorName;
@@ -1012,12 +1026,17 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
       }
 
+      const payload = {
+        text: finalText,
+        replyToId: currentReply ? currentReply.id : null
+      };
+
       fetch(`/chats/${currentChatId}/messages`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ text: finalText }),
+        body: JSON.stringify(payload),
       })
         .then((res) => res.json())
         .then((data) => {

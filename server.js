@@ -111,7 +111,8 @@ async function initDb() {
     ADD COLUMN IF NOT EXISTS file_url TEXT,
     ADD COLUMN IF NOT EXISTS file_type TEXT,
     ADD COLUMN IF NOT EXISTS file_name TEXT,
-    ADD COLUMN IF NOT EXISTS sticker_id VARCHAR(50);
+    ADD COLUMN IF NOT EXISTS sticker_id VARCHAR(50),
+    ADD COLUMN IF NOT EXISTS reply_to_id INTEGER REFERENCES messages(id) ON DELETE SET NULL;
   `).catch(() => {
     // Игнорируем ошибки если колонки уже существуют
   });
@@ -568,6 +569,7 @@ app.get("/chats/:chatId/messages", async (req, res) => {
         m.file_type,
         m.file_name,
         m.sticker_id,
+        m.reply_to_id,
         to_char(m.created_at, 'HH24:MI') AS time
       FROM messages m
       JOIN users u ON u.id = m.author_id
@@ -593,7 +595,7 @@ app.post("/chats/:chatId/messages", async (req, res) => {
 
   const userId = req.session.user.id;
   const chatId = parseInt(req.params.chatId, 10);
-  const { text, sticker } = req.body;
+  const { text, sticker, replyToId } = req.body;
 
   if (!chatId || Number.isNaN(chatId)) {
     return res.status(400).json({ ok: false, error: "Некорректный chatId" });
@@ -622,11 +624,11 @@ app.post("/chats/:chatId/messages", async (req, res) => {
     // Сохраняем сообщение в БД
     const insertResult = await pool.query(
       `
-      INSERT INTO messages (chat_id, author_id, text, sticker_id)
-      VALUES ($1, $2, $3, $4)
-      RETURNING id, text, sticker_id, created_at;
+      INSERT INTO messages (chat_id, author_id, text, sticker_id, reply_to_id)
+      VALUES ($1, $2, $3, $4, $5)
+      RETURNING id, text, sticker_id, reply_to_id, created_at;
       `,
-      [chatId, userId, text ? text.trim() : "", sticker || null]
+      [chatId, userId, text ? text.trim() : "", sticker || null, replyToId || null]
     );
 
     const row = insertResult.rows[0];
@@ -646,6 +648,7 @@ app.post("/chats/:chatId/messages", async (req, res) => {
       author: authorUsername,
       text: row.text,
       sticker: row.sticker_id,
+      reply_to_id: row.reply_to_id,
       time: new Date(row.created_at).toLocaleTimeString("ru-RU", {
         hour: "2-digit",
         minute: "2-digit",
