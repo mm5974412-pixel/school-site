@@ -57,13 +57,20 @@
     .landing-text h2 {
       font-size: 42px !important;
       margin-bottom: 16px;
-      background: linear-gradient(135deg, #e5e7eb 0%, #9ca3af 100%);
+      background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
       font-weight: 800;
       letter-spacing: -1px;
       animation: titleSlideIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .light .landing-text h2 {
+      background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
 
     @keyframes titleSlideIn {
@@ -110,6 +117,15 @@
 
     .preview-window {
       animation: previewFloat 3s ease-in-out infinite;
+      background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+
+    .light .preview-window {
+      background: linear-gradient(135deg, #ffffff 0%, #f9fafb 100%);
+      border: 1px solid #e5e7eb;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
     }
 
     @keyframes previewFloat {
