@@ -689,7 +689,7 @@ html.light body {
 #create-nexus-btn {
   width: 100% !important;
   max-width: none !important;
-  margin: 8px 0 !important;
+  margin: 2px 0 !important;
 }
 
 /* Кнопка "Назад" — по умолчанию скрыта (для ПК) */
