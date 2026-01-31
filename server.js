@@ -1723,6 +1723,62 @@ app.post("/api/nexpheres/:nexphereId/members", requireAuth, async (req, res) => 
   }
 });
 
+// Выйти из нексферы (текущий пользователь)
+app.delete("/api/nexpheres/:nexphereId/members/self", requireAuth, async (req, res) => {
+  try {
+    const userId = req.session.user.id;
+    const nexphereId = parseInt(req.params.nexphereId, 10);
+
+    if (!nexphereId || Number.isNaN(nexphereId)) {
+      return res.status(400).json({ ok: false, error: "Некорректный nexphereId" });
+    }
+
+    // Проверяем, что пользователь участник
+    const memberCheck = await pool.query(
+      "SELECT 1 FROM nexphere_members WHERE nexphere_id = $1 AND user_id = $2 LIMIT 1",
+      [nexphereId, userId]
+    );
+
+    if (memberCheck.rowCount === 0) {
+      return res.status(403).json({ ok: false, error: "Вы не участник этой нексферы" });
+    }
+
+    // Проверяем, является ли пользователь владельцем
+    const ownerCheck = await pool.query(
+      "SELECT owner_id FROM nexpheres WHERE id = $1 LIMIT 1",
+      [nexphereId]
+    );
+
+    if (ownerCheck.rowCount === 0) {
+      return res.status(404).json({ ok: false, error: "Нексфера не найдена" });
+    }
+
+    const ownerId = ownerCheck.rows[0].owner_id;
+
+    if (ownerId === userId) {
+      const membersCountResult = await pool.query(
+        "SELECT COUNT(*)::int AS cnt FROM nexphere_members WHERE nexphere_id = $1",
+        [nexphereId]
+      );
+
+      const membersCount = membersCountResult.rows[0]?.cnt || 0;
+      if (membersCount <= 1) {
+        return res.status(400).json({ ok: false, error: "Владелец не может выйти из нексферы, если он один" });
+      }
+    }
+
+    await pool.query(
+      "DELETE FROM nexphere_members WHERE nexphere_id = $1 AND user_id = $2",
+      [nexphereId, userId]
+    );
+
+    res.json({ ok: true });
+  } catch (err) {
+    console.error("Ошибка при выходе из нексферы:", err);
+    res.status(500).json({ ok: false, error: "Ошибка сервера" });
+  }
+});
+
 // Отправить сообщение в нексферу (HTTP API, альтернатива Socket.io)
 app.post("/api/nexpheres/:nexphereId/messages", requireAuth, async (req, res) => {
   try {

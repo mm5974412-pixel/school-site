@@ -104,6 +104,16 @@
         Нажмите на чат слева, чтобы начать переписку, или создайте новый.
       </div>
     </div>
+
+    <button
+      id="nexphere-leave-btn"
+      class="btn-ghost"
+      type="button"
+      style="margin-left: auto; display: none;"
+      title="Покинуть нексферу"
+    >
+      ↩ Покинуть нексферу
+    </button>
   </div>
 </div>
 
@@ -493,6 +503,7 @@
 
   const chatTitleEl = document.getElementById("chat-title");
   const chatSubtitleEl = document.getElementById("chat-subtitle");
+  const nexphereLeaveBtn = document.getElementById("nexphere-leave-btn");
   const backBtn = document.getElementById("back-to-chats");
   const fileInput = document.getElementById("file-input");
   const attachBtn = document.getElementById("attach-btn");
@@ -908,6 +919,14 @@
 
   // Открытие чата (ПК и мобилка)
   function openChat(chat) {
+    if (window.currentNexphereId) {
+      socket.emit("nexphere:leave", { nexphereId: window.currentNexphereId });
+      window.currentNexphereId = null;
+    }
+    if (nexphereLeaveBtn) {
+      nexphereLeaveBtn.style.display = "none";
+    }
+
     currentChatId = chat.id;
     currentPeerUserId = chat.peer_user_id || null;
     currentPeerUsername = chat.peer_username || null;
@@ -1452,6 +1471,14 @@
 
   // Открыть нексус
   function openNexus(nexus) {
+    if (window.currentNexphereId) {
+      socket.emit("nexphere:leave", { nexphereId: window.currentNexphereId });
+      window.currentNexphereId = null;
+    }
+    if (nexphereLeaveBtn) {
+      nexphereLeaveBtn.style.display = "none";
+    }
+
     currentChatId = null;
     currentPeerUserId = null;
     currentPeerUsername = null;
@@ -1737,6 +1764,12 @@
     // Устанавливаем текущую нексферу
     window.currentNexphereId = nexphere.id;
 
+    if (nexphereLeaveBtn) {
+      const isOwner = currentUser && nexphere.owner_id === currentUser.id;
+      nexphereLeaveBtn.style.display = isOwner ? "none" : "inline-flex";
+      nexphereLeaveBtn.dataset.nexphereId = String(nexphere.id);
+    }
+
     // Обновляем интерфейс
     if (chatTitleEl) {
       chatTitleEl.textContent = nexphere.name;
@@ -1799,6 +1832,49 @@
       .catch(err => {
         console.error("Ошибка при загрузке сообщений:", err);
       });
+  }
+
+  // Выйти из текущей нексферы
+  async function leaveCurrentNexphere() {
+    if (!window.currentNexphereId) return;
+
+    const nexphereId = window.currentNexphereId;
+
+    try {
+      const res = await fetch(`/api/nexpheres/${nexphereId}/members/self`, {
+        method: "DELETE"
+      });
+      const data = await res.json();
+
+      if (!data.ok) {
+        showAlert(data.error || "Не удалось выйти из нексферы", "Ошибка", "ОК", "danger");
+        return;
+      }
+
+      socket.emit("nexphere:leave", { nexphereId });
+      window.currentNexphereId = null;
+
+      if (nexphereLeaveBtn) {
+        nexphereLeaveBtn.style.display = "none";
+      }
+
+      // Обновляем список чатов/нексфер
+      loadChats();
+
+      // Показываем состояние «нексфера недоступна»
+      if (chatTitleEl) chatTitleEl.textContent = "Nexora";
+      if (chatSubtitleEl) chatSubtitleEl.textContent = "Нексфера недоступна. Вы вышли из неё.";
+      if (messagesDiv) messagesDiv.innerHTML = "";
+    } catch (err) {
+      console.error("Ошибка при выходе из нексферы:", err);
+      showAlert("Ошибка сервера", "Ошибка", "ОК", "danger");
+    }
+  }
+
+  if (nexphereLeaveBtn) {
+    nexphereLeaveBtn.addEventListener("click", () => {
+      leaveCurrentNexphere();
+    });
   }
 
   // Обновить интерфейс формы для нексферы
