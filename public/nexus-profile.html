@@ -172,7 +172,7 @@
       actions.className = 'nexus-actions';
 
       const role = currentNexus.my_role;
-      const isOwner = role === 'owner' || currentNexus.author_id === currentUser.id;
+      const isOwner = role === 'owner' || String(currentNexus.author_id) === String(currentUser.id);
       const isSubscribed = Boolean(role);
 
       if (!isOwner) {
