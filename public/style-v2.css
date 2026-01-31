@@ -1528,6 +1528,19 @@ html.light .chat-main-messages::-webkit-scrollbar-thumb {
   transform: scale(0.95);
 }
 
+/* На мобильных - кнопка всегда видна */
+@media (max-width: 768px) {
+  .msg-delete-btn {
+    opacity: 1;
+    transform: scale(1);
+  }
+  
+  .message:hover .msg-delete-btn {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
 /* ===== Поле ввода ===== */
 
 .chat-main-input {
