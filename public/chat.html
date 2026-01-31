@@ -463,7 +463,7 @@ document.addEventListener('DOMContentLoaded', function() {
     return window.matchMedia("(max-width: 900px)").matches;
   }
 
-  // Клик по логотипу NovaChat — переход на главную
+  // Клик по логотипу Nexora — переход на главную
   if (logoHeader) {
     logoHeader.style.cursor = "pointer";
     logoHeader.addEventListener("click", () => {
@@ -920,7 +920,7 @@ document.addEventListener('DOMContentLoaded', function() {
       li.textContent = "У вас пока нет чатов.";
       chatList.appendChild(li);
 
-      if (chatTitleEl) chatTitleEl.textContent = "NovaChat";
+      if (chatTitleEl) chatTitleEl.textContent = "Nexora";
       if (chatSubtitleEl)
         chatSubtitleEl.textContent =
           "Создайте новый чат, чтобы начать переписку.";
@@ -931,7 +931,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Есть хотя бы один чат
-    if (chatTitleEl) chatTitleEl.textContent = "NovaChat";
+    if (chatTitleEl) chatTitleEl.textContent = "Nexora";
     if (chatSubtitleEl)
       chatSubtitleEl.textContent =
         "Выберите чат слева, чтобы начать переписку.";
@@ -1334,7 +1334,7 @@ document.addEventListener('DOMContentLoaded', function() {
       currentChatId = null;
       messagesDiv.innerHTML = "";
 
-      if (chatTitleEl) chatTitleEl.textContent = "NovaChat";
+      if (chatTitleEl) chatTitleEl.textContent = "Nexora";
       if (chatSubtitleEl)
         chatSubtitleEl.textContent =
           "Выберите чат слева, чтобы начать переписку.";
@@ -1649,7 +1649,7 @@ document.addEventListener('DOMContentLoaded', function() {
               currentChatId = null;
               messagesDiv.innerHTML = '';
 
-              if (chatTitleEl) chatTitleEl.textContent = 'NovaChat';
+              if (chatTitleEl) chatTitleEl.textContent = 'Nexora';
               if (chatSubtitleEl)
                 chatSubtitleEl.textContent =
                   'Создайте новый чат, чтобы начать переписку.';
