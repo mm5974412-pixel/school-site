@@ -49,20 +49,12 @@
   </button>
 
   <button
-    id="create-nexus-btn"
+    id="create-btn"
     class="btn-secondary"
     style="width: auto; max-width: 180px; margin: 6px 0;"
   >
-    ➕ Создать нексус
+    ➕ Создать
   </button>
-
-  <a
-    href="/nexferies.html"
-    class="btn-secondary"
-    style="width: auto; max-width: 180px; margin: 6px 0; padding: 10px 16px; text-align: center; text-decoration: none; display: inline-block;"
-  >
-    🫂 Нексферы
-  </a>
 
   <!-- Кнопка Админ-панели (только для админов) -->
   <a
@@ -246,6 +238,28 @@
           <button type="submit" class="confirm-btn confirm-btn-ok">Создать</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- Меню выбора "Создать нексус" или "Создать нексферу" -->
+  <div id="create-menu-backdrop" class="confirm-modal-backdrop" style="display: none;"></div>
+  <div id="create-menu" class="create-menu" style="display: none;">
+    <button id="create-nexus-option" class="create-menu-item">
+      <span style="font-size: 18px; margin-right: 8px;">🔗</span>
+      <span>Создать нексус</span>
+    </button>
+    <button id="create-nexfery-option" class="create-menu-item">
+      <span style="font-size: 18px; margin-right: 8px;">🫂</span>
+      <span>Создать нексферу</span>
+    </button>
+  </div>
+
+  <!-- Модальное окно нексферы -->
+  <div id="nexfery-container" class="nexfery-modal" style="display: none;">
+    <div class="nexfery-modal-backdrop"></div>
+    <div class="nexfery-modal-content">
+      <button id="close-nexfery-btn" class="nexfery-close-btn" title="Закрыть">✕</button>
+      <div id="nexfery-content" class="nexfery-content"></div>
     </div>
   </div>
 
@@ -2963,7 +2977,103 @@
     loadChats();
     updateEmptyState();
   });
+
+  // === ОБРАБОТЧИК КНОПКИ "СОЗДАТЬ" ===
+  const createBtn = document.getElementById("create-btn");
+  const createMenu = document.getElementById("create-menu");
+  const createMenuBackdrop = document.getElementById("create-menu-backdrop");
+  const nexferyContainer = document.getElementById("nexfery-container");
+  const nexferyContent = document.getElementById("nexfery-content");
+  const closeNexferyBtn = document.getElementById("close-nexfery-btn");
+
+  // Открыть меню
+  if (createBtn) {
+    createBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      createMenu.classList.add("show");
+      createMenuBackdrop.style.display = "block";
+    });
+  }
+
+  // Закрыть меню
+  const closeCreateMenu = () => {
+    createMenu.classList.remove("show");
+    createMenuBackdrop.style.display = "none";
+  };
+
+  // Клик на "Создать нексус"
+  const createNexusOption = document.getElementById("create-nexus-option");
+  if (createNexusOption) {
+    createNexusOption.addEventListener("click", () => {
+      closeCreateMenu();
+      // Открываем страницу создания нексуса (как было)
+      window.location.href = "/nexus.html";
+    });
+  }
+
+  // Клик на "Создать нексферу"
+  const createNexferyOption = document.getElementById("create-nexfery-option");
+  if (createNexferyOption) {
+    createNexferyOption.addEventListener("click", () => {
+      closeCreateMenu();
+      // Показываем модальное окно нексферы
+      nexferyContainer.style.display = "flex";
+      // Загружаем контент нексферы через iframe
+      loadNexferyContent();
+    });
+  }
+
+  // Закрыть нексферу
+  if (closeNexferyBtn) {
+    closeNexferyBtn.addEventListener("click", () => {
+      nexferyContainer.style.display = "none";
+    });
+  }
+
+  // Закрыть нексферу при клике на фон
+  if (nexferyContainer) {
+    nexferyContainer.addEventListener("click", (e) => {
+      if (e.target === nexferyContainer) {
+        nexferyContainer.style.display = "none";
+      }
+    });
+  }
+
+  // Загрузить контент нексферы
+  function loadNexferyContent() {
+    // Загружаем HTML нексфер с сервера
+    fetch("/nexferies.html")
+      .then(res => res.text())
+      .then(html => {
+        // Извлекаем body контент
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, "text/html");
+        const appDiv = doc.querySelector(".app");
+        if (appDiv) {
+          nexferyContent.innerHTML = appDiv.innerHTML;
+          // Переинициализируем скрипты нексфер (если нужно)
+          initializeNexferyScripts();
+        }
+      })
+      .catch(err => console.error("Ошибка загрузки нексфер:", err));
+  }
+
+  // Инициализация скриптов внутри нексферы
+  function initializeNexferyScripts() {
+    // Здесь можно добавить логику, которая была в nexferies.html
+    // Например, загрузка нексфер, обработчики кликов и т.д.
+    console.log("Нексферы загружены в модальном окне");
+  }
+
+  // Закрыть меню при клике на фон
+  if (createMenuBackdrop) {
+    createMenuBackdrop.addEventListener("click", closeCreateMenu);
+  }
+
+  // Закрыть меню при клике снаружи
+  document.addEventListener("click", (e) => {
+    if (!createBtn.contains(e.target) && !createMenu.contains(e.target)) {
+      closeCreateMenu();
+    }
+  });
 });
-  </script>
-</body>
-</html>
