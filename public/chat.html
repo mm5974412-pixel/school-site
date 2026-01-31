@@ -652,15 +652,23 @@ document.addEventListener('DOMContentLoaded', function() {
     // Контекстное меню (мобилка: долгое нажатие, ПК: правый клик)
     if (msg.id) {
       let longPressTimer;
+      let touchStartX = 0;
+      let touchStartY = 0;
 
       el.addEventListener("contextmenu", (e) => {
         e.preventDefault();
-        showMessageContextMenu(msg, el);
+        showMessageContextMenu(msg, el, e);
       });
 
-      el.addEventListener("touchstart", () => {
+      el.addEventListener("touchstart", (e) => {
+        if (e.touches.length > 0) {
+          touchStartX = e.touches[0].clientX;
+          touchStartY = e.touches[0].clientY;
+        }
         longPressTimer = setTimeout(() => {
-          showMessageContextMenu(msg, el);
+          // Создаем фейковое событие с координатами касания
+          const fakeEvent = { clientX: touchStartX, clientY: touchStartY };
+          showMessageContextMenu(msg, el, fakeEvent);
         }, 500);
       });
 
@@ -1682,8 +1690,9 @@ document.addEventListener('DOMContentLoaded', function() {
     return "";
   }
 
-  function showMessageContextMenu(msg, element) {
+  function showMessageContextMenu(msg, element, event) {
     const contextMenu = document.getElementById("message-context-menu");
+    const contextContent = contextMenu.querySelector('.message-context-content');
     const editBtn = contextMenu.querySelector('[data-action="edit"]');
     const deleteBtn = contextMenu.querySelector('[data-action="delete"]');
 
@@ -1697,6 +1706,38 @@ document.addEventListener('DOMContentLoaded', function() {
     deleteBtn.style.display = isMe ? "flex" : "none";
 
     contextMenu.classList.add("show");
+
+    // Позиционируем меню рядом с кликом
+    if (event && contextContent) {
+      // Ждем следующий фрейм чтобы получить реальные размеры меню
+      setTimeout(() => {
+        const menuWidth = contextContent.offsetWidth || 220;
+        const menuHeight = contextContent.offsetHeight || 300;
+        
+        let x = event.clientX + 10; // небольшой отступ от курсора
+        let y = event.clientY + 10;
+        
+        // Проверяем, не выходит ли меню за правую границу
+        if (x + menuWidth > window.innerWidth) {
+          x = event.clientX - menuWidth - 10;
+        }
+        
+        // Проверяем, не выходит ли меню за нижнюю границу
+        if (y + menuHeight > window.innerHeight) {
+          y = event.clientY - menuHeight - 10;
+        }
+        
+        // Не даем уйти за левую границу
+        if (x < 10) x = 10;
+        
+        // Не даем уйти за верхнюю границу
+        if (y < 10) y = 10;
+        
+        // Устанавливаем позицию
+        contextContent.style.left = `${x}px`;
+        contextContent.style.top = `${y}px`;
+      }, 0);
+    }
   }
 
   function updateMessageTextInDom(messageId, newText) {

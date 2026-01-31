@@ -2535,22 +2535,22 @@ html.light #delete-chat-btn:hover {
   bottom: 0;
   background: rgba(0, 0, 0, 0.5);
   display: none;
-  align-items: center;
-  justify-content: center;
   z-index: 1000;
-  padding: 20px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
 .message-context-menu.show {
-  display: flex;
+  display: block;
 }
 
 .message-context-content {
+  position: fixed;
   background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
   border-radius: 16px;
   padding: 12px 0;
-  min-width: 200px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+  width: 220px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
   border: 1px solid rgba(107, 114, 128, 0.2);
   animation: popIn 0.2s ease-out;
 }
