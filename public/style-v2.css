@@ -2051,10 +2051,11 @@ html.light #delete-chat-btn:hover {
   }
 
   body.mobile-dialog-open .input-send-btn {
-    width: 40px !important;
-    height: 40px !important;
+    width: 36px !important;
+    height: 36px !important;
     font-size: 14px !important;
-    padding: 8px 10px !important;
+    padding: 6px 8px !important;
+    min-width: 36px !important;
   }
 
   .chat-main-input input {
@@ -2097,14 +2098,16 @@ html.light #delete-chat-btn:hover {
 
   body.mobile-dialog-open .chat-main-input {
     flex-shrink: 0;
-    padding: 8px 10px;
+    padding: 8px 8px;
     padding-bottom: calc(8px + env(safe-area-inset-bottom));
   }
 
   body.mobile-dialog-open .input-send-btn {
-    width: 38px !important;
-    height: 38px !important;
-    font-size: 13px !important;
+    width: 34px !important;
+    height: 34px !important;
+    font-size: 12px !important;
+    padding: 5px 7px !important;
+    min-width: 34px !important;
   }
 
   .chat-main-title {
