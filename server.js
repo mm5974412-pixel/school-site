@@ -659,6 +659,10 @@ app.get("/chats/list", async (req, res) => {
       JOIN users u
         ON u.id = cm_peer.user_id
       WHERE cm_self.user_id = $1
+      AND NOT EXISTS (
+        SELECT 1 FROM blocked_users
+        WHERE blocker_id = cm_peer.user_id AND blocked_id = $1
+      )
       ORDER BY c.created_at DESC;
       `,
       [userId]
@@ -1322,8 +1326,11 @@ app.post("/api/block-user/:userId", async (req, res) => {
       [blockerId, userId]
     );
 
-    // Отправляем уведомление всем клиентам о блокировке
-    io.emit("user:blocked", { blockerId: parseInt(blockerId), blockedId: parseInt(userId) });
+    // Отправляем уведомление только заблокированному пользователю о блокировке
+    const blockedUser = onlineUsers.get(parseInt(userId));
+    if (blockedUser) {
+      io.to(blockedUser.socketId).emit("user:blocked", { blockerId: parseInt(blockerId), blockedId: parseInt(userId) });
+    }
 
     return res.json({ ok: true, isBlocked: true });
   } catch (err) {
@@ -1347,8 +1354,11 @@ app.post("/api/unblock-user/:userId", async (req, res) => {
       [blockerId, userId]
     );
 
-    // Отправляем уведомление всем клиентам о разблокировке
-    io.emit("user:unblocked", { blockerId: parseInt(blockerId), unblockedId: parseInt(userId) });
+    // Отправляем уведомление только разблокированному пользователю о разблокировке
+    const unblockedUser = onlineUsers.get(parseInt(userId));
+    if (unblockedUser) {
+      io.to(unblockedUser.socketId).emit("user:unblocked", { blockerId: parseInt(blockerId), unblockedId: parseInt(userId) });
+    }
 
     return res.json({ ok: true, isBlocked: false });
   } catch (err) {

@@ -1424,10 +1424,26 @@ document.addEventListener('DOMContentLoaded', function() {
     if (!data) return;
     const { blockerId, blockedId } = data;
     
-    // Если я был заблокирован - обновляю статус
+    // Если я был заблокирован - удаляю чат из списка и обновляю статус
     if (blockerId === currentPeerUserId && blockedId === currentUser?.id) {
       amBlockedInCurrentChat = true;
       updateInputBlockedStatus();
+      
+      // Удаляем чат из списка
+      const chatItem = document.querySelector(`li[data-chat-id="${currentChatId}"]`);
+      if (chatItem) {
+        chatItem.remove();
+      }
+      
+      // Если это текущий открытый чат - закрываем его
+      if (currentChatId) {
+        currentChatId = null;
+        messagesDiv.innerHTML = '';
+        if (chatTitleEl) chatTitleEl.textContent = 'Nexora';
+        if (chatSubtitleEl) chatSubtitleEl.textContent = 'Вас заблокировали';
+        if (form) form.style.display = 'none';
+        document.body.classList.remove('mobile-dialog-open');
+      }
     }
   });
 
@@ -1436,10 +1452,13 @@ document.addEventListener('DOMContentLoaded', function() {
     if (!data) return;
     const { blockerId, unblockedId } = data;
     
-    // Если я был разблокирован - обновляю статус
+    // Если я был разблокирован - обновляю статус и перезагружаю чаты
     if (blockerId === currentPeerUserId && unblockedId === currentUser?.id) {
       amBlockedInCurrentChat = false;
       updateInputBlockedStatus();
+      
+      // Перезагружаем список чатов
+      loadChats();
     }
   });
 
