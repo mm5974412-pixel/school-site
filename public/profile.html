@@ -365,7 +365,8 @@
 
       .profile-main {
         max-width: 100%;
-        overflow-y: visible;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch;
       }
 
       .avatar-upload-section {
@@ -387,10 +388,15 @@
     @media (max-width: 768px) {
       .profile-page {
         padding: 8px;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        overflow-y: auto !important;
       }
 
       .profile-sidebar {
         padding: 12px;
+        flex-shrink: 0;
       }
 
       .profile-avatar-circle {
@@ -455,16 +461,26 @@
       .warning-box p {
         font-size: 12px;
       }
+
+      .profile-main {
+        flex: 1;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch;
+      }
     }
 
     @media (max-width: 480px) {
       .profile-page {
         padding: 4px;
+        display: flex;
+        flex-direction: column;
+        overflow-y: auto !important;
       }
 
       .profile-sidebar {
         padding: 10px;
         gap: 12px;
+        flex-shrink: 0;
       }
 
       .profile-avatar-circle {
@@ -550,7 +566,10 @@
       }
 
       .profile-main {
+        flex: 1;
         gap: 16px;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch;
       }
     }
 
