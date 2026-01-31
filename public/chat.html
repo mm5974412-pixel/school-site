@@ -1431,10 +1431,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Обновляем UI в зависимости от того, кто блокировал
     if (blockerId === currentUser?.id && blockedId === currentPeerUserId) {
       // Я заблокировал - обновляю статус кнопки в профиле
-      if (profileBlockBtn && profileBlockBtn.dataset.blocked === 'false') {
-        profileBlockBtn.textContent = 'Разблокировать';
-        profileBlockBtn.dataset.blocked = 'true';
-      }
+      loadBlockStatus();
       // Перезагружаем чаты для обновления
       loadChats();
     } else if (blockerId === currentPeerUserId && blockedId === currentUser?.id) {
@@ -1453,10 +1450,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Обновляем UI в зависимости от того, кто разблокировал
     if (blockerId === currentUser?.id && unblockedId === currentPeerUserId) {
       // Я разблокировал - обновляю статус кнопки в профиле
-      if (profileBlockBtn && profileBlockBtn.dataset.blocked === 'true') {
-        profileBlockBtn.textContent = 'Заблокировать';
-        profileBlockBtn.dataset.blocked = 'false';
-      }
+      loadBlockStatus();
       // Перезагружаем чаты для обновления
       loadChats();
     } else if (blockerId === currentPeerUserId && unblockedId === currentUser?.id) {
@@ -1636,19 +1630,21 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   function loadBlockStatus() {
-    if (!currentPeerUserId) return;
+    if (!currentPeerUserId || !profileBlockBtn) return;
     
     fetch(`/api/block-status/${currentPeerUserId}`)
       .then(res => res.json())
       .then(data => {
         if (!data.ok) throw new Error(data.error);
         
-        if (data.isBlocked) {
-          profileBlockBtn.textContent = 'Разблокировать';
-          profileBlockBtn.dataset.blocked = 'true';
-        } else {
-          profileBlockBtn.textContent = 'Заблокировать';
-          profileBlockBtn.dataset.blocked = 'false';
+        if (profileBlockBtn) {
+          if (data.isBlocked) {
+            profileBlockBtn.textContent = 'Разблокировать';
+            profileBlockBtn.dataset.blocked = 'true';
+          } else {
+            profileBlockBtn.textContent = 'Заблокировать';
+            profileBlockBtn.dataset.blocked = 'false';
+          }
         }
       })
       .catch(err => console.error('Ошибка загрузки статуса блокировки:', err));
