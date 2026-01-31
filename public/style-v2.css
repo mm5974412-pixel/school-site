@@ -223,6 +223,14 @@
   display: flex;
 }
 
+.confirm-modal.closing {
+  animation: confirmFadeOut 0.2s ease forwards;
+}
+
+.confirm-modal.closing .confirm-modal-content {
+  animation: confirmSlideDown 0.2s ease forwards;
+}
+
 .confirm-modal-backdrop {
   position: absolute;
   top: 0;
@@ -262,6 +270,26 @@
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes confirmFadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes confirmSlideDown {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(20px) scale(0.93);
   }
 }
 

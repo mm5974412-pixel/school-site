@@ -1129,7 +1129,7 @@
 
         if (!currentChatId && !currentNexusView) {
           if (chatTitleEl) chatTitleEl.textContent = "Nexora";
-          if (chatSubtitleEl) chatSubtitleEl.textContent = "Выберите чат или нексус слева.";
+          if (chatSubtitleEl) chatSubtitleEl.textContent = "Создайте что-то новое!";
         }
 
         // Добавляем чаты
@@ -1251,13 +1251,19 @@
 
   if (nexusBtnEl) {
     nexusBtnEl.addEventListener("click", () => {
+      nexusSearchModalEl.classList.remove("closing");
       nexusSearchModalEl.style.display = "flex";
+      nexusSearchInputEl?.focus();
     });
   }
 
   if (nexusSearchCancelEl) {
     nexusSearchCancelEl.addEventListener("click", () => {
-      nexusSearchModalEl.style.display = "none";
+      nexusSearchModalEl.classList.add("closing");
+      setTimeout(() => {
+        nexusSearchModalEl.style.display = "none";
+        nexusSearchModalEl.classList.remove("closing");
+      }, 200);
     });
   }
 
@@ -1298,57 +1304,73 @@
           item.style.cssText = "padding: 8px; border-bottom: 1px solid #333; cursor: pointer; display: flex; align-items: center; gap: 8px;";
           item.innerHTML = `<span>👤</span> <span>${user.display_name || user.username}</span>`;
           item.onclick = () => {
-            nexusSearchModalEl.style.display = "none";
-            if (nexusSearchInputEl) nexusSearchInputEl.value = "";
-            if (nexusSearchResultsEl) nexusSearchResultsEl.innerHTML = "";
-            // Создаем чат с этим пользователем
-            fetch("/chats/new", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ username: user.username })
-            })
-              .then(r => r.json())
-              .then(d => {
-                if (d.ok) {
-                  loadChats();
-                  openChat({ id: d.chatId, peer_username: d.peerUsername, peer_user_id: d.peerUserId });
-                }
-              });
+            nexusSearchModalEl.classList.add("closing");
+            setTimeout(() => {
+              nexusSearchModalEl.style.display = "none";
+              nexusSearchModalEl.classList.remove("closing");
+              if (nexusSearchInputEl) nexusSearchInputEl.value = "";
+              if (nexusSearchResultsEl) nexusSearchResultsEl.innerHTML = "";
+              // Создаем чат с этим пользователем
+              fetch("/chats/new", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username: user.username })
+              })
+                .then(r => r.json())
+                .then(d => {
+                  if (d.ok) {
+                    loadChats();
+                    openChat({ id: d.chatId, peer_username: d.peerUsername, peer_user_id: d.peerUserId });
+                  }
+                });
+            }, 200);
           };
           nexusSearchResultsEl.appendChild(item);
         });
 
-      // Показываем соответствующие нексусы
-      const nexuses = (nexusData.nexus || []).slice(0, 5);
+      // Показываем соответствующие нексусы (только по нику)
+      const nexuses = (nexusData.nexus || [])
+        .filter(n => n.handle.toLowerCase().includes(query))
+        .slice(0, 5);
 
       nexuses.forEach((nexus) => {
         const item = document.createElement("div");
         item.style.cssText = "padding: 8px; border-bottom: 1px solid #333; cursor: pointer; display: flex; align-items: center; gap: 8px;";
         item.innerHTML = `<span>🧭</span> <span>${nexus.title}</span> <span style="color: #a78bfa;">@${nexus.handle}</span>`;
         item.onclick = () => {
-          nexusSearchModalEl.style.display = "none";
-          if (nexusSearchInputEl) nexusSearchInputEl.value = "";
-          if (nexusSearchResultsEl) nexusSearchResultsEl.innerHTML = "";
-          loadChats();
-          openNexus(nexus);
+          nexusSearchModalEl.classList.add("closing");
+          setTimeout(() => {
+            nexusSearchModalEl.style.display = "none";
+            nexusSearchModalEl.classList.remove("closing");
+            if (nexusSearchInputEl) nexusSearchInputEl.value = "";
+            if (nexusSearchResultsEl) nexusSearchResultsEl.innerHTML = "";
+            loadChats();
+            openNexus(nexus);
+          }, 200);
         };
         nexusSearchResultsEl.appendChild(item);
       });
 
-      // Показываем соответствующие нексферы
-      const nexferies = (nexferiesData.nexferies || []).slice(0, 5);
+      // Показываем соответствующие нексферы (только по нику)
+      const nexferies = (nexferiesData.nexferies || [])
+        .filter(n => n.handle.toLowerCase().includes(query))
+        .slice(0, 5);
 
       nexferies.forEach((nexfery) => {
         const item = document.createElement("div");
         item.style.cssText = "padding: 8px; border-bottom: 1px solid #333; cursor: pointer; display: flex; align-items: center; gap: 8px;";
         item.innerHTML = `<span>🫂</span> <span>${nexfery.title}</span> <span style="color: #a78bfa;">@${nexfery.handle}</span>`;
         item.onclick = () => {
-          nexusSearchModalEl.style.display = "none";
-          if (nexusSearchInputEl) nexusSearchInputEl.value = "";
-          if (nexusSearchResultsEl) nexusSearchResultsEl.innerHTML = "";
-          // Логика открытия нексферы
-          // Для простоты - переходим на страницу нексферы или открываем в модальном окне
-          alert("Нексфера: " + nexfery.title);
+          nexusSearchModalEl.classList.add("closing");
+          setTimeout(() => {
+            nexusSearchModalEl.style.display = "none";
+            nexusSearchModalEl.classList.remove("closing");
+            if (nexusSearchInputEl) nexusSearchInputEl.value = "";
+            if (nexusSearchResultsEl) nexusSearchResultsEl.innerHTML = "";
+            // Логика открытия нексферы
+            // Для простоты - переходим на страницу нексферы или открываем в модальном окне
+            alert("Нексфера: " + nexfery.title);
+          }, 200);
         };
         nexusSearchResultsEl.appendChild(item);
       });
