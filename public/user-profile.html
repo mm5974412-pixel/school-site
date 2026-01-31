@@ -117,6 +117,7 @@
       max-width: 700px;
       overflow-y: auto;
       min-height: 0;
+      -webkit-overflow-scrolling: touch;
     }
 
     .profile-card {
@@ -367,6 +368,10 @@
       if (shouldBeLight) {
         document.documentElement.classList.add('light');
       }
+
+      // Разрешаем скроллинг на всех устройствах
+      document.documentElement.style.overflow = 'auto';
+      document.documentElement.style.webkitOverflowScrolling = 'touch';
     })();
   </script>
   <script src="/theme-toggle.js" defer></script>
