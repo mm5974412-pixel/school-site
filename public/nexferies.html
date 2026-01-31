@@ -236,7 +236,10 @@
           list.appendChild(li);
         });
       } catch (err) {
-        console.error('Ошибка загрузки нексфер:', err);
+        const list = document.getElementById('nexferies-list');
+        if (list) {
+          list.innerHTML = '<li style="padding: 12px; text-align: center; color: rgba(255,255,255,0.5);">Не удалось загрузить нексферы</li>';
+        }
       }
     }
 
