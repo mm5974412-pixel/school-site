@@ -1344,14 +1344,18 @@ app.post("/api/block-user/:userId", async (req, res) => {
     if (chatResult.rowCount > 0) {
       const chatId = chatResult.rows[0].id;
       
-      // Сохраняем системное сообщение в БД
-      await pool.query(
-        `
-        INSERT INTO messages (chat_id, sender_id, text, is_system)
-        VALUES ($1, $2, $3, $4)
-        `,
-        [chatId, blockerId, `${blockerName} заблокировал пользователя`, true]
-      );
+      try {
+        // Сохраняем системное сообщение в БД
+        await pool.query(
+          `
+          INSERT INTO messages (chat_id, sender_id, text, is_system)
+          VALUES ($1, NULL, $2, true)
+          `,
+          [chatId, `${blockerName} заблокировал пользователя`]
+        );
+      } catch (err) {
+        console.error("Ошибка при сохранении системного сообщения:", err);
+      }
     }
 
     // Отправляем событие обоим пользователям для обновления UI
@@ -1367,9 +1371,10 @@ app.post("/api/block-user/:userId", async (req, res) => {
       io.to(blockedUser.socketId).emit("user:blocked", blockEvent);
     }
 
-    // Обновляем список чатов и сообщений для обоих
+    // Отправляем событие обновления сообщений в комнату чата
     if (chatResult.rowCount > 0) {
-      io.emit("chats:updated");
+      const chatId = chatResult.rows[0].id;
+      io.to(`chat:${chatId}`).emit("chats:updated");
     }
 
     return res.json({ ok: true, isBlocked: true });
@@ -1416,14 +1421,18 @@ app.post("/api/unblock-user/:userId", async (req, res) => {
     if (chatResult.rowCount > 0) {
       const chatId = chatResult.rows[0].id;
       
-      // Сохраняем системное сообщение в БД
-      await pool.query(
-        `
-        INSERT INTO messages (chat_id, sender_id, text, is_system)
-        VALUES ($1, $2, $3, $4)
-        `,
-        [chatId, blockerId, `${blockerName} разблокировал пользователя`, true]
-      );
+      try {
+        // Сохраняем системное сообщение в БД
+        await pool.query(
+          `
+          INSERT INTO messages (chat_id, sender_id, text, is_system)
+          VALUES ($1, NULL, $2, true)
+          `,
+          [chatId, `${blockerName} разблокировал пользователя`]
+        );
+      } catch (err) {
+        console.error("Ошибка при сохранении системного сообщения:", err);
+      }
     }
 
     // Отправляем событие обоим пользователям для обновления UI
@@ -1439,9 +1448,10 @@ app.post("/api/unblock-user/:userId", async (req, res) => {
       io.to(unblockedUser.socketId).emit("user:unblocked", unblockEvent);
     }
 
-    // Обновляем список чатов и сообщений для обоих
+    // Отправляем событие обновления сообщений в комнату чата
     if (chatResult.rowCount > 0) {
-      io.emit("chats:updated");
+      const chatId = chatResult.rows[0].id;
+      io.to(`chat:${chatId}`).emit("chats:updated");
     }
 
     return res.json({ ok: true, isBlocked: false });
