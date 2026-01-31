@@ -2009,7 +2009,6 @@ app.get("/api/user/:userId", async (req, res) => {
     return res.status(500).json({ ok: false, error: "Ошибка сервера" });
   }
 });
-});
 
 // ======= БЛОКИРОВКА/РАЗБЛОКИРОВКА ПОЛЬЗОВАТЕЛЕЙ =======
 
