@@ -1681,14 +1681,6 @@ document.addEventListener('DOMContentLoaded', function() {
         // Обновить статус кнопки
         loadBlockStatus();
         
-        // Обновить статус ввода
-        if (isBlocked) {
-          amBlockedInCurrentChat = false;
-        } else {
-          amBlockedInCurrentChat = true;
-        }
-        updateInputBlockedStatus();
-        
         profileModal.classList.remove('show');
       } catch (err) {
         console.error('Ошибка блокировки:', err);
