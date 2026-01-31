@@ -3064,74 +3064,335 @@ html.light .sticker-item:hover {
   gap: 24px;
 }
 
+/* Анимации для формы */
+@keyframes formSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes inputFocus {
+  0% {
+    box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(139, 92, 246, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(139, 92, 246, 0);
+  }
+}
+
+@keyframes buttonHover {
+  0% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-2px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
 .nexus-form-card {
   background: linear-gradient(135deg, #0f172a 0%, #111827 100%);
   border: 1px solid rgba(139, 92, 246, 0.2);
   border-radius: 16px;
-  padding: 20px;
+  padding: 24px;
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+  animation: formSlideIn 0.5s ease-out;
+  position: relative;
+  overflow: hidden;
+}
+
+.nexus-form-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.5), transparent);
+}
+
+.nexus-form-header {
+  margin-bottom: 20px;
 }
 
 .nexus-form-card h3 {
-  margin: 0 0 16px;
+  margin: 0 0 8px;
   color: #e5e7eb;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.nexus-form-subtitle {
+  color: #a78bfa;
+  font-size: 13px;
+  margin: 0;
+  opacity: 0.8;
 }
 
 .nexus-form {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
 }
 
 .nexus-form-row {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
+  animation: formSlideIn 0.5s ease-out;
+}
+
+.nexus-form-row:nth-child(2) {
+  animation-delay: 0.1s;
+}
+
+.nexus-form-row:nth-child(3) {
+  animation-delay: 0.2s;
+}
+
+.nexus-form-row:nth-child(4) {
+  animation-delay: 0.3s;
 }
 
 .nexus-form-row label {
   color: #9ca3af;
   font-size: 13px;
   font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .nexus-form-row input,
 .nexus-form-row textarea {
   background: rgba(15, 23, 42, 0.6);
-  border: 1px solid rgba(148, 163, 184, 0.2);
+  border: 1.5px solid rgba(148, 163, 184, 0.2);
   border-radius: 10px;
-  padding: 10px 12px;
+  padding: 12px;
   color: #e5e7eb;
   font-size: 14px;
   outline: none;
+  transition: all 0.3s ease;
+}
+
+.nexus-form-row input::placeholder,
+.nexus-form-row textarea::placeholder {
+  color: rgba(148, 163, 184, 0.4);
 }
 
 .nexus-form-row input:focus,
 .nexus-form-row textarea:focus {
-  border-color: rgba(139, 92, 246, 0.6);
+  border-color: rgba(139, 92, 246, 0.8);
+  background: rgba(15, 23, 42, 0.9);
   box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15);
+  animation: inputFocus 0.6s ease-out;
 }
 
 .nexus-handle-input {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1.5px solid rgba(148, 163, 184, 0.2);
+  border-radius: 10px;
+  padding: 0 12px;
+  transition: all 0.3s ease;
+}
+
+.nexus-handle-input:focus-within {
+  border-color: rgba(139, 92, 246, 0.8);
+  background: rgba(15, 23, 42, 0.9);
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15);
 }
 
 .nexus-handle-input span {
   color: #a78bfa;
   font-weight: 700;
+  font-size: 16px;
 }
 
-.nexus-form-actions {
+.nexus-handle-input input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  padding: 12px 0;
+  color: #e5e7eb;
+  font-size: 14px;
+  outline: none;
+}
+
+.nexus-handle-input input::placeholder {
+  color: rgba(148, 163, 184, 0.4);
+}
+
+/* Кастомный инпут для файла */
+.nexus-file-input-wrapper {
+  position: relative;
+  cursor: pointer;
+}
+
+.nexus-file-input-wrapper input[type="file"] {
+  display: none;
+}
+
+.nexus-file-label {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 12px;
+  justify-content: center;
+  gap: 8px;
+  padding: 24px 16px;
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.8) 0%, rgba(15, 23, 42, 0.6) 100%);
+  border: 2px dashed rgba(139, 92, 246, 0.4);
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.nexus-file-input-wrapper:hover .nexus-file-label {
+  border-color: rgba(139, 92, 246, 0.8);
+  background: linear-gradient(135deg, rgba(15, 23, 42, 1) 0%, rgba(15, 23, 42, 0.8) 100%);
+}
+
+.nexus-file-icon {
+  font-size: 32px;
+  transition: transform 0.3s ease;
+}
+
+.nexus-file-input-wrapper:hover .nexus-file-icon {
+  transform: scale(1.2) rotate(5deg);
+}
+
+.nexus-file-text {
+  color: #a78bfa;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.nexus-file-name {
+  color: #86efac;
+  font-size: 12px;
+  margin-top: 8px;
+  display: none;
+  animation: formSlideIn 0.3s ease-out;
+}
+
+.nexus-file-name.nexus-file-selected {
+  display: block;
 }
 
 .nexus-error {
   color: #f87171;
   font-size: 13px;
+  padding: 12px 16px;
+  background: rgba(248, 113, 113, 0.1);
+  border-left: 3px solid #f87171;
+  border-radius: 4px;
+  display: none;
+  animation: formSlideIn 0.3s ease-out;
+}
+
+.nexus-error:not(:empty) {
+  display: block;
+}
+
+.nexus-form-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+  animation: formSlideIn 0.5s ease-out;
+  animation-delay: 0.4s;
+}
+
+.btn-primary,
+.btn-secondary {
+  flex: 1;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%);
+  color: white;
+  box-shadow: 0 8px 16px rgba(139, 92, 246, 0.3);
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #a78bfa 0%, #c4b5fd 100%);
+  box-shadow: 0 12px 24px rgba(139, 92, 246, 0.5);
+  transform: translateY(-2px);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 8px rgba(139, 92, 246, 0.3);
+}
+
+.btn-secondary {
+  background: rgba(148, 163, 184, 0.1);
+  color: #cbd5e1;
+  border: 1.5px solid rgba(148, 163, 184, 0.3);
+}
+
+.btn-secondary:hover {
+  background: rgba(148, 163, 184, 0.2);
+  border-color: rgba(148, 163, 184, 0.6);
+  color: #e2e8f0;
+  transform: translateY(-2px);
+}
+
+.btn-secondary:active {
+  transform: translateY(0);
+}
+
+.btn-cancel {
+  background: rgba(239, 68, 68, 0.1);
+  color: #fca5a5;
+  border: 1.5px solid rgba(239, 68, 68, 0.3);
+}
+
+.btn-cancel:hover {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.6);
+  color: #fecaca;
+  box-shadow: 0 12px 24px rgba(239, 68, 68, 0.2);
+}
+
+.btn-create {
+  background: linear-gradient(135deg, #22c55e 0%, #86efac 100%);
+  color: #0f172a;
+  box-shadow: 0 8px 16px rgba(34, 197, 94, 0.3);
+}
+
+.btn-create:hover {
+  background: linear-gradient(135deg, #16a34a 0%, #22c55e 100%);
+  box-shadow: 0 12px 24px rgba(34, 197, 94, 0.4);
+  color: white;
 }
 
 .nexus-list {
@@ -3149,6 +3410,32 @@ html.light .sticker-item:hover {
   flex-direction: column;
   gap: 12px;
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.nexus-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.3), transparent);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.nexus-card:hover {
+  border-color: rgba(139, 92, 246, 0.4);
+  box-shadow: 0 20px 40px rgba(139, 92, 246, 0.15);
+  transform: translateY(-4px);
+}
+
+.nexus-card:hover::before {
+  opacity: 1;
 }
 
 .nexus-card-header {
@@ -3209,6 +3496,148 @@ html.light .sticker-item:hover {
   white-space: pre-wrap;
 }
 
+/* ===== МОДАЛЬНОЕ ОКНО НЕКСУСА ===== */
+.nexus-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.nexus-modal-backdrop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  animation: nexusFadeIn 0.3s ease-out;
+}
+
+.nexus-modal-content {
+  position: relative;
+  width: 95%;
+  height: 90%;
+  max-width: 600px;
+  background: linear-gradient(135deg, #0f172a 0%, #111827 100%);
+  border: 1px solid rgba(139, 92, 246, 0.2);
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: nexusSlideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+}
+
+.nexus-modal-header {
+  padding: 16px;
+  border-bottom: 1px solid rgba(139, 92, 246, 0.1);
+  display: flex;
+  justify-content: flex-end;
+}
+
+.nexus-modal-close {
+  background: rgba(139, 92, 246, 0.1);
+  border: 1px solid rgba(139, 92, 246, 0.2);
+  color: #a78bfa;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  font-size: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.nexus-modal-close:hover {
+  background: rgba(139, 92, 246, 0.2);
+  border-color: rgba(139, 92, 246, 0.4);
+  transform: rotate(90deg);
+}
+
+.nexus-modal-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0;
+}
+
+.nexus-modal-nexus-header {
+  padding: 20px;
+  border-bottom: 1px solid rgba(139, 92, 246, 0.15);
+  display: flex;
+  gap: 16px;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, transparent 100%);
+}
+
+.nexus-modal-avatar {
+  width: 80px;
+  height: 80px;
+  min-width: 80px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #8b5cf6, #6366f1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 700;
+  font-size: 32px;
+  background-size: cover;
+  background-position: center;
+}
+
+.nexus-modal-info h2 {
+  margin: 0 0 4px;
+  font-size: 20px;
+  color: #e5e7eb;
+}
+
+.nexus-modal-info p {
+  margin: 0;
+  color: #a78bfa;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.nexus-modal-meta {
+  font-size: 12px;
+  color: #9ca3af;
+  margin-top: 8px;
+}
+
+.nexus-modal-desc {
+  margin-top: 8px;
+  color: #cbd5e1;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.nexus-modal-posts {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow-y: auto;
+}
+
+.nexus-modal-post {
+  padding: 12px;
+  border-radius: 12px;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  animation: nexusFadeIn 0.4s ease-out;
+}
+
+.nexus-post-footer {
+  font-size: 12px;
+  color: #9ca3af;
+  margin-top: 8px;
+}
+
 .nexus-actions {
   display: flex;
   gap: 10px;
@@ -3238,14 +3667,69 @@ html.light .sticker-item:hover {
   gap: 20px;
 }
 
+/* ===== АНИМАЦИИ ДЛЯ НЕКСУСОВ ===== */
+@keyframes nexusSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes nexusFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes nexusPulse {
+  0%, 100% {
+    box-shadow: 0 10px 24px rgba(139, 92, 246, 0.15);
+  }
+  50% {
+    box-shadow: 0 10px 32px rgba(139, 92, 246, 0.3);
+  }
+}
+
+@keyframes nexusGlow {
+  0% {
+    border-color: rgba(139, 92, 246, 0.2);
+  }
+  50% {
+    border-color: rgba(139, 92, 246, 0.5);
+  }
+  100% {
+    border-color: rgba(139, 92, 246, 0.2);
+  }
+}
+
 .nexus-profile-card {
   display: flex;
   gap: 16px;
   align-items: flex-start;
-  padding: 20px;
+  padding: 24px;
   border-radius: 18px;
   background: linear-gradient(135deg, #0f172a 0%, #111827 100%);
   border: 1px solid rgba(139, 92, 246, 0.2);
+  animation: nexusSlideIn 0.6s ease-out;
+  position: relative;
+  overflow: hidden;
+}
+
+.nexus-profile-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.5), transparent);
 }
 
 .nexus-profile-info {
@@ -3258,21 +3742,58 @@ html.light .sticker-item:hover {
 .nexus-post-form {
   background: linear-gradient(135deg, #111827 0%, #0f172a 100%);
   border-radius: 16px;
-  padding: 16px;
+  padding: 20px;
   border: 1px solid rgba(139, 92, 246, 0.2);
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
+  animation: nexusSlideIn 0.6s ease-out;
+  animation-delay: 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+
+.nexus-post-form::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(34, 197, 94, 0.5), transparent);
+}
+
+.nexus-post-form h3 {
+  margin: 0 0 8px;
+  color: #e5e7eb;
+  font-size: 18px;
+  font-weight: 700;
 }
 
 .nexus-post-form textarea {
   background: rgba(15, 23, 42, 0.6);
-  border: 1px solid rgba(148, 163, 184, 0.2);
+  border: 1.5px solid rgba(148, 163, 184, 0.2);
   border-radius: 10px;
-  padding: 10px 12px;
+  padding: 12px;
   color: #e5e7eb;
   font-size: 14px;
   outline: none;
+  transition: all 0.3s ease;
+  font-family: inherit;
+  resize: vertical;
+}
+
+.nexus-post-form textarea:focus {
+  border-color: rgba(139, 92, 246, 0.8);
+  background: rgba(15, 23, 42, 0.9);
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15);
+}
+
+.nexus-post-form button {
+  padding: 12px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.3s ease;
 }
 
 .nexus-post {
@@ -3282,7 +3803,17 @@ html.light .sticker-item:hover {
   border: 1px solid rgba(139, 92, 246, 0.15);
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
+  animation: nexusSlideIn 0.6s ease-out;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  position: relative;
+}
+
+.nexus-post:hover {
+  border-color: rgba(139, 92, 246, 0.3);
+  box-shadow: 0 12px 28px rgba(139, 92, 246, 0.15);
+  transform: translateY(-2px);
 }
 
 .nexus-post-header {
@@ -3294,6 +3825,7 @@ html.light .sticker-item:hover {
   font-size: 15px;
   color: #e5e7eb;
   white-space: pre-wrap;
+  line-height: 1.5;
 }
 
 .nexus-post-actions {
@@ -3302,25 +3834,35 @@ html.light .sticker-item:hover {
 }
 
 .nexus-comments {
-  margin-top: 10px;
-  padding-top: 10px;
+  margin-top: 12px;
+  padding: 12px;
   border-top: 1px solid rgba(148, 163, 184, 0.2);
   display: flex;
   flex-direction: column;
   gap: 10px;
+  background: rgba(15, 23, 42, 0.4);
+  border-radius: 12px;
+  animation: nexusFadeIn 0.4s ease-out;
 }
 
 .nexus-comments-list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
 }
 
 .nexus-comment {
-  padding: 10px 12px;
-  border-radius: 12px;
+  padding: 12px;
+  border-radius: 10px;
   background: rgba(15, 23, 42, 0.6);
   border: 1px solid rgba(148, 163, 184, 0.15);
+  transition: all 0.3s ease;
+  animation: nexusFadeIn 0.4s ease-out;
+}
+
+.nexus-comment:hover {
+  background: rgba(15, 23, 42, 0.8);
+  border-color: rgba(148, 163, 184, 0.25);
 }
 
 .nexus-comment-header {
@@ -3332,6 +3874,7 @@ html.light .sticker-item:hover {
 .nexus-comment-text {
   font-size: 14px;
   color: #e5e7eb;
+  line-height: 1.4;
 }
 
 .nexus-comment-form {
@@ -3400,8 +3943,35 @@ html.light .nexus-comment-text {
     border-radius: 12px;
   }
 
+  .nexus-form-header {
+    margin-bottom: 16px;
+  }
+
+  .nexus-form-card h3 {
+    font-size: 18px;
+  }
+
   .nexus-form-row {
-    gap: 4px;
+    gap: 6px;
+  }
+
+  .nexus-form-row input,
+  .nexus-form-row textarea {
+    padding: 10px;
+    font-size: 16px;
+  }
+
+  .nexus-file-label {
+    padding: 20px 12px;
+    font-size: 24px;
+  }
+
+  .nexus-file-icon {
+    font-size: 28px;
+  }
+
+  .nexus-file-text {
+    font-size: 13px;
   }
 
   .nexus-form-actions {
@@ -3411,6 +3981,15 @@ html.light .nexus-comment-text {
 
   .nexus-form-actions button {
     width: 100%;
+    padding: 14px;
+    font-size: 13px;
+  }
+
+  .btn-primary,
+  .btn-secondary,
+  .btn-cancel,
+  .btn-create {
+    flex: none;
   }
 
   .nexus-list {
@@ -3446,6 +4025,7 @@ html.light .nexus-comment-text {
     flex: 1;
     min-width: 100px;
   }
+}
 
   /* Профиль нексуса */
   .nexus-profile {
@@ -3547,4 +4127,236 @@ html.light .nexus-comment-text {
     flex: 1;
     min-width: 120px;
   }
+}
+
+/* Светлая тема для формы нексуса */
+html.light .nexus-form-card {
+  background: #ffffff;
+  border-color: rgba(148, 163, 184, 0.3);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+}
+
+html.light .nexus-form-card h3 {
+  color: #111827;
+}
+
+html.light .nexus-form-subtitle {
+  color: #8b5cf6;
+}
+
+html.light .nexus-form-row label {
+  color: #475569;
+}
+
+html.light .nexus-form-row input,
+html.light .nexus-form-row textarea {
+  background: #f8fafc;
+  border-color: rgba(148, 163, 184, 0.3);
+  color: #1f2937;
+}
+
+html.light .nexus-form-row input::placeholder,
+html.light .nexus-form-row textarea::placeholder {
+  color: rgba(71, 85, 105, 0.5);
+}
+
+html.light .nexus-form-row input:focus,
+html.light .nexus-form-row textarea:focus {
+  background: #ffffff;
+  border-color: #8b5cf6;
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+}
+
+html.light .nexus-handle-input {
+  background: #f8fafc;
+  border-color: rgba(148, 163, 184, 0.3);
+}
+
+html.light .nexus-handle-input:focus-within {
+  background: #ffffff;
+  border-color: #8b5cf6;
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+}
+
+html.light .nexus-handle-input span {
+  color: #8b5cf6;
+}
+
+html.light .nexus-handle-input input {
+  color: #1f2937;
+}
+
+html.light .nexus-file-label {
+  background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+  border-color: rgba(139, 92, 246, 0.3);
+}
+
+html.light .nexus-file-input-wrapper:hover .nexus-file-label {
+  border-color: #8b5cf6;
+  background: linear-gradient(135deg, #f1f5f9 0%, #f8fafc 100%);
+}
+
+html.light .nexus-file-text {
+  color: #8b5cf6;
+}
+
+html.light .nexus-file-name {
+  color: #16a34a;
+}
+
+html.light .nexus-error {
+  background: rgba(248, 113, 113, 0.1);
+  border-color: #f87171;
+  color: #dc2626;
+}
+
+html.light .btn-primary {
+  background: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%);
+  color: white;
+  box-shadow: 0 8px 16px rgba(139, 92, 246, 0.2);
+}
+
+html.light .btn-primary:hover {
+  background: linear-gradient(135deg, #7c3aed 0%, #8b5cf6 100%);
+  box-shadow: 0 12px 24px rgba(139, 92, 246, 0.3);
+}
+
+html.light .btn-secondary {
+  background: rgba(148, 163, 184, 0.1);
+  color: #475569;
+  border-color: rgba(148, 163, 184, 0.3);
+}
+
+html.light .btn-secondary:hover {
+  background: rgba(148, 163, 184, 0.15);
+  border-color: #8b5cf6;
+  color: #1f2937;
+}
+
+html.light .btn-cancel {
+  background: rgba(239, 68, 68, 0.08);
+  color: #dc2626;
+  border-color: rgba(239, 68, 68, 0.2);
+}
+
+html.light .btn-cancel:hover {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: #f87171;
+  color: #b91c1c;
+  box-shadow: 0 12px 24px rgba(239, 68, 68, 0.15);
+}
+
+html.light .btn-create {
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  color: white;
+  box-shadow: 0 8px 16px rgba(34, 197, 94, 0.2);
+}
+
+html.light .btn-create:hover {
+  background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+  box-shadow: 0 12px 24px rgba(34, 197, 94, 0.3);
+}
+
+/* Светлая тема для нексусов */
+html.light .nexus-profile-card,
+html.light .nexus-post-form,
+html.light .nexus-post {
+  background: #ffffff;
+  border-color: rgba(139, 92, 246, 0.2);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+}
+
+html.light .nexus-profile-card h2,
+html.light .nexus-post-form h3 {
+  color: #111827;
+}
+
+html.light .nexus-post-form textarea {
+  background: #f8fafc;
+  border-color: rgba(148, 163, 184, 0.3);
+  color: #1f2937;
+}
+
+html.light .nexus-post-form textarea:focus {
+  background: #ffffff;
+  border-color: #8b5cf6;
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+}
+
+html.light .nexus-post-text {
+  color: #111827;
+}
+
+html.light .nexus-comment {
+  background: #f8fafc;
+  border-color: rgba(148, 163, 184, 0.2);
+}
+
+html.light .nexus-comment:hover {
+  background: #f1f5f9;
+  border-color: rgba(148, 163, 184, 0.35);
+}
+
+html.light .nexus-comment-text {
+  color: #1f2937;
+}
+
+html.light .nexus-comments {
+  background: rgba(248, 250, 252, 0.5);
+  border-color: rgba(148, 163, 184, 0.2);
+}
+
+/* Светлая тема для модального окна нексуса */
+html.light .nexus-modal-content {
+  background: #ffffff;
+  border-color: rgba(139, 92, 246, 0.2);
+}
+
+html.light .nexus-modal-header {
+  border-color: rgba(148, 163, 184, 0.2);
+}
+
+html.light .nexus-modal-close {
+  background: rgba(139, 92, 246, 0.08);
+  border-color: rgba(139, 92, 246, 0.2);
+  color: #8b5cf6;
+}
+
+html.light .nexus-modal-close:hover {
+  background: rgba(139, 92, 246, 0.15);
+  border-color: #8b5cf6;
+}
+
+html.light .nexus-modal-nexus-header {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.05) 0%, transparent 100%);
+  border-color: rgba(148, 163, 184, 0.2);
+}
+
+html.light .nexus-modal-info h2 {
+  color: #111827;
+}
+
+html.light .nexus-modal-info p {
+  color: #8b5cf6;
+}
+
+html.light .nexus-modal-meta {
+  color: #475569;
+}
+
+html.light .nexus-modal-desc {
+  color: #334155;
+}
+
+html.light .nexus-modal-post {
+  background: #f8fafc;
+  border-color: rgba(148, 163, 184, 0.2);
+}
+
+html.light .nexus-post-text {
+  color: #1f2937;
+}
+
+html.light .nexus-post-footer {
+  color: #475569;
 }

@@ -65,31 +65,45 @@
 
       <section class="nexus-section">
         <div class="nexus-form-card">
-          <h3>Создать нексус</h3>
+          <div class="nexus-form-header">
+            <h3>✨ Создать новый нексус</h3>
+            <p class="nexus-form-subtitle">Начните строить свое сообщество прямо сейчас</p>
+          </div>
           <form id="nexus-create-form" class="nexus-form" enctype="multipart/form-data">
             <div class="nexus-form-row">
-              <label>Название</label>
+              <label>📝 Название</label>
               <input type="text" name="title" id="nexus-title" placeholder="Например, Новые идеи" required />
             </div>
             <div class="nexus-form-row">
-              <label>Ник (латиница)</label>
+              <label>🔗 Ник (латиница)</label>
               <div class="nexus-handle-input">
                 <span>@</span>
                 <input type="text" name="handle" id="nexus-handle" placeholder="nexus_ideas" required />
               </div>
             </div>
             <div class="nexus-form-row">
-              <label>Описание</label>
+              <label>📋 Описание (опционально)</label>
               <textarea name="description" id="nexus-description" rows="3" placeholder="О чем этот нексус?"></textarea>
             </div>
             <div class="nexus-form-row">
-              <label>Аватар</label>
-              <input type="file" name="avatar" id="nexus-avatar" accept="image/*" />
+              <label>🖼️ Аватар</label>
+              <div class="nexus-file-input-wrapper">
+                <input type="file" name="avatar" id="nexus-avatar" accept="image/*" />
+                <div class="nexus-file-label">
+                  <span class="nexus-file-icon">📷</span>
+                  <span class="nexus-file-text">Выберите изображение</span>
+                </div>
+              </div>
+              <div id="nexus-file-name" class="nexus-file-name"></div>
             </div>
+            <div id="nexus-error" class="nexus-error"></div>
             <div class="nexus-form-actions">
-              <button type="submit" class="btn-primary">Создать</button>
-              <button type="reset" class="btn-secondary" onclick="document.getElementById('nexus-create-form').reset()">Отмена</button>
-              <div id="nexus-error" class="nexus-error"></div>
+              <button type="button" class="btn-secondary btn-cancel" id="nexus-cancel-btn">
+                <span>✕ Отмена</span>
+              </button>
+              <button type="submit" class="btn-primary btn-create">
+                <span>✓ Создать</span>
+              </button>
             </div>
           </form>
         </div>
@@ -99,14 +113,119 @@
     </main>
   </div>
 
+  <!-- Модальное окно для открытия нексуса на мобилях -->
+  <div id="nexus-modal" class="nexus-modal" style="display: none;">
+    <div class="nexus-modal-backdrop"></div>
+    <div class="nexus-modal-content">
+      <div class="nexus-modal-header">
+        <button class="nexus-modal-close" id="nexus-modal-close">✕</button>
+      </div>
+      <div class="nexus-modal-body" id="nexus-modal-body"></div>
+    </div>
+  </div>
+
   <script>
     const currentUsernameEl = document.getElementById('current-username');
     const adminPanelBtn = document.getElementById('admin-panel-btn');
     const nexusListEl = document.getElementById('nexus-list');
     const createForm = document.getElementById('nexus-create-form');
     const nexusErrorEl = document.getElementById('nexus-error');
+    const nexusModal = document.getElementById('nexus-modal');
+    const nexusModalBody = document.getElementById('nexus-modal-body');
 
     let currentUser = null;
+
+    // Функция для открытия нексуса в модальном окне
+    async function openNexusModal(nexusId) {
+      nexusModal.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+
+      try {
+        const res = await fetch(`/api/nexus/${nexusId}`);
+        const data = await res.json();
+        if (!data.ok) {
+          nexusModalBody.innerHTML = `<div class="nexus-error">${data.error || 'Нексус не найден'}</div>`;
+          return;
+        }
+
+        const nexus = data.nexus;
+        const authorName = nexus.author_display_name || nexus.author_username;
+        
+        const isMobile = window.innerWidth <= 768;
+        let html = `
+          <div class="nexus-modal-nexus-header">
+            <div class="nexus-modal-avatar" style="${nexus.avatar_data ? `background-image: url(${nexus.avatar_data})` : ''}">${!nexus.avatar_data ? nexus.title.charAt(0).toUpperCase() : ''}</div>
+            <div class="nexus-modal-info">
+              <h2>${nexus.title}</h2>
+              <p>@${nexus.handle}</p>
+              <div class="nexus-modal-meta">Автор: ${authorName} · Подписчики: ${nexus.subscribers_count} · Посты: ${nexus.posts_count}</div>
+              <p class="nexus-modal-desc">${nexus.description || 'Без описания'}</p>
+            </div>
+          </div>
+          <div class="nexus-modal-posts" id="nexus-modal-posts">Загрузка постов...</div>
+        `;
+
+        nexusModalBody.innerHTML = html;
+        await loadNexusPostsInModal(nexusId);
+      } catch (err) {
+        console.error(err);
+        nexusModalBody.innerHTML = '<div class="nexus-error">Ошибка при загрузке нексуса</div>';
+      }
+    }
+
+    // Функция для загрузки постов нексуса в модальное окно
+    async function loadNexusPostsInModal(nexusId) {
+      try {
+        const res = await fetch(`/api/nexus/${nexusId}/posts`);
+        const data = await res.json();
+        if (!data.ok) {
+          document.getElementById('nexus-modal-posts').innerHTML = '<div class="nexus-error">Не удалось загрузить посты</div>';
+          return;
+        }
+
+        const postsContainer = document.getElementById('nexus-modal-posts');
+        postsContainer.innerHTML = '';
+
+        if (data.posts.length === 0) {
+          postsContainer.innerHTML = '<div class="nexus-empty">Постов нет</div>';
+          return;
+        }
+
+        data.posts.forEach((post) => {
+          const postEl = document.createElement('div');
+          postEl.className = 'nexus-modal-post';
+          const authorName = post.author_display_name || post.author_username;
+          postEl.innerHTML = `
+            <div class="nexus-post-header">${authorName} · ${new Date(post.created_at).toLocaleString('ru-RU')}</div>
+            <div class="nexus-post-text">${post.text}</div>
+            <div class="nexus-post-footer">💬 ${post.comments_count} комментариев</div>
+          `;
+          postsContainer.appendChild(postEl);
+        });
+      } catch (err) {
+        console.error(err);
+        document.getElementById('nexus-modal-posts').innerHTML = '<div class="nexus-error">Ошибка загрузки постов</div>';
+      }
+    }
+
+    // Функция для закрытия модального окна
+    function closeNexusModal() {
+      nexusModal.style.display = 'none';
+      document.body.style.overflow = 'auto';
+    }
+
+    // Закрытие модального окна по клику на крест
+    document.getElementById('nexus-modal-close').addEventListener('click', closeNexusModal);
+
+    // Закрытие модального окна по клику на фон
+    document.querySelector('.nexus-modal-backdrop').addEventListener('click', closeNexusModal);
+
+    // Закрытие по клику на фон и ESC
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && nexusModal.style.display !== 'none') {
+        closeNexusModal();
+      }
+    });
 
     async function loadMe() {
       const res = await fetch('/me');
@@ -178,8 +297,15 @@
       const openBtn = document.createElement('button');
       openBtn.className = 'btn-secondary';
       openBtn.textContent = 'Открыть';
-      openBtn.onclick = () => {
-        window.location.href = `/nexus/profile?id=${item.id}`;
+      openBtn.onclick = (e) => {
+        e.preventDefault();
+        if (window.innerWidth <= 768) {
+          // На мобилях открываем в модальном окне
+          openNexusModal(item.id);
+        } else {
+          // На десктопе открываем на новой странице
+          window.location.href = `/nexus/profile?id=${item.id}`;
+        }
       };
 
       actions.appendChild(openBtn);
@@ -258,7 +384,30 @@
       }
 
       createForm.reset();
+      document.getElementById('nexus-file-name').textContent = '';
       await loadNexus();
+    });
+
+    // Обработчик для кнопки отмены
+    document.getElementById('nexus-cancel-btn').addEventListener('click', () => {
+      createForm.reset();
+      const fileNameEl = document.getElementById('nexus-file-name');
+      fileNameEl.textContent = '';
+      fileNameEl.classList.remove('nexus-file-selected');
+      nexusErrorEl.textContent = '';
+    });
+
+    // Отображение имени загруженного файла
+    document.getElementById('nexus-avatar').addEventListener('change', (e) => {
+      const fileName = e.target.files[0]?.name || '';
+      const fileNameEl = document.getElementById('nexus-file-name');
+      if (fileName) {
+        fileNameEl.textContent = `✓ Выбран: ${fileName}`;
+        fileNameEl.classList.add('nexus-file-selected');
+      } else {
+        fileNameEl.textContent = '';
+        fileNameEl.classList.remove('nexus-file-selected');
+      }
     });
 
     (async () => {
