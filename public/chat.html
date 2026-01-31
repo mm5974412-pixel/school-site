@@ -1075,13 +1075,15 @@
           li.style.padding = "4px 2px";
           li.textContent = "У вас пока нет чатов или нексусов.";
           chatList.appendChild(li);
-          if (chatTitleEl) chatTitleEl.textContent = "Nexora";
-          if (chatSubtitleEl) chatSubtitleEl.textContent = "Создайте новый чат или нексус.";
-          messagesDiv.innerHTML = "";
+          if (!currentNexusView) {
+            if (chatTitleEl) chatTitleEl.textContent = "Nexora";
+            if (chatSubtitleEl) chatSubtitleEl.textContent = "Создайте новый чат или нексус.";
+            messagesDiv.innerHTML = "";
+          }
           return;
         }
 
-        if (!currentChatId) {
+        if (!currentChatId && !currentNexusView) {
           if (chatTitleEl) chatTitleEl.textContent = "Nexora";
           if (chatSubtitleEl) chatSubtitleEl.textContent = "Выберите чат или нексус слева.";
         }
