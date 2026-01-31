@@ -2536,8 +2536,6 @@ html.light #delete-chat-btn:hover {
   background: rgba(0, 0, 0, 0.5);
   display: none;
   z-index: 1000;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
 }
 
 .message-context-menu.show {
