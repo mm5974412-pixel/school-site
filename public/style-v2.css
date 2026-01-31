@@ -1543,11 +1543,13 @@ html.light .chat-main-messages::-webkit-scrollbar-thumb {
 
 .chat-main-input {
   display: flex;
-  gap: 10px;
+  gap: 8px;
   padding-top: 10px;
   border-top: 1px solid rgba(148, 163, 184, 0.2);
   transition: all 0.3s ease;
   animation: inputFadeIn 0.7s ease 0.2s both;
+  flex-wrap: nowrap;
+  align-items: center;
 }
 
 @keyframes inputFadeIn {
@@ -1573,6 +1575,7 @@ html.light .chat-main-messages::-webkit-scrollbar-thumb {
 
 .chat-main-input input {
   flex: 1;
+  min-width: 100px;
   padding: 10px 14px;
   border-radius: 999px;
   border: 1px solid #1f2937;
@@ -1594,11 +1597,16 @@ html.light .chat-main-messages::-webkit-scrollbar-thumb {
 }
 
 .input-icon-btn {
-  padding: 10px 12px !important;
+  padding: 8px 10px !important;
   border-radius: 50% !important;
-  font-size: 18px;
+  font-size: 16px;
   transition: all 0.2s ease;
   flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
 }
 
 .input-icon-btn:hover {
@@ -1610,15 +1618,15 @@ html.light .chat-main-messages::-webkit-scrollbar-thumb {
 }
 
 .input-send-btn {
-  padding: 10px 14px !important;
+  padding: 8px 10px !important;
   border-radius: 50% !important;
   font-size: 16px;
   display: flex !important;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  width: 44px;
-  height: 44px;
+  width: 40px;
+  height: 40px;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -2050,11 +2058,16 @@ html.light #delete-chat-btn:hover {
     border-top: 1px solid rgba(148, 163, 184, 0.2);
     z-index: 5;
     overflow: visible;
+    flex-wrap: nowrap;
+    align-items: center;
   }
 
   body.mobile-dialog-open .input-icon-btn {
     padding: 6px 8px !important;
-    font-size: 16px;
+    font-size: 14px;
+    width: 36px !important;
+    height: 36px !important;
+    flex-shrink: 0;
   }
 
   body.mobile-dialog-open .input-send-btn {
@@ -2063,6 +2076,7 @@ html.light #delete-chat-btn:hover {
     font-size: 14px !important;
     padding: 6px 8px !important;
     min-width: 36px !important;
+    flex-shrink: 0;
   }
 
   .chat-main-input input {
@@ -2109,11 +2123,16 @@ html.light #delete-chat-btn:hover {
     padding: 6px 4px;
     padding-bottom: calc(6px + env(safe-area-inset-bottom));
     overflow: visible;
+    flex-wrap: nowrap;
+    align-items: center;
   }
 
   body.mobile-dialog-open .input-icon-btn {
     padding: 5px 6px !important;
-    font-size: 14px !important;
+    font-size: 12px !important;
+    width: 32px !important;
+    height: 32px !important;
+    flex-shrink: 0;
   }
 
   body.mobile-dialog-open .input-send-btn {
