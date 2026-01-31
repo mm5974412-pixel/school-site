@@ -250,6 +250,59 @@
   box-shadow: 0 6px 16px rgba(34, 197, 94, 0.5);
 }
 
+/* Список чатов в модальном окне пересылки */
+.forward-chat-list {
+  max-height: 300px;
+  overflow-y: auto;
+  margin: 12px 0 16px;
+  border-radius: 12px;
+  background: rgba(15, 23, 42, 0.4);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+.forward-chat-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+}
+
+.forward-chat-item:last-child {
+  border-bottom: none;
+}
+
+.forward-chat-item:hover {
+  background: rgba(59, 130, 246, 0.15);
+}
+
+.forward-chat-item:active {
+  background: rgba(59, 130, 246, 0.25);
+}
+
+.forward-chat-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 600;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.forward-chat-name {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 500;
+  color: #e5e7eb;
+}
+
 /* Поле ввода для prompt */
 .prompt-input {
   width: 100%;
@@ -1656,49 +1709,81 @@ html.light .chat-main-messages::-webkit-scrollbar-thumb {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
-  padding: 8px 12px;
+  gap: 12px;
+  padding: 10px 14px;
   margin: 8px 0 6px;
-  border-radius: 12px;
-  background: rgba(139, 92, 246, 0.12);
-  border: 1px solid rgba(139, 92, 246, 0.3);
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.18), rgba(99, 102, 241, 0.18));
+  border-left: 4px solid #8b5cf6;
+  border-top: 1px solid rgba(139, 92, 246, 0.4);
+  border-right: 1px solid rgba(139, 92, 246, 0.4);
+  border-bottom: 1px solid rgba(139, 92, 246, 0.4);
   color: #e0e7ff;
+  box-shadow: 0 2px 8px rgba(139, 92, 246, 0.2);
+  transition: all 0.2s ease;
+}
+
+.reply-preview:hover {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.25), rgba(99, 102, 241, 0.25));
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
 }
 
 .reply-preview-content {
   display: flex;
-  gap: 8px;
+  gap: 10px;
   align-items: center;
   min-width: 0;
+  flex: 1;
+}
+
+.reply-preview-icon {
+  font-size: 18px;
+  flex-shrink: 0;
 }
 
 .reply-preview-text {
   display: flex;
   flex-direction: column;
   min-width: 0;
+  gap: 2px;
+  flex: 1;
 }
 
 .reply-preview-author {
   font-weight: 600;
-  font-size: 12px;
+  font-size: 13px;
+  color: #c4b5fd;
 }
 
 .reply-preview-snippet {
-  font-size: 12px;
+  font-size: 13px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 360px;
+  color: #e0e7ff;
+  opacity: 0.9;
 }
 
 .reply-preview-cancel {
-  background: rgba(139, 92, 246, 0.15);
-  border: 1px solid rgba(139, 92, 246, 0.3);
+  background: rgba(139, 92, 246, 0.2);
+  border: 1px solid rgba(139, 92, 246, 0.4);
   color: #e0e7ff;
-  width: 28px;
-  height: 28px;
-  border-radius: 8px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.reply-preview-cancel:hover {
+  background: rgba(139, 92, 246, 0.35);
+  transform: scale(1.1);
 }
 
 /* ===== Служебные метки сообщений ===== */
@@ -1870,14 +1955,20 @@ html.light .pinned-message-btn {
 }
 
 html.light .reply-preview {
-  background: rgba(139, 92, 246, 0.08);
-  border-color: rgba(139, 92, 246, 0.2);
-  color: #3730a3;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.12), rgba(99, 102, 241, 0.12));
+  border-left: 4px solid #8b5cf6;
+  border-top: 1px solid rgba(139, 92, 246, 0.3);
+  border-right: 1px solid rgba(139, 92, 246, 0.3);
+  border-bottom: 1px solid rgba(139, 92, 246, 0.3);
+  color: #5b21b6;
+  box-shadow: 0 2px 8px rgba(139, 92, 246, 0.15);
 }
 
 html.light .reply-preview-cancel {
-  background: rgba(139, 92, 246, 0.1);
-  border-color: rgba(139, 92, 246, 0.2);
+  background: rgba(139, 92, 246, 0.15);
+  border-color: rgba(139, 92, 246, 0.3);
+  color: #5b21b6;
+}
   color: #3730a3;
 }
 

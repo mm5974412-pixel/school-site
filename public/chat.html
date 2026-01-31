@@ -158,6 +158,19 @@
     </div>
   </div>
 
+  <!-- Модальное окно выбора чата для пересылки -->
+  <div id="forward-chat-modal" class="confirm-modal">
+    <div class="confirm-modal-backdrop"></div>
+    <div class="confirm-modal-content">
+      <div class="confirm-modal-title">Переслать сообщение</div>
+      <div class="confirm-modal-message">Выберите чат:</div>
+      <div id="forward-chat-list" class="forward-chat-list"></div>
+      <div class="confirm-modal-buttons">
+        <button id="forward-chat-cancel" class="confirm-btn confirm-btn-cancel">Отмена</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Модальное окно уведомления (alert) -->
   <div id="alert-modal" class="confirm-modal">
     <div class="confirm-modal-backdrop"></div>
@@ -1694,9 +1707,10 @@ document.addEventListener('DOMContentLoaded', function() {
       }
 
       if (action === "copy") {
-        const textToCopy = getMessageCopyText(msg);
-        if (!textToCopy) return;
-        navigator.clipboard?.writeText(textToCopy).then(
+        // Берем актуальный текст из dataset, который обновляется при редактировании
+        const textToCopy = currentContextElement?.dataset?.text || msg.text || "";
+        if (!textToCopy.trim()) return;
+        navigator.clipboard?.writeText(textToCopy.trim()).then(
           () => showAlert("Сообщение скопировано", "Готово", "ОК", "primary"),
           () => showAlert("Не удалось скопировать", "Ошибка", "ОК", "danger")
         );
@@ -1716,57 +1730,8 @@ document.addEventListener('DOMContentLoaded', function() {
           return;
         }
 
-        showPrompt(
-          "Укажите логин пользователя",
-          "Переслать сообщение",
-          "",
-          (username) => {
-            if (!username) return;
-            fetch("/chats/new", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ username: username.trim() }),
-            })
-              .then((res) => res.json())
-              .then((data) => {
-                if (!data.ok) {
-                  showAlert(data.error || "Не удалось переслать", "Ошибка", "ОК", "danger");
-                  return;
-                }
-                const targetChatId = data.chatId;
-                if (!targetChatId) return;
-
-                const payload = {
-                  text: msg.text && msg.text.trim() ? msg.text.trim() : "",
-                  sticker: msg.sticker || msg.sticker_id || null,
-                };
-
-                if (!payload.text && !payload.sticker && forwardText) {
-                  payload.text = forwardText;
-                }
-
-                fetch(`/chats/${targetChatId}/messages`, {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify(payload),
-                })
-                  .then((res) => res.json())
-                  .then((result) => {
-                    if (!result.ok) {
-                      showAlert(result.error || "Не удалось переслать", "Ошибка", "ОК", "danger");
-                      return;
-                    }
-                    showAlert("Сообщение переслано", "Готово", "ОК", "primary");
-                  })
-                  .catch(() => {
-                    showAlert("Ошибка при пересылке", "Ошибка", "ОК", "danger");
-                  });
-              })
-              .catch(() => {
-                showAlert("Ошибка сервера", "Ошибка", "ОК", "danger");
-              });
-          }
-        );
+        // Показываем модальное окно с выбором чата
+        showForwardChatSelector(msg, forwardText);
         return;
       }
 
@@ -1909,6 +1874,101 @@ document.addEventListener('DOMContentLoaded', function() {
       })
       .catch(() => {
         showAlert("Произошла ошибка при отправке стикера", "Ошибка сервера", "ОК", "danger");
+      });
+  }
+
+  // ===== ПЕРЕСЫЛКА СООБЩЕНИЙ =====
+  function showForwardChatSelector(msg, forwardText) {
+    const modal = document.getElementById("forward-chat-modal");
+    const chatListEl = document.getElementById("forward-chat-list");
+    const cancelBtn = document.getElementById("forward-chat-cancel");
+    
+    // Очищаем список
+    chatListEl.innerHTML = "";
+    
+    // Загружаем список чатов
+    fetch("/chats/list")
+      .then((res) => res.json())
+      .then((data) => {
+        if (!data.ok || !data.chats || data.chats.length === 0) {
+          showAlert("У вас пока нет чатов для пересылки", "Нет чатов", "ОК", "primary");
+          return;
+        }
+        
+        // Отображаем список чатов
+        data.chats.forEach((chat) => {
+          const item = document.createElement("div");
+          item.className = "forward-chat-item";
+          
+          const avatar = document.createElement("div");
+          avatar.className = "forward-chat-avatar";
+          const displayName = chat.peer_display_name || chat.peer_username;
+          if (chat.peer_avatar_url && chat.peer_avatar_url.trim()) {
+            avatar.style.backgroundImage = `url('${chat.peer_avatar_url}')`;
+            avatar.style.backgroundSize = 'cover';
+            avatar.style.backgroundPosition = 'center';
+            avatar.textContent = '';
+          } else {
+            avatar.textContent = displayName ? displayName[0].toUpperCase() : "?";
+          }
+          
+          const name = document.createElement("div");
+          name.className = "forward-chat-name";
+          name.textContent = displayName;
+          
+          item.appendChild(avatar);
+          item.appendChild(name);
+          
+          // При клике на чат - пересылаем сообщение
+          item.addEventListener("click", () => {
+            forwardMessageToChat(chat.id, msg, forwardText);
+            modal.classList.remove("show");
+          });
+          
+          chatListEl.appendChild(item);
+        });
+        
+        modal.classList.add("show");
+      })
+      .catch((err) => {
+        console.error(err);
+        showAlert("Не удалось загрузить список чатов", "Ошибка", "ОК", "danger");
+      });
+    
+    // Обработчик закрытия
+    const handleClose = () => {
+      modal.classList.remove("show");
+      cancelBtn.removeEventListener("click", handleClose);
+    };
+    
+    cancelBtn.addEventListener("click", handleClose);
+  }
+  
+  function forwardMessageToChat(targetChatId, msg, forwardText) {
+    const payload = {
+      text: msg.text && msg.text.trim() ? msg.text.trim() : "",
+      sticker: msg.sticker || msg.sticker_id || null,
+    };
+
+    if (!payload.text && !payload.sticker && forwardText) {
+      payload.text = forwardText;
+    }
+
+    fetch(`/chats/${targetChatId}/messages`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    })
+      .then((res) => res.json())
+      .then((result) => {
+        if (!result.ok) {
+          showAlert(result.error || "Не удалось переслать", "Ошибка", "ОК", "danger");
+          return;
+        }
+        showAlert("Сообщение переслано", "Готово", "ОК", "primary");
+      })
+      .catch(() => {
+        showAlert("Ошибка при пересылке", "Ошибка", "ОК", "danger");
       });
   }
 
