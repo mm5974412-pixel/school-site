@@ -1410,8 +1410,15 @@
             });
             const data = await res.json();
             if (data.ok) {
-              loadChats();
-              openNexus(data.nexus || nexus);
+              // Перезагружаем данные нексуса с сервера после подписки
+              const nexusRes = await fetch(`/api/nexus/${nexus.id}`);
+              const nexusData = await nexusRes.json();
+              if (nexusData.ok) {
+                loadChats();
+                openNexus(nexusData.nexus);
+              } else {
+                alert('Ошибка при загрузке нексуса');
+              }
             } else {
               alert(data.error || 'Ошибка при подписке');
             }
