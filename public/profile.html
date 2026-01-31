@@ -760,14 +760,17 @@
     let currentUserData = null;
 
     function displayAvatar(element, avatarUrl, username) {
-      if (avatarUrl) {
+      if (avatarUrl && avatarUrl.trim()) {
         element.style.backgroundImage = `url('${avatarUrl}')`;
         element.style.backgroundSize = 'cover';
         element.style.backgroundPosition = 'center';
         element.textContent = '';
-      } else if (username) {
+      } else if (username && username.trim()) {
         element.style.backgroundImage = '';
         element.textContent = username[0].toUpperCase();
+      } else {
+        element.style.backgroundImage = '';
+        element.textContent = '?';
       }
     }
 
@@ -876,6 +879,9 @@
           displayAvatar(avatarPreview, result.avatarUrl, displayName);
           
           avatarInput.value = '';
+          
+          // Перезагружаем профиль из /me чтобы получить актуальные данные
+          loadCurrentUser();
         } else {
           showAlert(result.error || "Ошибка обновления", "Ошибка", "ОК", "danger");
         }

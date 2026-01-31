@@ -739,13 +739,17 @@ document.addEventListener('DOMContentLoaded', function() {
       
       // Отображаем аватар если есть, иначе первую букву имени
       const displayName = chat.peer_display_name || chat.peer_username;
-      if (chat.peer_avatar_url) {
+      if (chat.peer_avatar_url && chat.peer_avatar_url.trim()) {
         avatar.style.backgroundImage = `url('${chat.peer_avatar_url}')`;
         avatar.style.backgroundSize = 'cover';
         avatar.style.backgroundPosition = 'center';
         avatar.textContent = '';
+      } else if (displayName && displayName.trim()) {
+        avatar.style.backgroundImage = '';
+        avatar.textContent = displayName[0].toUpperCase();
       } else {
-        avatar.textContent = displayName ? displayName[0].toUpperCase() : "?";
+        avatar.style.backgroundImage = '';
+        avatar.textContent = "?";
       }
 
       const meta = document.createElement("div");
@@ -1189,14 +1193,17 @@ document.addEventListener('DOMContentLoaded', function() {
       // Обновляем модальное окно профиля если оно открыто
       if (profileModal && profileModal.classList.contains('show')) {
         profileUsername.textContent = peerName || 'Пользователь';
-        if (avatarUrl) {
+        if (avatarUrl && avatarUrl.trim()) {
           profileAvatar.style.backgroundImage = `url('${avatarUrl}')`;
           profileAvatar.style.backgroundSize = 'cover';
           profileAvatar.style.backgroundPosition = 'center';
           profileAvatar.textContent = '';
+        } else if (peerName && peerName.trim()) {
+          profileAvatar.style.backgroundImage = '';
+          profileAvatar.textContent = peerName[0].toUpperCase();
         } else {
           profileAvatar.style.backgroundImage = '';
-          profileAvatar.textContent = peerName ? peerName[0].toUpperCase() : '?';
+          profileAvatar.textContent = '?';
         }
       }
     }
@@ -1250,14 +1257,17 @@ document.addEventListener('DOMContentLoaded', function() {
         profileUsername.textContent = displayName;
         
         // Отображаем аватар
-        if (data.avatarUrl) {
+        if (data.avatarUrl && data.avatarUrl.trim()) {
           profileAvatar.style.backgroundImage = `url('${data.avatarUrl}')`;
           profileAvatar.style.backgroundSize = 'cover';
           profileAvatar.style.backgroundPosition = 'center';
           profileAvatar.textContent = '';
-        } else {
+        } else if (displayName && displayName.trim()) {
           profileAvatar.style.backgroundImage = '';
           profileAvatar.textContent = displayName[0].toUpperCase();
+        } else {
+          profileAvatar.style.backgroundImage = '';
+          profileAvatar.textContent = '?';
         }
         
         profileModal.classList.add('show');
@@ -1271,14 +1281,17 @@ document.addEventListener('DOMContentLoaded', function() {
         const displayName = currentPeerDisplayName || currentPeerUsername || 'Пользователь';
         profileUsername.textContent = displayName;
         
-        if (currentPeerAvatarUrl) {
+        if (currentPeerAvatarUrl && currentPeerAvatarUrl.trim()) {
           profileAvatar.style.backgroundImage = `url('${currentPeerAvatarUrl}')`;
           profileAvatar.style.backgroundSize = 'cover';
           profileAvatar.style.backgroundPosition = 'center';
           profileAvatar.textContent = '';
-        } else {
+        } else if (displayName && displayName.trim()) {
           profileAvatar.style.backgroundImage = '';
           profileAvatar.textContent = displayName[0].toUpperCase();
+        } else {
+          profileAvatar.style.backgroundImage = '';
+          profileAvatar.textContent = '?';
         }
         
         profileModal.classList.add('show');
