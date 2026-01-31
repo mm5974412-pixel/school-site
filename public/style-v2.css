@@ -2029,8 +2029,9 @@ html.light #delete-chat-btn:hover {
   .chat-main-messages {
     padding-right: 0;
     padding-bottom: 100px;
-    min-height: 400px;
-    overflow-y: visible;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
     max-height: none;
     -webkit-overflow-scrolling: touch;
   }
