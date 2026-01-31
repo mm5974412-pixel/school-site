@@ -1375,6 +1375,8 @@ app.post("/api/block-user/:userId", async (req, res) => {
     if (chatResult.rowCount > 0) {
       const chatId = chatResult.rows[0].id;
       io.to(`chat:${chatId}`).emit("chats:updated");
+      // Отправляем события блокировки в комнату чата для обоих пользователей
+      io.to(`chat:${chatId}`).emit("user:blocked", blockEvent);
     }
 
     return res.json({ ok: true, isBlocked: true });
@@ -1452,6 +1454,8 @@ app.post("/api/unblock-user/:userId", async (req, res) => {
     if (chatResult.rowCount > 0) {
       const chatId = chatResult.rows[0].id;
       io.to(`chat:${chatId}`).emit("chats:updated");
+      // Отправляем события разблокировки в комнату чата для обоих пользователей
+      io.to(`chat:${chatId}`).emit("user:unblocked", unblockEvent);
     }
 
     return res.json({ ok: true, isBlocked: false });
