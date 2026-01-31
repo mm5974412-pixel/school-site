@@ -1009,9 +1009,13 @@ document.addEventListener('DOMContentLoaded', function() {
       });
   }
   
-  // 🔥 Когда сервер говорит, что чаты обновились — перезагружаем список
+  // 🔥 Когда сервер говорит, что чаты обновились — перезагружаем список и сообщения
   socket.on("chats:updated", () => {
     loadChats();
+    // Если чат открыт - перезагружаем сообщения
+    if (currentChatId) {
+      loadMessages(currentChatId);
+    }
   });
 
   // Кнопка "Создать чат"
@@ -1424,10 +1428,20 @@ document.addEventListener('DOMContentLoaded', function() {
     if (!data) return;
     const { blockerId, blockedId } = data;
     
-    // Если я был заблокирован - только блокирую форму ввода
-    if (blockerId === currentPeerUserId && blockedId === currentUser?.id) {
+    // Обновляем UI в зависимости от того, кто блокировал
+    if (blockerId === currentUser?.id && blockedId === currentPeerUserId) {
+      // Я заблокировал - обновляю статус кнопки в профиле
+      if (profileBlockBtn && profileBlockBtn.dataset.blocked === 'false') {
+        profileBlockBtn.textContent = 'Разблокировать';
+        profileBlockBtn.dataset.blocked = 'true';
+      }
+      // Перезагружаем чаты для обновления
+      loadChats();
+    } else if (blockerId === currentPeerUserId && blockedId === currentUser?.id) {
+      // Меня заблокировали - блокирую форму ввода и перезагружаю чаты
       amBlockedInCurrentChat = true;
       updateInputBlockedStatus();
+      loadChats();
     }
   });
 
@@ -1436,10 +1450,20 @@ document.addEventListener('DOMContentLoaded', function() {
     if (!data) return;
     const { blockerId, unblockedId } = data;
     
-    // Если я был разблокирован - обновляю статус
-    if (blockerId === currentPeerUserId && unblockedId === currentUser?.id) {
+    // Обновляем UI в зависимости от того, кто разблокировал
+    if (blockerId === currentUser?.id && unblockedId === currentPeerUserId) {
+      // Я разблокировал - обновляю статус кнопки в профиле
+      if (profileBlockBtn && profileBlockBtn.dataset.blocked === 'true') {
+        profileBlockBtn.textContent = 'Заблокировать';
+        profileBlockBtn.dataset.blocked = 'false';
+      }
+      // Перезагружаем чаты для обновления
+      loadChats();
+    } else if (blockerId === currentPeerUserId && unblockedId === currentUser?.id) {
+      // Меня разблокировали - разблокирую форму ввода и перезагружаю чаты
       amBlockedInCurrentChat = false;
       updateInputBlockedStatus();
+      loadChats();
     }
   });
 

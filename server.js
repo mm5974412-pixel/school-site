@@ -1322,10 +1322,52 @@ app.post("/api/block-user/:userId", async (req, res) => {
       [blockerId, userId]
     );
 
-    // Отправляем уведомление только заблокированному пользователю о блокировке
+    // Получаем информацию о блокирующем пользователе для системного сообщения
+    const blockerInfo = await pool.query(
+      "SELECT username, display_name FROM users WHERE id = $1",
+      [blockerId]
+    );
+    const blockerName = blockerInfo.rows[0]?.display_name || blockerInfo.rows[0]?.username;
+
+    // Найдём чат между пользователями и сохраним системное сообщение
+    const chatResult = await pool.query(
+      `
+      SELECT c.id FROM chats c
+      JOIN chat_members cm1 ON cm1.chat_id = c.id AND cm1.user_id = $1
+      JOIN chat_members cm2 ON cm2.chat_id = c.id AND cm2.user_id = $2
+      `,
+      [blockerId, userId]
+    );
+
+    if (chatResult.rowCount > 0) {
+      const chatId = chatResult.rows[0].id;
+      
+      // Сохраняем системное сообщение в БД
+      await pool.query(
+        `
+        INSERT INTO messages (chat_id, sender_id, text, is_system)
+        VALUES ($1, $2, $3, $4)
+        `,
+        [chatId, blockerId, `${blockerName} заблокировал пользователя`, true]
+      );
+    }
+
+    // Отправляем событие обоим пользователям для обновления UI
+    const blockerUser = onlineUsers.get(parseInt(blockerId));
     const blockedUser = onlineUsers.get(parseInt(userId));
+    
+    const blockEvent = { blockerId: parseInt(blockerId), blockedId: parseInt(userId) };
+    
+    if (blockerUser) {
+      io.to(blockerUser.socketId).emit("user:blocked", blockEvent);
+    }
     if (blockedUser) {
-      io.to(blockedUser.socketId).emit("user:blocked", { blockerId: parseInt(blockerId), blockedId: parseInt(userId) });
+      io.to(blockedUser.socketId).emit("user:blocked", blockEvent);
+    }
+
+    // Обновляем список чатов и сообщений для обоих
+    if (chatResult.rowCount > 0) {
+      io.emit("chats:updated");
     }
 
     return res.json({ ok: true, isBlocked: true });
@@ -1350,10 +1392,52 @@ app.post("/api/unblock-user/:userId", async (req, res) => {
       [blockerId, userId]
     );
 
-    // Отправляем уведомление только разблокированному пользователю о разблокировке
+    // Получаем информацию о разблокирующем пользователе для системного сообщения
+    const blockerInfo = await pool.query(
+      "SELECT username, display_name FROM users WHERE id = $1",
+      [blockerId]
+    );
+    const blockerName = blockerInfo.rows[0]?.display_name || blockerInfo.rows[0]?.username;
+
+    // Найдём чат между пользователями и сохраним системное сообщение
+    const chatResult = await pool.query(
+      `
+      SELECT c.id FROM chats c
+      JOIN chat_members cm1 ON cm1.chat_id = c.id AND cm1.user_id = $1
+      JOIN chat_members cm2 ON cm2.chat_id = c.id AND cm2.user_id = $2
+      `,
+      [blockerId, userId]
+    );
+
+    if (chatResult.rowCount > 0) {
+      const chatId = chatResult.rows[0].id;
+      
+      // Сохраняем системное сообщение в БД
+      await pool.query(
+        `
+        INSERT INTO messages (chat_id, sender_id, text, is_system)
+        VALUES ($1, $2, $3, $4)
+        `,
+        [chatId, blockerId, `${blockerName} разблокировал пользователя`, true]
+      );
+    }
+
+    // Отправляем событие обоим пользователям для обновления UI
+    const blockerUser = onlineUsers.get(parseInt(blockerId));
     const unblockedUser = onlineUsers.get(parseInt(userId));
+    
+    const unblockEvent = { blockerId: parseInt(blockerId), unblockedId: parseInt(userId) };
+    
+    if (blockerUser) {
+      io.to(blockerUser.socketId).emit("user:unblocked", unblockEvent);
+    }
     if (unblockedUser) {
-      io.to(unblockedUser.socketId).emit("user:unblocked", { blockerId: parseInt(blockerId), unblockedId: parseInt(userId) });
+      io.to(unblockedUser.socketId).emit("user:unblocked", unblockEvent);
+    }
+
+    // Обновляем список чатов и сообщений для обоих
+    if (chatResult.rowCount > 0) {
+      io.emit("chats:updated");
     }
 
     return res.json({ ok: true, isBlocked: false });
