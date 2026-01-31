@@ -166,8 +166,28 @@ async function initDb() {
     );
   `);
 
+  // 6. Настройки сервера
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS settings (
+      key TEXT PRIMARY KEY,
+      value TEXT,
+      updated_at TIMESTAMPTZ DEFAULT NOW()
+    );
+  `);
+
+  // Инициализируем значения по умолчанию если их нет
+  await pool.query(`
+    INSERT INTO settings (key, value) VALUES ('site_name', 'NovaChat')
+    ON CONFLICT (key) DO NOTHING;
+  `);
+
+  await pool.query(`
+    INSERT INTO settings (key, value) VALUES ('max_file_size', '50')
+    ON CONFLICT (key) DO NOTHING;
+  `);
+
   console.log(
-    "База данных инициализирована (users, chats, chat_members, messages, blocked_users готовы)"
+    "База данных инициализирована (users, chats, chat_members, messages, blocked_users, settings готовы)"
   );
 }
 
@@ -1310,6 +1330,12 @@ app.post("/admin/users", checkAdmin, async (req, res) => {
     );
     
     const newUser = result.rows[0];
+    // Эмитить обновление для админ-панели
+    io.emit('users-update');
+    io.emit('stats-update', {
+      onlineUsers: onlineUsers.size
+    });
+    
     res.json({ 
       ok: true, 
       userId: newUser.id,
@@ -1334,6 +1360,11 @@ app.delete("/admin/users/:userId", checkAdmin, async (req, res) => {
   
   try {
     await pool.query("DELETE FROM users WHERE id = $1", [userId]);
+    // Эмитить обновление для админ-панели
+    io.emit('users-update');
+    io.emit('stats-update', {
+      onlineUsers: onlineUsers.size
+    });
     res.json({ ok: true });
   } catch (err) {
     console.error("User deletion error:", err);
@@ -1372,6 +1403,11 @@ app.delete("/admin/chats/:chatId", checkAdmin, async (req, res) => {
   
   try {
     await pool.query("DELETE FROM chats WHERE id = $1", [chatId]);
+    // Эмитить обновление для админ-панели
+    io.emit('chats-update');
+    io.emit('stats-update', {
+      onlineUsers: onlineUsers.size
+    });
     res.json({ ok: true });
   } catch (err) {
     console.error("Chat deletion error:", err);
@@ -1384,7 +1420,12 @@ app.get("/admin/messages", checkAdmin, async (req, res) => {
   try {
     const result = await pool.query(`
       SELECT m.id, m.chat_id, m.text, m.created_at,
-             u.username as author
+             u.username as author,
+             (SELECT STRING_AGG(u2.username, ', ')
+              FROM chat_members cm
+              LEFT JOIN users u2 ON cm.user_id = u2.id
+              WHERE cm.chat_id = m.chat_id AND cm.user_id != m.author_id
+              LIMIT 3) as recipients
       FROM messages m
       LEFT JOIN users u ON m.author_id = u.id
       ORDER BY m.created_at DESC
@@ -1395,6 +1436,7 @@ app.get("/admin/messages", checkAdmin, async (req, res) => {
       id: m.id,
       chat_id: m.chat_id,
       author: m.author || 'Unknown',
+      recipients: m.recipients || 'N/A',
       content: m.text,
       created_at: m.created_at
     })));
@@ -1410,6 +1452,11 @@ app.delete("/admin/messages/:messageId", checkAdmin, async (req, res) => {
   
   try {
     await pool.query("DELETE FROM messages WHERE id = $1", [messageId]);
+    // Эмитить обновление для админ-панели
+    io.emit('messages-update');
+    io.emit('stats-update', {
+      onlineUsers: onlineUsers.size
+    });
     res.json({ ok: true });
   } catch (err) {
     console.error("Message deletion error:", err);
@@ -1543,6 +1590,55 @@ app.get("/admin/content", checkAdmin, async (req, res) => {
     res.json({ ok: true, content: data });
   } catch (err) {
     console.error("Content fetch error:", err);
+    res.status(500).json({ ok: false, error: "Server error" });
+  }
+});
+
+// ===== SETTINGS ENDPOINTS =====
+
+// Получить настройки
+app.get("/admin/settings", checkAdmin, async (req, res) => {
+  try {
+    const result = await pool.query("SELECT key, value FROM settings");
+    const settings = {};
+    result.rows.forEach(row => {
+      settings[row.key] = row.value;
+    });
+    res.json(settings);
+  } catch (err) {
+    console.error("Settings fetch error:", err);
+    res.status(500).json({ ok: false, error: "Server error" });
+  }
+});
+
+// Сохранить настройки
+app.post("/admin/settings", checkAdmin, async (req, res) => {
+  const { site_name, max_file_size } = req.body;
+  
+  try {
+    // Сохраняем название сайта
+    if (site_name !== undefined) {
+      await pool.query(
+        "INSERT INTO settings (key, value) VALUES ($1, $2) ON CONFLICT (key) DO UPDATE SET value = $2, updated_at = NOW()",
+        ["site_name", String(site_name)]
+      );
+    }
+    
+    // Сохраняем максимальный размер файла
+    if (max_file_size !== undefined) {
+      const maxSize = Math.max(1, Math.min(500, parseInt(max_file_size) || 50)); // от 1 до 500 MB
+      await pool.query(
+        "INSERT INTO settings (key, value) VALUES ($1, $2) ON CONFLICT (key) DO UPDATE SET value = $2, updated_at = NOW()",
+        ["max_file_size", String(maxSize)]
+      );
+    }
+    
+    // Эмитим обновление
+    io.emit('settings-update', { site_name, max_file_size });
+    
+    res.json({ ok: true });
+  } catch (err) {
+    console.error("Settings save error:", err);
     res.status(500).json({ ok: false, error: "Server error" });
   }
 });

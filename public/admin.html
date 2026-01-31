@@ -704,7 +704,7 @@
               <tr>
                 <th>ID</th>
                 <th>Автор</th>
-                <th>Чат</th>
+                <th>Получатель</th>
                 <th>Сообщение</th>
                 <th>Дата</th>
                 <th>Действия</th>
@@ -728,15 +728,15 @@
           
           <div class="form-group">
             <label class="form-label">Название сайта</label>
-            <input type="text" class="form-input" id="site-name" value="Nexora" />
+            <input type="text" class="form-input" id="site-name" placeholder="Введите название сайта" />
           </div>
 
           <div class="form-group">
             <label class="form-label">Максимальный размер файла (MB)</label>
-            <input type="number" class="form-input" id="max-file-size" value="50" />
+            <input type="number" class="form-input" id="max-file-size" min="1" max="500" placeholder="50" />
           </div>
 
-          <button class="btn btn-primary">💾 Сохранить настройки</button>
+          <button class="btn btn-primary" id="save-settings-btn">💾 Сохранить настройки</button>
         </div>
       </div>
     </div>
@@ -801,6 +801,7 @@
     // При подключении отправить уведомление о подключении админа
     socket.on('connect', () => {
       console.log('Admin panel connected to server');
+      socket.emit('user-online', { isAdmin: true });
     });
     
     // Слушать обновления статистики
@@ -810,6 +811,22 @@
         statsCache.onlineUsers = stats.onlineUsers;
         updateDashboardOnline();
       }
+    });
+    
+    // Слушать обновления для реального времени
+    socket.on('users-update', () => {
+      const currentSection = document.querySelector('.nav-btn.active')?.dataset.section;
+      if (currentSection === 'users') loadUsers();
+    });
+    
+    socket.on('chats-update', () => {
+      const currentSection = document.querySelector('.nav-btn.active')?.dataset.section;
+      if (currentSection === 'chats') loadChats();
+    });
+    
+    socket.on('messages-update', () => {
+      const currentSection = document.querySelector('.nav-btn.active')?.dataset.section;
+      if (currentSection === 'messages') loadMessages();
     });
     
     // Проверить сессию при загрузке страницы
@@ -823,8 +840,15 @@
           document.getElementById('admin-panel').style.display = 'flex';
           loadStats();
           loadUsers();
-          // Обновлять статистику каждые 5 секунд
-          setInterval(() => loadStats(), 5000);
+          // Обновлять все разделы каждые 5 секунд
+          setInterval(() => {
+            loadStats();
+            const currentSection = document.querySelector('.nav-btn.active')?.dataset.section;
+            if (currentSection === 'users') loadUsers();
+            if (currentSection === 'chats') loadChats();
+            if (currentSection === 'messages') loadMessages();
+            if (currentSection === 'permissions') loadPermissionsUsers();
+          }, 5000);
         } else {
           document.getElementById('login-screen').style.display = 'flex';
           document.getElementById('admin-panel').style.display = 'none';
@@ -904,6 +928,7 @@
         if (section === 'chats') loadChats();
         if (section === 'messages') loadMessages();
         if (section === 'permissions') loadPermissionsUsers();
+        if (section === 'settings') loadSettings();
       });
     });
 
@@ -1068,7 +1093,7 @@
             row.innerHTML = `
               <td>${msg.id}</td>
               <td>${msg.author || 'Unknown'}</td>
-              <td>${msg.chat_name || 'N/A'}</td>
+              <td>${msg.recipients || 'N/A'}</td>
               <td>${msg.content.substring(0, 50)}...</td>
               <td>${new Date(msg.created_at).toLocaleDateString('ru-RU')}</td>
               <td>
@@ -1220,6 +1245,57 @@
         }
       } catch (err) {
         console.error('Error saving image:', err);
+      }
+    });
+
+    // Load settings
+    async function loadSettings() {
+      try {
+        const response = await fetch('/admin/settings', { credentials: 'include' });
+        if (response.ok) {
+          const settings = await response.json();
+          document.getElementById('site-name').value = settings.site_name || 'NovaChat';
+          document.getElementById('max-file-size').value = settings.max_file_size || '50';
+        }
+      } catch (err) {
+        console.error('Error loading settings:', err);
+      }
+    }
+
+    // Save settings
+    document.getElementById('save-settings-btn').addEventListener('click', async () => {
+      const siteName = document.getElementById('site-name').value.trim();
+      const maxFileSize = parseInt(document.getElementById('max-file-size').value) || 50;
+
+      if (!siteName) {
+        alert('❌ Введите название сайта');
+        return;
+      }
+
+      if (maxFileSize < 1 || maxFileSize > 500) {
+        alert('❌ Размер файла должен быть от 1 до 500 MB');
+        return;
+      }
+
+      try {
+        const response = await fetch('/admin/settings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({
+            site_name: siteName,
+            max_file_size: maxFileSize
+          })
+        });
+
+        if (response.ok) {
+          alert('✓ Настройки сохранены успешно');
+        } else {
+          alert('❌ Ошибка при сохранении настроек');
+        }
+      } catch (err) {
+        console.error('Error saving settings:', err);
+        alert('❌ Ошибка при сохранении настроек: ' + err.message);
       }
     });
 
