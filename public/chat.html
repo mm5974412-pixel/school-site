@@ -1390,18 +1390,16 @@
             });
         };
       } else if (!isSubscribed) {
-        // Если не подписан - скрываем форму и показываем кнопку подписки
-        form.style.display = 'none';
-        
-        const subscribeForm = document.createElement("div");
-        subscribeForm.style.cssText = "padding: 16px; background: linear-gradient(135deg, #111827 0%, #0f172a 100%); border-radius: 16px; margin-bottom: 16px;";
-        subscribeForm.innerHTML = `
-          <p style="color: #9ca3af; margin: 0 0 12px 0; text-align: center;">Подпишитесь на нексус, чтобы читать посты и участвовать в обсуждениях</p>
+        // Если не подписан - скрываем обычную форму и показываем кнопку подписки внизу
+        form.style.display = 'flex';
+        form.style.flexDirection = 'column';
+        form.style.gap = '12px';
+        form.innerHTML = `
+          <p style="color: #9ca3af; text-align: center; margin: 0; font-size: 14px;">Подпишитесь на нексус, чтобы читать посты и участвовать в обсуждениях</p>
           <button id="nexus-subscribe-btn" class="btn-primary" style="width: 100%; padding: 12px; font-size: 16px;">✨ Подписаться на нексус</button>
         `;
-        messagesDiv.appendChild(subscribeForm);
-
-        const subscribeBtn = subscribeForm.querySelector("#nexus-subscribe-btn");
+        
+        const subscribeBtn = form.querySelector("#nexus-subscribe-btn");
         subscribeBtn.addEventListener("click", async () => {
           subscribeBtn.disabled = true;
           try {
