@@ -1840,6 +1840,112 @@ app.post("/api/nexpheres/:nexphereId/messages", requireAuth, async (req, res) =>
   }
 });
 
+// Удалить сообщение из нексферы
+app.delete("/api/nexpheres/:nexphereId/messages/:messageId", requireAuth, async (req, res) => {
+  try {
+    const userId = req.session.user.id;
+    const nexphereId = parseInt(req.params.nexphereId, 10);
+    const messageId = parseInt(req.params.messageId, 10);
+
+    if (!nexphereId || !messageId || Number.isNaN(nexphereId) || Number.isNaN(messageId)) {
+      return res.status(400).json({ ok: false, error: "Некорректные параметры" });
+    }
+
+    // Проверяем, что пользователь участник нексферы
+    const memberCheck = await pool.query(
+      "SELECT 1 FROM nexphere_members WHERE nexphere_id = $1 AND user_id = $2 LIMIT 1",
+      [nexphereId, userId]
+    );
+
+    if (memberCheck.rowCount === 0) {
+      return res.status(403).json({ ok: false, error: "У вас нет доступа к этой нексфере" });
+    }
+
+    // Проверяем, что это сообщение принадлежит пользователю или он владелец нексферы
+    const msgCheck = await pool.query(
+      "SELECT author_id FROM nexphere_messages WHERE id = $1 AND nexphere_id = $2 LIMIT 1",
+      [messageId, nexphereId]
+    );
+
+    if (msgCheck.rowCount === 0) {
+      return res.status(404).json({ ok: false, error: "Сообщение не найдено" });
+    }
+
+    const authorId = msgCheck.rows[0].author_id;
+
+    // Проверяем права на удаление (свое сообщение или владелец нексферы)
+    const ownerCheck = await pool.query(
+      "SELECT owner_id FROM nexpheres WHERE id = $1 LIMIT 1",
+      [nexphereId]
+    );
+
+    const ownerId = ownerCheck.rows[0]?.owner_id;
+    const canDelete = userId === authorId || userId === ownerId;
+
+    if (!canDelete) {
+      return res.status(403).json({ ok: false, error: "Вы можете удалять только свои сообщения" });
+    }
+
+    await pool.query(
+      "DELETE FROM nexphere_messages WHERE id = $1",
+      [messageId]
+    );
+
+    res.json({ ok: true });
+  } catch (err) {
+    console.error("Ошибка при удалении сообщения из нексферы:", err);
+    res.status(500).json({ ok: false, error: "Ошибка сервера" });
+  }
+});
+
+// Изменить сообщение в нексфере
+app.patch("/api/nexpheres/:nexphereId/messages/:messageId", requireAuth, async (req, res) => {
+  try {
+    const userId = req.session.user.id;
+    const nexphereId = parseInt(req.params.nexphereId, 10);
+    const messageId = parseInt(req.params.messageId, 10);
+    const { text } = req.body;
+
+    if (!nexphereId || !messageId || Number.isNaN(nexphereId) || Number.isNaN(messageId)) {
+      return res.status(400).json({ ok: false, error: "Некорректные параметры" });
+    }
+
+    if (!text || !text.trim()) {
+      return res.status(400).json({ ok: false, error: "Текст не может быть пустым" });
+    }
+
+    // Проверяем, что пользователь участник нексферы
+    const memberCheck = await pool.query(
+      "SELECT 1 FROM nexphere_members WHERE nexphere_id = $1 AND user_id = $2 LIMIT 1",
+      [nexphereId, userId]
+    );
+
+    if (memberCheck.rowCount === 0) {
+      return res.status(403).json({ ok: false, error: "У вас нет доступа к этой нексфере" });
+    }
+
+    // Проверяем, что это сообщение принадлежит пользователю
+    const msgCheck = await pool.query(
+      "SELECT id FROM nexphere_messages WHERE id = $1 AND nexphere_id = $2 AND author_id = $3 LIMIT 1",
+      [messageId, nexphereId, userId]
+    );
+
+    if (msgCheck.rowCount === 0) {
+      return res.status(403).json({ ok: false, error: "Вы можете редактировать только свои сообщения" });
+    }
+
+    await pool.query(
+      "UPDATE nexphere_messages SET text = $1 WHERE id = $2",
+      [text.trim(), messageId]
+    );
+
+    res.json({ ok: true });
+  } catch (err) {
+    console.error("Ошибка при изменении сообщения в нексфере:", err);
+    res.status(500).json({ ok: false, error: "Ошибка сервера" });
+  }
+});
+
 // ======= СПИСОК ЛИЧНЫХ ЧАТОВ =======
 app.get("/chats/list", async (req, res) => {
   if (!req.session.user) {

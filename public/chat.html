@@ -3035,12 +3035,15 @@
       contextMenu.classList.remove("show");
 
       if (action === "pin") {
-        setPinnedMessage(currentChatId, msg);
+        if (currentChatId) {
+          setPinnedMessage(currentChatId, msg);
+        }
         return;
       }
 
       if (action === "edit") {
-        // Берем актуальный текст из dataset, который хранит исходный текст сообщения
+        if (!currentChatId && !window.currentNexphereId) return;
+
         const textToEdit = currentContextElement?.dataset?.text || msg.text || "";
         showPrompt(
           "Измените сообщение",
@@ -3048,29 +3051,51 @@
           textToEdit,
           (newText) => {
             if (!newText || !newText.trim()) return;
-            fetch(`/chats/${currentChatId}/messages/${msg.id}`, {
-              method: "PATCH",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ text: newText.trim() }),
-            })
-              .then((res) => res.json())
-              .then((data) => {
-                if (!data.ok) {
-                  showAlert(data.error || "Не удалось изменить сообщение", "Ошибка", "ОК", "danger");
-                  return;
-                }
-                updateMessageTextInDom(msg.id, newText.trim());
+
+            // Для личного чата
+            if (currentChatId) {
+              fetch(`/chats/${currentChatId}/messages/${msg.id}`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ text: newText.trim() }),
               })
-              .catch(() => {
-                showAlert("Произошла ошибка при изменении сообщения", "Ошибка сервера", "ОК", "danger");
-              });
+                .then((res) => res.json())
+                .then((data) => {
+                  if (!data.ok) {
+                    showAlert(data.error || "Не удалось изменить сообщение", "Ошибка", "ОК", "danger");
+                    return;
+                  }
+                  updateMessageTextInDom(msg.id, newText.trim());
+                })
+                .catch(() => {
+                  showAlert("Произошла ошибка при изменении сообщения", "Ошибка сервера", "ОК", "danger");
+                });
+            }
+            // Для нексферы
+            else if (window.currentNexphereId) {
+              fetch(`/api/nexpheres/${window.currentNexphereId}/messages/${msg.id}`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ text: newText.trim() }),
+              })
+                .then((res) => res.json())
+                .then((data) => {
+                  if (!data.ok) {
+                    showAlert(data.error || "Не удалось изменить сообщение", "Ошибка", "ОК", "danger");
+                    return;
+                  }
+                  updateMessageTextInDom(msg.id, newText.trim());
+                })
+                .catch(() => {
+                  showAlert("Произошла ошибка при изменении сообщения", "Ошибка сервера", "ОК", "danger");
+                });
+            }
           }
         );
         return;
       }
 
       if (action === "copy") {
-        // Берем актуальный текст из dataset, который обновляется при редактировании
         const textToCopy = currentContextElement?.dataset?.text || msg.text || "";
         if (!textToCopy.trim()) return;
         navigator.clipboard?.writeText(textToCopy.trim()).then(
@@ -3093,29 +3118,46 @@
           return;
         }
 
-        // Показываем модальное окно с выбором чата
         showForwardChatSelector(msg, forwardText);
         return;
       }
 
       if (action === "delete") {
-        if (!currentChatId) return;
+        if (!currentChatId && !window.currentNexphereId) return;
         showConfirm(
           "Сообщение будет удалено безвозвратно",
           "Удалить сообщение?",
           () => {
-            fetch(`/chats/${currentChatId}/messages/${msg.id}`, {
-              method: "DELETE",
-            })
-              .then((res) => res.json())
-              .then((data) => {
-                if (!data.ok) {
-                  showAlert(data.error || "Не удалось удалить сообщение", "Ошибка", "ОК", "danger");
-                }
+            // Для личного чата
+            if (currentChatId) {
+              fetch(`/chats/${currentChatId}/messages/${msg.id}`, {
+                method: "DELETE",
               })
-              .catch(() => {
-                showAlert("Произошла ошибка при удалении сообщения", "Ошибка сервера", "ОК", "danger");
-              });
+                .then((res) => res.json())
+                .then((data) => {
+                  if (!data.ok) {
+                    showAlert(data.error || "Не удалось удалить сообщение", "Ошибка", "ОК", "danger");
+                  }
+                })
+                .catch(() => {
+                  showAlert("Произошла ошибка при удалении сообщения", "Ошибка сервера", "ОК", "danger");
+                });
+            }
+            // Для нексферы
+            else if (window.currentNexphereId) {
+              fetch(`/api/nexpheres/${window.currentNexphereId}/messages/${msg.id}`, {
+                method: "DELETE",
+              })
+                .then((res) => res.json())
+                .then((data) => {
+                  if (!data.ok) {
+                    showAlert(data.error || "Не удалось удалить сообщение", "Ошибка", "ОК", "danger");
+                  }
+                })
+                .catch(() => {
+                  showAlert("Произошла ошибка при удалении сообщения", "Ошибка сервера", "ОК", "danger");
+                });
+            }
           },
           null,
           "Удалить",
