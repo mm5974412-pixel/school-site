@@ -1029,85 +1029,136 @@ document.addEventListener('DOMContentLoaded', function() {
         openChat(chat);
       });
 
-      chatList.appendChild(li);
-    });
+    }
   }
 
   // Загрузка списка чатов
   function loadChats() {
-    fetch("/chats/list")
-      .then((res) => {
-        if (!res.ok) throw new Error("Ошибка загрузки чатов");
-        return res.json();
-      })
-      .then((data) => {
-        if (!data.ok) throw new Error(data.error || "Ошибка");
-        // Загружаем чаты
-        renderChats(data.chats);
-        // Также загружаем нексусы, если есть
-        loadNexusForChat();
+    Promise.all([
+      fetch("/chats/list").then(res => res.json()),
+      fetch("/api/nexus").catch(() => ({ ok: true, nexus: [] })).then(r => r.json ? r.json() : { ok: true, nexus: [] })
+    ])
+      .then(([chatsData, nexusData]) => {
+        if (!chatList) return;
+        chatList.innerHTML = "";
+
+        const chats = chatsData.ok ? chatsData.chats : [];
+        const nexuses = nexusData.ok && nexusData.nexus ? nexusData.nexus : [];
+        const allItems = [...(chats || []), ...(nexuses || [])];
+
+        if (allItems.length === 0) {
+          const li = document.createElement("li");
+          li.style.fontSize = "12px";
+          li.style.color = "#6b7280";
+          li.style.padding = "4px 2px";
+          li.textContent = "У вас пока нет чатов или нексусов.";
+          chatList.appendChild(li);
+          if (chatTitleEl) chatTitleEl.textContent = "Nexora";
+          if (chatSubtitleEl) chatSubtitleEl.textContent = "Создайте новый чат или нексус.";
+          messagesDiv.innerHTML = "";
+          return;
+        }
+
+        if (!currentChatId) {
+          if (chatTitleEl) chatTitleEl.textContent = "Nexora";
+          if (chatSubtitleEl) chatSubtitleEl.textContent = "Выберите чат или нексус слева.";
+        }
+
+        // Добавляем чаты
+        chats.forEach((chat) => {
+          const li = document.createElement("li");
+          li.classList.add("chat-item");
+          li.dataset.chatId = chat.id;
+
+          const avatar = document.createElement("div");
+          avatar.classList.add("chat-avatar");
+          
+          const displayName = chat.peer_display_name || chat.peer_username;
+          if (chat.peer_avatar_url && chat.peer_avatar_url.trim()) {
+            avatar.style.backgroundImage = `url('${chat.peer_avatar_url}')`;
+            avatar.style.backgroundSize = 'cover';
+            avatar.style.backgroundPosition = 'center';
+            avatar.textContent = '';
+          } else if (displayName && displayName.trim()) {
+            avatar.style.backgroundImage = '';
+            avatar.textContent = displayName[0].toUpperCase();
+          } else {
+            avatar.style.backgroundImage = '';
+            avatar.textContent = "?";
+          }
+
+          const meta = document.createElement("div");
+          meta.classList.add("chat-meta");
+
+          const name = document.createElement("div");
+          name.classList.add("chat-name");
+          name.textContent = displayName;
+
+          const last = document.createElement("div");
+          last.classList.add("chat-last");
+          last.textContent = "Личный чат";
+
+          meta.appendChild(name);
+          meta.appendChild(last);
+          li.appendChild(avatar);
+          li.appendChild(meta);
+
+          li.addEventListener("click", () => {
+            if (currentChatId && currentChatId !== chat.id) {
+              socket.emit("leave-chat", currentChatId);
+            }
+            document.querySelectorAll(".chat-item").forEach((el) => el.classList.remove("chat-item-active"));
+            li.classList.add("chat-item-active");
+            openChat(chat);
+          });
+
+          chatList.appendChild(li);
+        });
+
+        // Добавляем нексусы
+        nexuses.forEach((nexus) => {
+          const li = document.createElement("li");
+          li.classList.add("chat-item");
+          li.dataset.nexusId = nexus.id;
+
+          const avatar = document.createElement("div");
+          avatar.classList.add("chat-avatar");
+          if (nexus.avatar_data) {
+            avatar.style.backgroundImage = `url(${nexus.avatar_data})`;
+            avatar.style.backgroundSize = 'cover';
+            avatar.style.backgroundPosition = 'center';
+          } else {
+            avatar.textContent = (nexus.title || "N").charAt(0).toUpperCase();
+          }
+
+          const meta = document.createElement("div");
+          meta.classList.add("chat-meta");
+
+          const name = document.createElement("div");
+          name.classList.add("chat-name");
+          name.textContent = nexus.title;
+
+          const last = document.createElement("div");
+          last.classList.add("chat-last");
+          last.textContent = `🧭 ${nexus.posts_count} постов · ${nexus.subscribers_count} подписчиков`;
+
+          meta.appendChild(name);
+          meta.appendChild(last);
+          li.appendChild(avatar);
+          li.appendChild(meta);
+
+          li.addEventListener("click", () => {
+            document.querySelectorAll(".chat-item").forEach((el) => el.classList.remove("chat-item-active"));
+            li.classList.add("chat-item-active");
+            openNexus(nexus);
+          });
+
+          chatList.appendChild(li);
+        });
       })
       .catch((err) => {
         console.error(err);
       });
-  }
-
-  // Загрузить нексусы для отображения в списке чатов
-  function loadNexusForChat() {
-    fetch("/api/nexus")
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.ok && data.nexus) {
-          renderNexusInChat(data.nexus);
-        }
-      })
-      .catch((err) => {
-        console.error("Ошибка при загрузке нексусов:", err);
-      });
-  }
-
-  // Отрисовка нексусов в списке чатов
-  function renderNexusInChat(nexuses) {
-    nexuses.forEach((nexus) => {
-      const li = document.createElement("li");
-      li.classList.add("chat-item");
-      li.dataset.nexusId = nexus.id;
-
-      const avatar = document.createElement("div");
-      avatar.classList.add("chat-avatar");
-      if (nexus.avatar_data) {
-        avatar.style.backgroundImage = `url(${nexus.avatar_data})`;
-      } else {
-        avatar.textContent = (nexus.title || "N").charAt(0).toUpperCase();
-      }
-
-      const meta = document.createElement("div");
-      meta.classList.add("chat-meta");
-
-      const name = document.createElement("div");
-      name.classList.add("chat-name");
-      name.textContent = nexus.title;
-
-      const last = document.createElement("div");
-      last.classList.add("chat-last");
-      last.textContent = `🧭 ${nexus.posts_count} постов · ${nexus.subscribers_count} подписчиков`;
-
-      meta.appendChild(name);
-      meta.appendChild(last);
-      li.appendChild(avatar);
-      li.appendChild(meta);
-
-      li.addEventListener("click", () => {
-        // Переключаемся на нексус
-        document
-          .querySelectorAll(".chat-item")
-          .forEach((el) => el.classList.remove("chat-item-active"));
-        li.classList.add("chat-item-active");
-        openNexus(nexus);
-      });
-
-      chatList.appendChild(li);
-    });
   }
   
   // 🔥 Когда сервер говорит, что чаты обновились — перезагружаем список и сообщения
