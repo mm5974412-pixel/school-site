@@ -955,9 +955,22 @@ html.light body {
   }
 
   #theme-toggle {
-    width: 32px !important;
-    height: 32px !important;
-    font-size: 16px !important;
+    width: 100% !important;
+    height: 48px !important;
+    font-size: 18px !important;
+    padding: 8px !important;
+  }
+
+  #nexus-btn,
+  #create-nexus-btn {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 48px !important;
+    padding: 8px !important;
+    font-size: 14px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
   }
 }
 
@@ -2642,7 +2655,7 @@ html.light #delete-chat-btn:hover {
   }
 
   .chat-list {
-    max-height: 35vh;
+    max-height: 55vh;
     background: linear-gradient(180deg, rgba(20, 30, 48, 0.6), rgba(15, 23, 42, 0.4));
     border-radius: 14px;
     padding: 4px;

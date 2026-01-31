@@ -171,20 +171,25 @@
     // Инициализация
     async function init() {
       try {
-        const response = await fetch('/profile');
+        const response = await fetch('/me');
         if (!response.ok) {
           window.location.href = '/login.html';
           return;
         }
 
         const data = await response.json();
-        currentUserId = data.user.id;
-        currentUsername = data.user.display_name || data.user.username;
+        if (!data.loggedIn) {
+          window.location.href = '/login.html';
+          return;
+        }
+
+        currentUserId = data.id;
+        currentUsername = data.displayName || data.username;
 
         document.getElementById('current-username').textContent = currentUsername;
 
         // Проверяем админа
-        if (data.user.is_admin) {
+        if (data.isAdmin) {
           document.getElementById('admin-panel-btn').style.display = 'block';
         }
 
