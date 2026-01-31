@@ -16,6 +16,7 @@
     })();
   </script>
   <script src="/theme-toggle.js" defer></script>
+  <script src="/socket.io/socket.io.js" defer></script>
 </head>
 <body>
   <div class="app">
@@ -577,6 +578,38 @@
       const div = document.createElement('div');
       div.textContent = text;
       return div.innerHTML;
+    }
+
+    // ===== REAL-TIME обновления через Socket.io =====
+    let socket = null;
+    
+    function initializeSocket() {
+      // Ждём, пока Socket.IO загрузится, если это необходимо
+      if (typeof io === 'undefined') {
+        setTimeout(initializeSocket, 100);
+        return;
+      }
+      
+      socket = io();
+      
+      // Слушаем события обновления нексфер
+      socket.on('nexferies:updated', () => {
+        console.log('Нексферы обновлены, перезагружаем...');
+        loadNexferies();
+      });
+
+      // Слушаем события обновления нексоленты (для синхронизации с нексусами)
+      socket.on('nexus:updated', () => {
+        console.log('Нексолента обновлена, проверяем нексферы...');
+        loadNexferies();
+      });
+    }
+
+    // Инициализируем Socket.IO после загрузки страницы
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initializeSocket);
+    } else {
+      initializeSocket();
     }
 
     // Инициализируем при загрузке

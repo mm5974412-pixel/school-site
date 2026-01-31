@@ -844,6 +844,9 @@ app.post("/api/nexus", requireAuth, upload.single("avatar"), async (req, res) =>
       [nexus.id, userId]
     );
 
+    // Уведомляем всех клиентов об обновлении нексоленты
+    io.emit("nexus:updated");
+
     res.json({ ok: true, nexus });
   } catch (err) {
     console.error("Ошибка при создании нексуса:", err);
@@ -1050,6 +1053,9 @@ app.post("/api/nexus/:nexusId/subscribe", requireAuth, async (req, res) => {
       [nexusId, userId]
     );
 
+    // Уведомляем всех клиентов об обновлении нексоленты
+    io.emit("nexus:updated");
+
     res.json({ ok: true });
   } catch (err) {
     console.error("Ошибка при подписке на нексус:", err);
@@ -1075,6 +1081,9 @@ app.post("/api/nexus/:nexusId/unsubscribe", requireAuth, async (req, res) => {
       "DELETE FROM nexus_subscribers WHERE nexus_id = $1 AND user_id = $2",
       [nexusId, userId]
     );
+
+    // Уведомляем всех клиентов об обновлении нексоленты
+    io.emit("nexus:updated");
 
     res.json({ ok: true });
   } catch (err) {
@@ -2082,6 +2091,9 @@ app.post("/api/nexferies", requireAuth, upload.single("avatar"), async (req, res
       "INSERT INTO nexferies_members (nexfery_id, user_id, role) VALUES ($1, $2, $3)",
       [nexfery.id, userId, 'owner']
     );
+
+    // Уведомляем всех клиентов об обновлении нексоленты
+    io.emit("nexus:updated");
 
     // Получаем автора
     const authorResult = await pool.query(
