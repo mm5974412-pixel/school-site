@@ -714,14 +714,6 @@ app.get("/nexus/edit", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "nexus-edit.html"));
 });
 
-// ======= НЕКСФЕРЫ (страница) =======
-app.get("/nexferies", (req, res) => {
-  if (!req.session.user) {
-    return res.redirect("/login.html");
-  }
-  res.sendFile(path.join(__dirname, "public", "nexferies.html"));
-});
-
 // Статика
 app.use(express.static(path.join(__dirname, "public")));
 

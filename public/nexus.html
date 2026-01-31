@@ -5,6 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="color-scheme" content="dark light" />
   <title>Nexora — нексусы</title>
+  <style>
+    html { background: #020617; }
+    html.light { background: #f8fafc; }
+  </style>
   <link rel="stylesheet" href="/style-v2.css" />
   <script>
     (function() {
@@ -475,8 +479,8 @@
       openBtn.onclick = (e) => {
         e.preventDefault();
         if (item.type === 'nexfery') {
-          // Для нексфер открываем страницу нексфер
-          window.location.href = `/nexferies.html?id=${item.id}`;
+          // Нексферы управляются в чатах
+          alert('Нексфера управляется в разделе чатов. Перейдите в чаты для взаимодействия с ней.');
         } else {
           // Для нексусов открываем профиль
           if (window.innerWidth <= 768) {
