@@ -1475,12 +1475,13 @@
     if (postsContainer) {
       const postEl = document.createElement("div");
       postEl.classList.add("message");
+      postEl.style.cssText = "padding: 12px; border-radius: 12px; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(148, 163, 184, 0.15); display: flex; flex-direction: column; gap: 8px;";
       postEl.innerHTML = `
-        <div style="font-size: 12px; color: #9ca3af; margin-bottom: 4px;">
+        <div style="font-size: 12px; color: #9ca3af;">
           ${data.post.author_display_name || data.post.author_username} · ${new Date(data.post.created_at).toLocaleString('ru-RU')}
         </div>
-        <div style="color: #e5e7eb; margin-bottom: 8px;">${escapeHtml(data.post.text)}</div>
-        <button class="btn-ghost" style="font-size: 12px;">💬 0 комментариев</button>
+        <div style="color: #e5e7eb; line-height: 1.5; word-break: break-word;">${escapeHtml(data.post.text)}</div>
+        <button class="btn-ghost" style="font-size: 12px; align-self: flex-start;">💬 0 комментариев</button>
       `;
       postsContainer.appendChild(postEl);
       scrollMessagesToBottom();
