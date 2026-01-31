@@ -539,22 +539,31 @@
 
     createForm.addEventListener('submit', async (event) => {
       event.preventDefault();
+      console.log('Form submitted');
       nexusErrorEl.textContent = '';
 
-      const formData = new FormData(createForm);
-      const res = await fetch('/api/nexus', {
-        method: 'POST',
-        body: formData
-      });
-      const data = await res.json();
-      if (!data.ok) {
-        nexusErrorEl.textContent = data.error || 'Не удалось создать нексус';
-        return;
-      }
+      try {
+        const formData = new FormData(createForm);
+        const res = await fetch('/api/nexus', {
+          method: 'POST',
+          body: formData
+        });
+        const data = await res.json();
+        console.log('Response:', data);
+        if (!data.ok) {
+          nexusErrorEl.textContent = data.error || 'Не удалось создать нексус';
+          return;
+        }
 
-      createForm.reset();
-      document.getElementById('nexus-file-name').textContent = '';
-      await loadNexus();
+        createForm.reset();
+        document.getElementById('nexus-file-name').textContent = '';
+        document.querySelector('.nexus-form-card').style.display = 'none';
+        document.getElementById('create-nexus-buttons').style.display = 'flex';
+        await loadNexus();
+      } catch (err) {
+        console.error('Error:', err);
+        nexusErrorEl.textContent = 'Ошибка при создании нексуса';
+      }
     });
 
     // Обработчик для кнопки отмены
