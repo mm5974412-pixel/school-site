@@ -182,6 +182,17 @@
     </div>
   </div>
 
+  <!-- Модальное окно профиля нексуса -->
+  <div id="nexus-profile-modal" class="nexus-modal" style="display: none;">
+    <div class="nexus-modal-backdrop"></div>
+    <div class="nexus-modal-content" style="max-width: 420px; height: auto;">
+      <div class="nexus-modal-header">
+        <button class="nexus-modal-close" id="nexus-profile-close">✕</button>
+      </div>
+      <div class="nexus-modal-body" id="nexus-profile-body"></div>
+    </div>
+  </div>
+
   <!-- Модальное окно подтверждения -->
   <div id="confirm-modal" class="confirm-modal">
     <div class="confirm-modal-backdrop"></div>
@@ -450,6 +461,9 @@
   const attachBtn = document.getElementById("attach-btn");
   const recordBtn = document.getElementById("record-btn");
   const recordingIndicator = document.getElementById("recording-indicator");
+  const nexusProfileModalEl = document.getElementById("nexus-profile-modal");
+  const nexusProfileBodyEl = document.getElementById("nexus-profile-body");
+  const nexusProfileCloseEl = document.getElementById("nexus-profile-close");
 
   // 🔥 Автоскролл к последнему сообщению
   function scrollMessagesToBottom() {
@@ -493,6 +507,7 @@
   let currentPeerUsername = null;
   let currentPeerDisplayName = null;
   let currentPeerAvatarUrl = null;
+  let currentNexusView = null;
   let amBlockedInCurrentChat = false; // заблокирован ли я в текущем чате
 
   // Проверка: мобильный ли экран
@@ -859,6 +874,7 @@
     currentChatId = chat.id;
     currentPeerUserId = chat.peer_user_id || null;
     currentPeerUsername = chat.peer_username || null;
+    currentNexusView = null;
 
     const displayName = chat.peer_display_name || chat.peer_username;
     
@@ -1181,7 +1197,7 @@
   const nexusSearchResultsEl = document.getElementById("nexus-search-results");
   const nexusSearchCancelEl = document.getElementById("nexus-search-cancel");
   const nexusCreateFormEl = document.getElementById("create-nexus-form");
-  const nexusCreateCancelEl = document.getElementById("create-nexus-cancel");
+  const nexusCreateCancelEl = document.getElementById("nexus-create-cancel");
   const nexusCreateErrorEl = document.getElementById("nexus-create-error");
 
   if (nexusBtnEl) {
@@ -1209,7 +1225,7 @@
         fetch(`/api/users?search=${encodeURIComponent(query)}`)
           .then(r => r.json())
           .catch(() => ({ users: [] })),
-        fetch("/api/nexus")
+        fetch(`/api/nexus/search/all?q=${encodeURIComponent(query)}`)
           .then(r => r.json())
           .catch(() => ({ nexus: [] }))
       ]);
@@ -1248,9 +1264,7 @@
         });
 
       // Показываем соответствующие нексусы
-      const nexuses = (nexusData.nexus || []).filter(n => 
-        n.title.toLowerCase().includes(query) || n.handle.toLowerCase().includes(query)
-      ).slice(0, 5);
+      const nexuses = (nexusData.nexus || []).slice(0, 5);
 
       nexuses.forEach((nexus) => {
         const item = document.createElement("div");
@@ -1323,6 +1337,18 @@
   function openNexus(nexus) {
     currentChatId = null;
     currentPeerUserId = null;
+    currentPeerUsername = null;
+    currentNexusView = nexus;
+    amBlockedInCurrentChat = false;
+
+    if (form) {
+      form.style.display = 'none';
+    }
+    const blockedMsg = document.getElementById('blocked-message');
+    if (blockedMsg) {
+      blockedMsg.remove();
+    }
+    clearReplyPreview();
 
     const isOwner = nexus.author_id === currentUser.id || nexus.my_role === "owner";
 
@@ -1905,6 +1931,10 @@
   // Открыть профиль по клику на имя пользователя
   if (chatTitleEl) {
     chatTitleEl.addEventListener('click', () => {
+      if (currentNexusView) {
+        openNexusProfileModal(currentNexusView.id);
+        return;
+      }
       if (!currentChatId || !currentPeerUserId || !currentPeerUsername) return;
       openProfileModal();
     });
@@ -2012,6 +2042,96 @@
         }
       })
       .catch(err => console.error('Ошибка загрузки статуса блокировки:', err));
+  }
+
+  function openNexusProfileModal(nexusId) {
+    if (!nexusProfileModalEl || !nexusProfileBodyEl) return;
+
+    nexusProfileModalEl.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+
+    fetch(`/api/nexus/${nexusId}`)
+      .then(res => res.json())
+      .then(data => {
+        if (!data.ok) {
+          nexusProfileBodyEl.innerHTML = `<div class="nexus-error">${data.error || 'Нексус не найден'}</div>`;
+          return;
+        }
+
+        const nexus = data.nexus;
+        const isOwner = nexus.my_role === 'owner' || nexus.author_id === currentUser?.id;
+        const isSubscribed = nexus.my_role === 'subscriber';
+
+        nexusProfileBodyEl.innerHTML = `
+          <div class="nexus-channel-card">
+            <div class="nexus-channel-header">
+              <div class="nexus-channel-avatar" style="${nexus.avatar_data ? `background-image: url(${nexus.avatar_data})` : ''}">
+                ${!nexus.avatar_data ? nexus.title.charAt(0).toUpperCase() : ''}
+              </div>
+              <div class="nexus-channel-title">${nexus.title}</div>
+              <div class="nexus-channel-handle">@${nexus.handle}</div>
+            </div>
+            <div class="nexus-channel-meta">Подписчики: ${nexus.subscribers_count} · Посты: ${nexus.posts_count}</div>
+            <div class="nexus-channel-about">
+              <div class="nexus-channel-about-title">О канале</div>
+              <div class="nexus-channel-about-text">${nexus.description || 'Без описания'}</div>
+            </div>
+            <div class="nexus-channel-actions">
+              <button id="nexus-report-btn" class="btn-secondary">⚠️ Жалоба</button>
+              ${!isOwner && isSubscribed ? `<button id="nexus-leave-btn" class="btn-secondary">👋 Покинуть нексус</button>` : ''}
+            </div>
+          </div>
+        `;
+
+        const reportBtn = document.getElementById('nexus-report-btn');
+        if (reportBtn) {
+          reportBtn.addEventListener('click', () => {
+            alert('Спасибо за сообщение. Администратор проверит жалобу.');
+            closeNexusProfileModal();
+          });
+        }
+
+        const leaveBtn = document.getElementById('nexus-leave-btn');
+        if (leaveBtn) {
+          leaveBtn.addEventListener('click', async () => {
+            if (!confirm('Вы уверены, что хотите покинуть этот нексус?')) return;
+            try {
+              const leaveRes = await fetch(`/api/nexus/${nexusId}/unsubscribe`, { method: 'POST' });
+              const leaveData = await leaveRes.json();
+              if (leaveData.ok) {
+                loadChats();
+                closeNexusProfileModal();
+              } else {
+                alert('Ошибка при выходе из нексуса');
+              }
+            } catch (err) {
+              console.error(err);
+              alert('Ошибка при выходе из нексуса');
+            }
+          });
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        nexusProfileBodyEl.innerHTML = '<div class="nexus-error">Ошибка при загрузке профиля</div>';
+      });
+  }
+
+  function closeNexusProfileModal() {
+    if (!nexusProfileModalEl) return;
+    nexusProfileModalEl.style.display = 'none';
+    document.body.style.overflow = 'auto';
+  }
+
+  if (nexusProfileCloseEl) {
+    nexusProfileCloseEl.addEventListener('click', closeNexusProfileModal);
+  }
+
+  if (nexusProfileModalEl) {
+    const backdrop = nexusProfileModalEl.querySelector('.nexus-modal-backdrop');
+    if (backdrop) {
+      backdrop.addEventListener('click', closeNexusProfileModal);
+    }
   }
 
   // Закрыть профиль
