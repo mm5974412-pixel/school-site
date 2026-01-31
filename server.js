@@ -854,7 +854,9 @@ app.post("/api/nexus", requireAuth, upload.single("avatar"), async (req, res) =>
 app.get("/api/nexus", requireAuth, async (req, res) => {
   try {
     const userId = req.session.user.id;
-    const result = await pool.query(
+    
+    // Получаем нексусы
+    const nexusResult = await pool.query(
       `
         SELECT
           n.id,
@@ -888,7 +890,52 @@ app.get("/api/nexus", requireAuth, async (req, res) => {
       [userId, userId, userId]
     );
 
-    res.json({ ok: true, nexus: result.rows });
+    // Получаем нексферы пользователя
+    const nexferiesResult = await pool.query(
+      `
+      SELECT 
+        n.id, n.title, n.handle, n.description, n.avatar_data, n.author_id, n.created_at,
+        u.username as author_username, u.display_name as author_display_name,
+        (SELECT COUNT(*) FROM nexferies_members WHERE nexfery_id = n.id) as members_count,
+        (SELECT COUNT(*) FROM nexferies_messages WHERE nexfery_id = n.id) as messages_count
+      FROM nexferies n
+      JOIN nexferies_members nm ON n.id = nm.nexfery_id
+      JOIN users u ON n.author_id = u.id
+      WHERE nm.user_id = $1
+      ORDER BY n.created_at DESC
+      `,
+      [userId]
+    );
+
+    // Преобразуем нексусы
+    const nexus = nexusResult.rows.map(row => ({
+      ...row,
+      type: 'nexus'
+    }));
+
+    // Преобразуем нексферы
+    const nexferies = nexferiesResult.rows.map(row => ({
+      id: row.id,
+      title: row.title,
+      handle: row.handle,
+      description: row.description,
+      avatar_data: row.avatar_data,
+      author_id: row.author_id,
+      created_at: row.created_at,
+      author_username: row.author_username,
+      author_display_name: row.author_display_name,
+      subscribers_count: parseInt(row.members_count), // Используем members_count как subscribers
+      posts_count: parseInt(row.messages_count), // Используем messages_count как posts
+      my_role: 'member', // У пользователя есть роль в нексфере по умолчанию
+      type: 'nexfery'
+    }));
+
+    // Объединяем и сортируем по дате
+    const combined = [...nexus, ...nexferies].sort((a, b) => {
+      return new Date(b.created_at) - new Date(a.created_at);
+    });
+
+    res.json({ ok: true, nexus: combined });
   } catch (err) {
     console.error("Ошибка при получении списка нексусов:", err);
     res.status(500).json({ ok: false, error: "Ошибка сервера" });
