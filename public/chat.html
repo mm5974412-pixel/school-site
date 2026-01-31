@@ -1950,6 +1950,20 @@
     console.log(`Пользователь вышел из нексферы ${data.nexphereId}`);
   });
 
+  // Socket.io обработчик удаления сообщения в нексфере
+  socket.on("nexphere:message-deleted", (data) => {
+    // Проверяем, что это сообщение из текущей нексферы
+    if (data.nexphereId !== window.currentNexphereId) {
+      return;
+    }
+
+    // Удаляем сообщение из DOM
+    const messageEl = messagesDiv.querySelector(`[data-message-id="${data.messageId}"]`);
+    if (messageEl) {
+      messageEl.remove();
+    }
+  });
+
   // Создать новую нексферу
   async function createNewNexphere(name) {
     try {
@@ -3037,6 +3051,32 @@
       if (action === "pin") {
         if (currentChatId) {
           setPinnedMessage(currentChatId, msg);
+        } else if (window.currentNexphereId) {
+          // Для нексферы закрепляем через API
+          fetch(`/api/nexpheres/${window.currentNexphereId}/messages/${msg.id}/pin`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+          })
+            .then((res) => res.json())
+            .then((data) => {
+              if (data.ok) {
+                const pinBtn = contextMenu.querySelector('[data-action="pin"]');
+                if (pinBtn) {
+                  if (data.pinned) {
+                    pinBtn.classList.add("pinned");
+                    showAlert("Сообщение закреплено", "Готово", "ОК", "primary");
+                  } else {
+                    pinBtn.classList.remove("pinned");
+                    showAlert("Сообщение откреплено", "Готово", "ОК", "primary");
+                  }
+                }
+              } else {
+                showAlert(data.error || "Не удалось закрепить сообщение", "Ошибка", "ОК", "danger");
+              }
+            })
+            .catch(() => {
+              showAlert("Произошла ошибка при закреплении сообщения", "Ошибка сервера", "ОК", "danger");
+            });
         }
         return;
       }

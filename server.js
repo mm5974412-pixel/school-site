@@ -520,6 +520,17 @@ async function initDb() {
     );
   `);
 
+  // Закреплённые сообщения в нексфере
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS nexphere_pinned_messages (
+      nexphere_id INTEGER NOT NULL REFERENCES nexpheres(id) ON DELETE CASCADE,
+      message_id INTEGER NOT NULL REFERENCES nexphere_messages(id) ON DELETE CASCADE,
+      pinned_by INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      pinned_at TIMESTAMPTZ DEFAULT NOW(),
+      PRIMARY KEY (nexphere_id, message_id)
+    );
+  `);
+
   console.log(
     "База данных инициализирована (users, chats, chat_members, messages, blocked_users, settings, nexus, nexpheres готовы)"
   );
@@ -1891,6 +1902,12 @@ app.delete("/api/nexpheres/:nexphereId/messages/:messageId", requireAuth, async 
       [messageId]
     );
 
+    // Отправляем уведомление об удалении всем участникам нексферы через Socket.io
+    io.to(`nexphere:${nexphereId}`).emit("nexphere:message-deleted", {
+      messageId: messageId,
+      nexphereId: nexphereId
+    });
+
     res.json({ ok: true });
   } catch (err) {
     console.error("Ошибка при удалении сообщения из нексферы:", err);
@@ -1942,6 +1959,78 @@ app.patch("/api/nexpheres/:nexphereId/messages/:messageId", requireAuth, async (
     res.json({ ok: true });
   } catch (err) {
     console.error("Ошибка при изменении сообщения в нексфере:", err);
+    res.status(500).json({ ok: false, error: "Ошибка сервера" });
+  }
+});
+
+// Закрепить/открепить сообщение в нексфере
+app.post("/api/nexpheres/:nexphereId/messages/:messageId/pin", requireAuth, async (req, res) => {
+  try {
+    const userId = req.session.user.id;
+    const nexphereId = parseInt(req.params.nexphereId, 10);
+    const messageId = parseInt(req.params.messageId, 10);
+
+    if (!nexphereId || !messageId || Number.isNaN(nexphereId) || Number.isNaN(messageId)) {
+      return res.status(400).json({ ok: false, error: "Некорректные параметры" });
+    }
+
+    // Проверяем, что пользователь участник нексферы
+    const memberCheck = await pool.query(
+      "SELECT 1 FROM nexphere_members WHERE nexphere_id = $1 AND user_id = $2 LIMIT 1",
+      [nexphereId, userId]
+    );
+
+    if (memberCheck.rowCount === 0) {
+      return res.status(403).json({ ok: false, error: "У вас нет доступа к этой нексфере" });
+    }
+
+    // Проверяем, что сообщение существует в этой нексфере
+    const msgCheck = await pool.query(
+      "SELECT author_id FROM nexphere_messages WHERE id = $1 AND nexphere_id = $2 LIMIT 1",
+      [messageId, nexphereId]
+    );
+
+    if (msgCheck.rowCount === 0) {
+      return res.status(404).json({ ok: false, error: "Сообщение не найдено" });
+    }
+
+    // Проверяем, что это сообщение автора или пользователь владелец нексферы
+    const authorId = msgCheck.rows[0].author_id;
+    const nexphereCheck = await pool.query(
+      "SELECT owner_id FROM nexpheres WHERE id = $1 LIMIT 1",
+      [nexphereId]
+    );
+
+    const ownerId = nexphereCheck.rows[0]?.owner_id;
+    const canPin = userId === authorId || userId === ownerId;
+
+    if (!canPin) {
+      return res.status(403).json({ ok: false, error: "Вы можете закреплять только свои сообщения или быть владельцем нексферы" });
+    }
+
+    // Проверяем, закреплено ли уже это сообщение
+    const pinnedCheck = await pool.query(
+      "SELECT 1 FROM nexphere_pinned_messages WHERE nexphere_id = $1 AND message_id = $2 LIMIT 1",
+      [nexphereId, messageId]
+    );
+
+    if (pinnedCheck.rowCount > 0) {
+      // Если уже закреплено, открепляем
+      await pool.query(
+        "DELETE FROM nexphere_pinned_messages WHERE nexphere_id = $1 AND message_id = $2",
+        [nexphereId, messageId]
+      );
+      res.json({ ok: true, pinned: false });
+    } else {
+      // Закрепляем сообщение
+      await pool.query(
+        "INSERT INTO nexphere_pinned_messages (nexphere_id, message_id, pinned_by) VALUES ($1, $2, $3)",
+        [nexphereId, messageId, userId]
+      );
+      res.json({ ok: true, pinned: true });
+    }
+  } catch (err) {
+    console.error("Ошибка при закреплении сообщения в нексфере:", err);
     res.status(500).json({ ok: false, error: "Ошибка сервера" });
   }
 });
