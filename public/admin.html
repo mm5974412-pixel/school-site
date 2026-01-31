@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Nexora — Админ-панель</title>
+  <title>Nexora - РђРґРјРёРЅ-РїР°РЅРµР»СЊ</title>
   <style>
     * {
       margin: 0;
@@ -478,17 +478,17 @@
   <!-- Login Screen -->
   <div id="login-screen" class="login-container">
     <div class="login-card">
-      <div style="font-size: 48px; margin-bottom: 16px;">??</div>
-      <h1>Админ-панель</h1>
-      <p>Введите пароль администратора</p>
+      <div style="font-size: 48px; margin-bottom: 16px;">рџ”ђ</div>
+      <h1>РђРґРјРёРЅ-РїР°РЅРµР»СЊ</h1>
+      <p>Р’РІРµРґРёС‚Рµ РїР°СЂРѕР»СЊ Р°РґРјРёРЅРёСЃС‚СЂР°С‚РѕСЂР°</p>
       
       <div class="form-group">
-        <label class="form-label" style="text-align: left;">Пароль</label>
-        <input type="password" id="admin-password" class="form-input" placeholder="••••••••" />
+        <label class="form-label" style="text-align: left;">РџР°СЂРѕР»СЊ</label>
+        <input type="password" id="admin-password" class="form-input" placeholder="вЂўвЂўвЂўвЂўвЂўвЂўвЂўвЂў" />
       </div>
 
       <button class="btn btn-primary" id="login-btn" style="width: 100%;">
-        ?? Войти в панель
+        рџ”“ Р’РѕР№С‚Рё РІ РїР°РЅРµР»СЊ
       </button>
 
       <div class="login-error" id="login-error"></div>
@@ -500,22 +500,22 @@
     <!-- Header -->
     <div class="admin-header">
       <div class="admin-logo">
-        <span>??</span>
+        <span>рџ”ђ</span>
         <span>Nexora</span>
       </div>
       
       <div class="admin-nav">
-        <button class="nav-btn active" data-section="dashboard">?? Dashboard</button>
-        <button class="nav-btn" data-section="users">?? Пользователи</button>
-        <button class="nav-btn" data-section="permissions">?? Права</button>
-        <button class="nav-btn" data-section="content">?? Контент</button>
-        <button class="nav-btn" data-section="chats">?? Чаты</button>
-        <button class="nav-btn" data-section="messages">?? Сообщения</button>
-        <button class="nav-btn" data-section="settings">?? Настройки</button>
+        <button class="nav-btn active" data-section="dashboard">рџ“Љ Dashboard</button>
+        <button class="nav-btn" data-section="users">рџ‘Ґ РџРѕР»СЊР·РѕРІР°С‚РµР»Рё</button>
+        <button class="nav-btn" data-section="permissions">рџ”‘ РџСЂР°РІР°</button>
+        <button class="nav-btn" data-section="content">рџ“ќ РљРѕРЅС‚РµРЅС‚</button>
+        <button class="nav-btn" data-section="chats">рџ’¬ Р§Р°С‚С‹</button>
+        <button class="nav-btn" data-section="messages">рџ“¬ РЎРѕРѕР±С‰РµРЅРёСЏ</button>
+        <button class="nav-btn" data-section="settings">вљ™пёЏ РќР°СЃС‚СЂРѕР№РєРё</button>
       </div>
 
       <div class="admin-actions">
-        <button class="logout-btn" id="logout-btn">Выход</button>
+        <button class="logout-btn" id="logout-btn">Р’С‹С…РѕРґ</button>
       </div>
     </div>
 
@@ -523,38 +523,38 @@
     <div class="admin-wrapper">
       <!-- Dashboard -->
       <div id="dashboard" class="content-section active">
-        <h2 class="page-title">?? Dashboard</h2>
+        <h2 class="page-title">рџ“Љ Dashboard</h2>
         
         <div class="stats-grid">
           <div class="stat-card">
-            <div class="stat-label">?? Всего пользователей</div>
+            <div class="stat-label">рџ“€ Р’СЃРµРіРѕ РїРѕР»СЊР·РѕРІР°С‚РµР»РµР№</div>
             <div class="stat-value" id="total-users">0</div>
-            <div class="stat-change">+5 за сегодня</div>
+            <div class="stat-change">+5 РЅР° РїСЂРѕС€Р»РѕР№</div>
           </div>
           <div class="stat-card">
-            <div class="stat-label">?? Активных онлайн</div>
+            <div class="stat-label">рџџў РђРєС‚РёРІРЅС‹С… СЃРµР№С‡Р°СЃ</div>
             <div class="stat-value" id="online-users">0</div>
-            <div class="stat-change">Сейчас</div>
+            <div class="stat-change">РЎРµР№С‡Р°СЃ</div>
           </div>
           <div class="stat-card">
-            <div class="stat-label">?? Всего чатов</div>
+            <div class="stat-label">рџ’¬ Р’СЃРµРіРѕ С‡Р°С‚РѕРІ</div>
             <div class="stat-value" id="total-chats">0</div>
-            <div class="stat-change">+2 за сегодня</div>
+            <div class="stat-change">+2 РЅР° РїСЂРѕС€Р»РѕР№</div>
           </div>
           <div class="stat-card">
-            <div class="stat-label">?? Всего сообщений</div>
+            <div class="stat-label">рџ“§ Р’СЃРµРіРѕ СЃРѕРѕР±С‰РµРЅРёР№</div>
             <div class="stat-value" id="total-messages">0</div>
-            <div class="stat-change">+342 за сегодня</div>
+            <div class="stat-change">+342 РЅР° РїСЂРѕС€Р»РѕР№</div>
           </div>
         </div>
       </div>
 
       <!-- Users -->
       <div id="users" class="content-section">
-        <h2 class="page-title">?? Пользователи</h2>
+        <h2 class="page-title">рџ‘Ґ РџРѕР»СЊР·РѕРІР°С‚РµР»Рё</h2>
         
         <div style="margin-bottom: 20px;">
-          <button class="btn btn-primary" id="add-user-btn">? Добавить пользователя</button>
+          <button class="btn btn-primary" id="add-user-btn">вћ• Р”РѕР±Р°РІРёС‚СЊ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ</button>
         </div>
 
         <div class="table-container">
@@ -562,17 +562,17 @@
             <thead>
               <tr>
                 <th>ID</th>
-                <th>Имя пользователя</th>
+                <th>РРјСЏ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ</th>
                 <th>Email</th>
-                <th>Статус</th>
-                <th>Роль</th>
-                <th>Дата регистрации</th>
-                <th>Действия</th>
+                <th>РЎС‚Р°С‚СѓСЃ</th>
+                <th>Р РѕР»СЊ</th>
+                <th>Р”Р°С‚Р° РїСЂРёСЃРѕРµРґРёРЅРµРЅРёСЏ</th>
+                <th>Р”РµР№СЃС‚РІРёСЏ</th>
               </tr>
             </thead>
             <tbody id="users-table">
               <tr>
-                <td colspan="7" style="text-align: center; padding: 20px;">Загрузка...</td>
+                <td colspan="7" style="text-align: center; padding: 20px;">Р—Р°РіСЂСѓР·РєР°...</td>
               </tr>
             </tbody>
           </table>
@@ -581,82 +581,82 @@
 
       <!-- Permissions -->
       <div id="permissions" class="content-section">
-        <h2 class="page-title">?? Управление правами</h2>
+        <h2 class="page-title">рџ”‘ РЈРїСЂР°РІР»РµРЅРёРµ РїСЂР°РІР°РјРё</h2>
         
         <div class="container-card">
-          <div class="card-title">Выберите пользователя</div>
+          <div class="card-title">РЈРїСЂР°РІР»РµРЅРёРµ РґРѕСЃС‚СѓРїРѕРј</div>
           
           <div class="form-group">
-            <label class="form-label">Пользователь</label>
+            <label class="form-label">РџРѕР»СЊР·РѕРІР°С‚РµР»СЊ</label>
             <select class="form-input" id="permission-user-select">
-              <option value="">-- Загрузка --</option>
+              <option value="">-- Р’С‹Р±РµСЂРёС‚Рµ --</option>
             </select>
           </div>
 
           <div style="background: #f8fafc; border: 2px dashed #cbd5e1; border-radius: 12px; padding: 20px; margin-top: 20px;">
-            <div style="font-weight: 700; color: #1e293b; margin-bottom: 16px;">Права доступа</div>
+            <div style="font-weight: 700; color: #1e293b; margin-bottom: 16px;">РџСЂР°РІР° РґРѕСЃС‚СѓРїР°</div>
             
             <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
               <input type="checkbox" id="perm-admin" style="width: 18px; height: 18px; cursor: pointer;" />
-              <label for="perm-admin" style="cursor: pointer; margin: 0; color: #475569;">?? Администратор (полный доступ)</label>
+              <label for="perm-admin" style="cursor: pointer; margin: 0; color: #475569;">рџ”ђ РђРґРјРёРЅРёСЃС‚СЂР°С‚РѕСЂ (РїРѕР»РЅС‹Р№ РґРѕСЃС‚СѓРї)</label>
             </div>
 
             <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
               <input type="checkbox" id="perm-edit-content" style="width: 18px; height: 18px; cursor: pointer;" />
-              <label for="perm-edit-content" style="cursor: pointer; margin: 0; color: #475569;">?? Редактирование контента</label>
+              <label for="perm-edit-content" style="cursor: pointer; margin: 0; color: #475569;">вњЏпёЏ Р РµРґР°РєС‚РёСЂРѕРІР°С‚СЊ РєРѕРЅС‚РµРЅС‚</label>
             </div>
 
             <div style="display: flex; align-items: center; gap: 12px;">
               <input type="checkbox" id="perm-manage-users" style="width: 18px; height: 18px; cursor: pointer;" />
-              <label for="perm-manage-users" style="cursor: pointer; margin: 0; color: #475569;">?? Управление пользователями</label>
+              <label for="perm-manage-users" style="cursor: pointer; margin: 0; color: #475569;">рџ‘¤ РЈРїСЂР°РІР»СЏС‚СЊ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏРјРё</label>
             </div>
           </div>
 
-          <button class="btn btn-primary" id="save-permissions-btn" style="margin-top: 20px;">?? Сохранить</button>
+          <button class="btn btn-primary" id="save-permissions-btn" style="margin-top: 20px;">рџ’ѕ РЎРѕС…СЂР°РЅРёС‚СЊ</button>
         </div>
       </div>
 
       <!-- Content -->
       <div id="content" class="content-section">
-        <h2 class="page-title">?? Управление контентом</h2>
+        <h2 class="page-title">рџ“ќ РЈРїСЂР°РІР»РµРЅРёРµ РєРѕРЅС‚РµРЅС‚РѕРј</h2>
         
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
           <div class="container-card">
-            <div class="card-title">?? Изменить текст</div>
+            <div class="card-title">вњЏпёЏ Р РµРґР°РєС‚РѕСЂ С‚РµРєСЃС‚Р°</div>
             
             <div class="form-group">
-              <label class="form-label">Раздел</label>
+              <label class="form-label">Р Р°Р·РґРµР»</label>
               <select class="form-input" id="text-section">
-                <option value="">-- Выберите раздел --</option>
-                <option value="site-name">Название сайта</option>
-                <option value="main-title">Главный заголовок</option>
-                <option value="main-description">Описание</option>
+                <option value="">-- Р’С‹Р±РµСЂРёС‚Рµ СЂР°Р·РґРµР» --</option>
+                <option value="site-name">РќР°Р·РІР°РЅРёРµ СЃР°Р№С‚Р°</option>
+                <option value="main-title">Р“Р»Р°РІРЅРѕРµ РѕРїРёСЃР°РЅРёРµ</option>
+                <option value="main-description">РћРїРёСЃР°РЅРёРµ</option>
               </select>
             </div>
 
             <div class="form-group">
-              <label class="form-label">Новый текст</label>
+              <label class="form-label">РќРѕРІС‹Р№ С‚РµРєСЃС‚</label>
               <textarea class="form-input" id="text-content" style="resize: vertical; min-height: 100px;"></textarea>
             </div>
 
-            <button class="btn btn-primary" id="save-text-btn" style="width: 100%;">?? Обновить</button>
+            <button class="btn btn-primary" id="save-text-btn" style="width: 100%;">рџ’ѕ РЎРѕС…СЂР°РЅРёС‚СЊ</button>
           </div>
 
           <div class="container-card">
-            <div class="card-title">??? Загрузить изображение</div>
+            <div class="card-title">рџ–јпёЏ Р—Р°РіСЂСѓР·РєР° РёР·РѕР±СЂР°Р¶РµРЅРёР№</div>
             
             <div class="form-group">
-              <label class="form-label">Раздел</label>
+              <label class="form-label">Р Р°Р·РґРµР»</label>
               <select class="form-input" id="image-section">
-                <option value="">-- Выберите раздел --</option>
-                <option value="logo">Логотип</option>
-                <option value="banner">Баннер</option>
-                <option value="icon">Иконка</option>
+                <option value="">-- Р’С‹Р±РµСЂРёС‚Рµ СЂР°Р·РґРµР» --</option>
+                <option value="logo">Р›РѕРіРѕС‚РёРї</option>
+                <option value="banner">Р‘Р°РЅРЅРµСЂ</option>
+                <option value="icon">РРєРѕРЅРєР°</option>
               </select>
             </div>
 
             <div class="form-group">
-              <label class="form-label">Изображение</label>
+              <label class="form-label">РР·РѕР±СЂР°Р¶РµРЅРёРµ</label>
               <input type="file" id="image-upload" class="form-input" accept="image/*" />
             </div>
 
@@ -664,30 +664,30 @@
               <img id="preview-img" style="max-width: 100%; border-radius: 8px; border: 2px solid #e2e8f0;" />
             </div>
 
-            <button class="btn btn-primary" id="save-image-btn" style="width: 100%;">?? Загрузить</button>
+            <button class="btn btn-primary" id="save-image-btn" style="width: 100%;">рџ’ѕ Р—Р°РіСЂСѓР·РёС‚СЊ</button>
           </div>
         </div>
       </div>
 
       <!-- Chats -->
       <div id="chats" class="content-section">
-        <h2 class="page-title">?? Чаты</h2>
+        <h2 class="page-title">рџ’¬ Р§Р°С‚С‹</h2>
         
         <div class="table-container">
           <table class="table">
             <thead>
               <tr>
                 <th>ID</th>
-                <th>Название</th>
-                <th>Участников</th>
-                <th>Сообщений</th>
-                <th>Создан</th>
-                <th>Действия</th>
+                <th>РќР°Р·РІР°РЅРёРµ</th>
+                <th>РЈС‡Р°СЃС‚РЅРёРєРё</th>
+                <th>РЎРѕРѕР±С‰РµРЅРёР№</th>
+                <th>Р”Р°С‚Р°</th>
+                <th>Р”РµР№СЃС‚РІРёСЏ</th>
               </tr>
             </thead>
             <tbody id="chats-table">
               <tr>
-                <td colspan="6" style="text-align: center; padding: 20px;">Загрузка...</td>
+                <td colspan="6" style="text-align: center; padding: 20px;">Р—Р°РіСЂСѓР·РєР°...</td>
               </tr>
             </tbody>
           </table>
@@ -696,23 +696,23 @@
 
       <!-- Messages -->
       <div id="messages" class="content-section">
-        <h2 class="page-title">?? Сообщения</h2>
+        <h2 class="page-title">рџ“¬ РЎРѕРѕР±С‰РµРЅРёСЏ</h2>
         
         <div class="table-container">
           <table class="table">
             <thead>
               <tr>
                 <th>ID</th>
-                <th>Автор</th>
-                <th>Чат</th>
-                <th>Сообщение</th>
-                <th>Время</th>
-                <th>Действия</th>
+                <th>РђРІС‚РѕСЂ</th>
+                <th>Р§Р°С‚</th>
+                <th>РЎРѕРѕР±С‰РµРЅРёРµ</th>
+                <th>Р”Р°С‚Р°</th>
+                <th>Р”РµР№СЃС‚РІРёСЏ</th>
               </tr>
             </thead>
             <tbody id="messages-table">
               <tr>
-                <td colspan="6" style="text-align: center; padding: 20px;">Загрузка...</td>
+                <td colspan="6" style="text-align: center; padding: 20px;">Р—Р°РіСЂСѓР·РєР°...</td>
               </tr>
             </tbody>
           </table>
@@ -721,22 +721,22 @@
 
       <!-- Settings -->
       <div id="settings" class="content-section">
-        <h2 class="page-title">?? Настройки</h2>
+        <h2 class="page-title">вљ™пёЏ РќР°СЃС‚СЂРѕР№РєРё</h2>
         
         <div class="container-card">
-          <div class="card-title">Настройки системы</div>
+          <div class="card-title">РќР°СЃС‚СЂРѕР№РєРё СЃРµСЂРІРµСЂР°</div>
           
           <div class="form-group">
-            <label class="form-label">Название сайта</label>
+            <label class="form-label">РќР°Р·РІР°РЅРёРµ СЃР°Р№С‚Р°</label>
             <input type="text" class="form-input" id="site-name" value="Nexora" />
           </div>
 
           <div class="form-group">
-            <label class="form-label">Максимальный размер файла (MB)</label>
+            <label class="form-label">РњР°РєСЃРёРјР°Р»СЊРЅС‹Р№ СЂР°Р·РјРµСЂ С„Р°Р№Р»Р° (MB)</label>
             <input type="number" class="form-input" id="max-file-size" value="50" />
           </div>
 
-          <button class="btn btn-primary">?? Сохранить настройки</button>
+          <button class="btn btn-primary">рџ’ѕ РЎРѕС…СЂР°РЅРёС‚СЊ РЅР°СЃС‚СЂРѕР№РєРё</button>
         </div>
       </div>
     </div>
@@ -746,13 +746,13 @@
   <div id="user-modal" class="modal">
     <div class="modal-content">
       <div class="modal-header">
-        <span>Добавить пользователя</span>
-        <button class="modal-close" onclick="closeModal('user-modal')">?</button>
+        <span>Р”РѕР±Р°РІРёС‚СЊ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ</span>
+        <button class="modal-close" onclick="closeModal('user-modal')">вњ•</button>
       </div>
       
       <form id="user-form">
         <div class="form-group">
-          <label class="form-label">Имя пользователя</label>
+          <label class="form-label">РРјСЏ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ</label>
           <input type="text" class="form-input" id="form-username" required />
         </div>
 
@@ -762,21 +762,21 @@
         </div>
 
         <div class="form-group">
-          <label class="form-label">Пароль</label>
+          <label class="form-label">РџР°СЂРѕР»СЊ</label>
           <input type="password" class="form-input" id="form-password" required />
         </div>
 
         <div class="form-group">
-          <label class="form-label">Роль</label>
+          <label class="form-label">Р РѕР»СЊ</label>
           <select class="form-input" id="form-role">
-            <option value="user">Пользователь</option>
-            <option value="admin">Администратор</option>
+            <option value="user">РџРѕР»СЊР·РѕРІР°С‚РµР»СЊ</option>
+            <option value="admin">РђРґРјРёРЅРёСЃС‚СЂР°С‚РѕСЂ</option>
           </select>
         </div>
 
         <div class="form-buttons">
-          <button type="submit" class="btn btn-primary">? Сохранить</button>
-          <button type="button" class="btn btn-secondary" onclick="closeModal('user-modal')">? Отмена</button>
+          <button type="submit" class="btn btn-primary">вњ“ РЎРѕР·РґР°С‚СЊ</button>
+          <button type="button" class="btn btn-secondary" onclick="closeModal('user-modal')">вњ• РћС‚РјРµРЅР°</button>
         </div>
       </form>
     </div>
@@ -808,12 +808,12 @@
           loadUsers();
         } else {
           loginError.style.display = 'block';
-          loginError.textContent = '? Неверный пароль';
+          loginError.textContent = 'вќЊ РќРµРІРµСЂРЅС‹Р№ РїР°СЂРѕР»СЊ';
           adminPassword.value = '';
         }
       } catch (err) {
         loginError.style.display = 'block';
-        loginError.textContent = '? Ошибка подключения';
+        loginError.textContent = 'вќЊ РћС€РёР±РєР° РїРѕРґРєР»СЋС‡РµРЅРёСЏ';
         console.error('Login error:', err);
       }
     });
@@ -870,8 +870,8 @@
           table.innerHTML = '';
 
           users.forEach(user => {
-            const role = user.is_admin ? '<span class="badge badge-admin">?? Admin</span>' : '<span class="badge badge-user">?? User</span>';
-            const status = user.online ? '<span class="badge badge-online">?? Online</span>' : '<span class="badge badge-offline">? Offline</span>';
+            const role = user.is_admin ? '<span class="badge badge-admin">рџ”ђ Admin</span>' : '<span class="badge badge-user">рџ‘¤ User</span>';
+            const status = user.online ? '<span class="badge badge-online">рџџў Online</span>' : '<span class="badge badge-offline">вљЄ Offline</span>';
             const row = document.createElement('tr');
             row.innerHTML = `
               <td>${user.id}</td>
@@ -881,7 +881,7 @@
               <td>${role}</td>
               <td>${new Date(user.created_at).toLocaleDateString('ru-RU')}</td>
               <td>
-                <button class="btn btn-delete" onclick="deleteUser(${user.id})">??? Удалить</button>
+                <button class="btn btn-delete" onclick="deleteUser(${user.id})">рџ—‘пёЏ РЈРґР°Р»РёС‚СЊ</button>
               </td>
             `;
             table.appendChild(row);
@@ -889,7 +889,7 @@
 
           // Load users into permission selector
           const permSelect = document.getElementById('permission-user-select');
-          permSelect.innerHTML = '<option value="">-- Выберите пользователя --</option>';
+          permSelect.innerHTML = '<option value="">-- Р’С‹Р±РµСЂРёС‚Рµ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ --</option>';
           users.forEach(user => {
             const option = document.createElement('option');
             option.value = user.id;
@@ -904,7 +904,7 @@
 
     // Delete user
     async function deleteUser(id) {
-      if (confirm('Вы уверены?')) {
+      if (confirm('Р’С‹ СѓРІРµСЂРµРЅС‹?')) {
         try {
           const response = await fetch(`/admin/users/${id}`, { method: 'DELETE' });
           if (response.ok) {
@@ -934,7 +934,7 @@
               <td>${chat.messages || 0}</td>
               <td>${new Date(chat.created_at).toLocaleDateString('ru-RU')}</td>
               <td>
-                <button class="btn btn-delete" onclick="deleteChat(${chat.id})">??? Удалить</button>
+                <button class="btn btn-delete" onclick="deleteChat(${chat.id})">рџ—‘пёЏ РЈРґР°Р»РёС‚СЊ</button>
               </td>
             `;
             table.appendChild(row);
@@ -947,7 +947,7 @@
 
     // Delete chat
     async function deleteChat(id) {
-      if (confirm('Вы уверены?')) {
+      if (confirm('Р’С‹ СѓРІРµСЂРµРЅС‹?')) {
         try {
           const response = await fetch(`/admin/chats/${id}`, { method: 'DELETE' });
           if (response.ok) {
@@ -977,7 +977,7 @@
               <td>${msg.content.substring(0, 50)}...</td>
               <td>${new Date(msg.created_at).toLocaleDateString('ru-RU')}</td>
               <td>
-                <button class="btn btn-delete" onclick="deleteMessage(${msg.id})">??? Удалить</button>
+                <button class="btn btn-delete" onclick="deleteMessage(${msg.id})">рџ—‘пёЏ РЈРґР°Р»РёС‚СЊ</button>
               </td>
             `;
             table.appendChild(row);
@@ -990,7 +990,7 @@
 
     // Delete message
     async function deleteMessage(id) {
-      if (confirm('Вы уверены?')) {
+      if (confirm('Р’С‹ СѓРІРµСЂРµРЅС‹?')) {
         try {
           const response = await fetch(`/admin/messages/${id}`, { method: 'DELETE' });
           if (response.ok) {
@@ -1029,7 +1029,7 @@
     document.getElementById('save-permissions-btn').addEventListener('click', async () => {
       const userId = document.getElementById('permission-user-select').value;
       if (!userId) {
-        alert('Выберите пользователя');
+        alert('Р’С‹Р±РµСЂРёС‚Рµ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ');
         return;
       }
 
@@ -1047,7 +1047,7 @@
         });
 
         if (response.ok) {
-          alert('? Права обновлены');
+          alert('вњ“ РџСЂР°РІР° РѕР±РЅРѕРІР»РµРЅС‹');
         }
       } catch (err) {
         console.error('Error saving permissions:', err);
@@ -1060,7 +1060,7 @@
       const content = document.getElementById('text-content').value;
 
       if (!section || !content) {
-        alert('Заполните все поля');
+        alert('Р—Р°РїРѕР»РЅРёС‚Рµ РІСЃРµ РїРѕР»СЏ');
         return;
       }
 
@@ -1072,7 +1072,7 @@
         });
 
         if (response.ok) {
-          alert('? Текст обновлён');
+          alert('вњ“ РўРµРєСЃС‚ СЃРѕС…СЂР°РЅС‘РЅ');
           document.getElementById('text-section').value = '';
           document.getElementById('text-content').value = '';
         }
@@ -1100,7 +1100,7 @@
       const file = document.getElementById('image-upload').files[0];
 
       if (!section || !file) {
-        alert('Выберите раздел и изображение');
+        alert('Р’С‹Р±РµСЂРёС‚Рµ СЂР°Р·РґРµР» Рё РёР·РѕР±СЂР°Р¶РµРЅРёРµ');
         return;
       }
 
@@ -1115,7 +1115,7 @@
         });
 
         if (response.ok) {
-          alert('? Изображение загружено');
+          alert('вњ“ РР·РѕР±СЂР°Р¶РµРЅРёРµ Р·Р°РіСЂСѓР¶РµРЅРѕ');
           document.getElementById('image-section').value = '';
           document.getElementById('image-upload').value = '';
           document.getElementById('image-preview').style.display = 'none';
@@ -1152,12 +1152,12 @@
         });
 
         if (response.ok) {
-          alert('? Пользователь создан');
+          alert('вњ“ РџРѕР»СЊР·РѕРІР°С‚РµР»СЊ СЃРѕР·РґР°РЅ');
           closeModal('user-modal');
           document.getElementById('user-form').reset();
           loadUsers();
         } else {
-          alert('? Ошибка при создании пользователя');
+          alert('вќЊ РћС€РёР±РєР° РїСЂРё СЃРѕР·РґР°РЅРёРё РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ');
         }
       } catch (err) {
         console.error('Error creating user:', err);
