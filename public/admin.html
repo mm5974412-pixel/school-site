@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Nexora — Админ-панель</title>
+  <title>Nexora � �����-������</title>
   <style>
     * {
       margin: 0;
@@ -478,17 +478,17 @@
   <!-- Login Screen -->
   <div id="login-screen" class="login-container">
     <div class="login-card">
-      <div style="font-size: 48px; margin-bottom: 16px;">🔐</div>
-      <h1>Админ-панель</h1>
-      <p>Введите пароль администратора</p>
+      <div style="font-size: 48px; margin-bottom: 16px;">??</div>
+      <h1>�����-������</h1>
+      <p>������� ������ ��������������</p>
       
       <div class="form-group">
-        <label class="form-label" style="text-align: left;">Пароль</label>
-        <input type="password" id="admin-password" class="form-input" placeholder="••••••••" />
+        <label class="form-label" style="text-align: left;">������</label>
+        <input type="password" id="admin-password" class="form-input" placeholder="��������" />
       </div>
 
       <button class="btn btn-primary" id="login-btn" style="width: 100%;">
-        🚀 Войти в панель
+        ?? ����� � ������
       </button>
 
       <div class="login-error" id="login-error"></div>
@@ -496,26 +496,26 @@
   </div>
 
   <!-- Admin Panel -->
-  <div id="admin-panel" style="display: none; height: 100%; width: 100%; display: flex; flex-direction: column;">
+  <div id="admin-panel" style="display: none; height: 100%; width: 100%; flex-direction: column;">
     <!-- Header -->
     <div class="admin-header">
       <div class="admin-logo">
-        <span>⚙️</span>
+        <span>??</span>
         <span>Nexora</span>
       </div>
       
       <div class="admin-nav">
-        <button class="nav-btn active" data-section="dashboard">📊 Dashboard</button>
-        <button class="nav-btn" data-section="users">👥 Пользователи</button>
-        <button class="nav-btn" data-section="permissions">🔐 Права</button>
-        <button class="nav-btn" data-section="content">📝 Контент</button>
-        <button class="nav-btn" data-section="chats">💬 Чаты</button>
-        <button class="nav-btn" data-section="messages">📋 Сообщения</button>
-        <button class="nav-btn" data-section="settings">⚙️ Настройки</button>
+        <button class="nav-btn active" data-section="dashboard">?? Dashboard</button>
+        <button class="nav-btn" data-section="users">?? ������������</button>
+        <button class="nav-btn" data-section="permissions">?? �����</button>
+        <button class="nav-btn" data-section="content">?? �������</button>
+        <button class="nav-btn" data-section="chats">?? ����</button>
+        <button class="nav-btn" data-section="messages">?? ���������</button>
+        <button class="nav-btn" data-section="settings">?? ���������</button>
       </div>
 
       <div class="admin-actions">
-        <button class="logout-btn" id="logout-btn">Выход</button>
+        <button class="logout-btn" id="logout-btn">�����</button>
       </div>
     </div>
 
@@ -523,38 +523,38 @@
     <div class="admin-wrapper">
       <!-- Dashboard -->
       <div id="dashboard" class="content-section active">
-        <h2 class="page-title">📊 Dashboard</h2>
+        <h2 class="page-title">?? Dashboard</h2>
         
         <div class="stats-grid">
           <div class="stat-card">
-            <div class="stat-label">👥 Всего пользователей</div>
+            <div class="stat-label">?? ����� �������������</div>
             <div class="stat-value" id="total-users">0</div>
-            <div class="stat-change">+5 за сегодня</div>
+            <div class="stat-change">+5 �� �������</div>
           </div>
           <div class="stat-card">
-            <div class="stat-label">🟢 Активных онлайн</div>
+            <div class="stat-label">?? �������� ������</div>
             <div class="stat-value" id="online-users">0</div>
-            <div class="stat-change">Сейчас</div>
+            <div class="stat-change">������</div>
           </div>
           <div class="stat-card">
-            <div class="stat-label">💬 Всего чатов</div>
+            <div class="stat-label">?? ����� �����</div>
             <div class="stat-value" id="total-chats">0</div>
-            <div class="stat-change">+2 за сегодня</div>
+            <div class="stat-change">+2 �� �������</div>
           </div>
           <div class="stat-card">
-            <div class="stat-label">📨 Всего сообщений</div>
+            <div class="stat-label">?? ����� ���������</div>
             <div class="stat-value" id="total-messages">0</div>
-            <div class="stat-change">+342 за сегодня</div>
+            <div class="stat-change">+342 �� �������</div>
           </div>
         </div>
       </div>
 
       <!-- Users -->
       <div id="users" class="content-section">
-        <h2 class="page-title">👥 Пользователи</h2>
+        <h2 class="page-title">?? ������������</h2>
         
         <div style="margin-bottom: 20px;">
-          <button class="btn btn-primary" id="add-user-btn">➕ Добавить пользователя</button>
+          <button class="btn btn-primary" id="add-user-btn">? �������� ������������</button>
         </div>
 
         <div class="table-container">
@@ -562,17 +562,17 @@
             <thead>
               <tr>
                 <th>ID</th>
-                <th>Имя пользователя</th>
+                <th>��� ������������</th>
                 <th>Email</th>
-                <th>Статус</th>
-                <th>Роль</th>
-                <th>Дата регистрации</th>
-                <th>Действия</th>
+                <th>������</th>
+                <th>����</th>
+                <th>���� �����������</th>
+                <th>��������</th>
               </tr>
             </thead>
             <tbody id="users-table">
               <tr>
-                <td colspan="7" style="text-align: center; padding: 20px;">Загрузка...</td>
+                <td colspan="7" style="text-align: center; padding: 20px;">��������...</td>
               </tr>
             </tbody>
           </table>
@@ -581,82 +581,82 @@
 
       <!-- Permissions -->
       <div id="permissions" class="content-section">
-        <h2 class="page-title">🔐 Управление правами</h2>
+        <h2 class="page-title">?? ���������� �������</h2>
         
         <div class="container-card">
-          <div class="card-title">Выберите пользователя</div>
+          <div class="card-title">�������� ������������</div>
           
           <div class="form-group">
-            <label class="form-label">Пользователь</label>
+            <label class="form-label">������������</label>
             <select class="form-input" id="permission-user-select">
-              <option value="">-- Загрузка --</option>
+              <option value="">-- �������� --</option>
             </select>
           </div>
 
           <div style="background: #f8fafc; border: 2px dashed #cbd5e1; border-radius: 12px; padding: 20px; margin-top: 20px;">
-            <div style="font-weight: 700; color: #1e293b; margin-bottom: 16px;">Права доступа</div>
+            <div style="font-weight: 700; color: #1e293b; margin-bottom: 16px;">����� �������</div>
             
             <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
               <input type="checkbox" id="perm-admin" style="width: 18px; height: 18px; cursor: pointer;" />
-              <label for="perm-admin" style="cursor: pointer; margin: 0; color: #475569;">👤 Администратор (полный доступ)</label>
+              <label for="perm-admin" style="cursor: pointer; margin: 0; color: #475569;">?? ������������� (������ ������)</label>
             </div>
 
             <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
               <input type="checkbox" id="perm-edit-content" style="width: 18px; height: 18px; cursor: pointer;" />
-              <label for="perm-edit-content" style="cursor: pointer; margin: 0; color: #475569;">✏️ Редактирование контента</label>
+              <label for="perm-edit-content" style="cursor: pointer; margin: 0; color: #475569;">?? �������������� ��������</label>
             </div>
 
             <div style="display: flex; align-items: center; gap: 12px;">
               <input type="checkbox" id="perm-manage-users" style="width: 18px; height: 18px; cursor: pointer;" />
-              <label for="perm-manage-users" style="cursor: pointer; margin: 0; color: #475569;">👥 Управление пользователями</label>
+              <label for="perm-manage-users" style="cursor: pointer; margin: 0; color: #475569;">?? ���������� ��������������</label>
             </div>
           </div>
 
-          <button class="btn btn-primary" id="save-permissions-btn" style="margin-top: 20px;">💾 Сохранить</button>
+          <button class="btn btn-primary" id="save-permissions-btn" style="margin-top: 20px;">?? ���������</button>
         </div>
       </div>
 
       <!-- Content -->
       <div id="content" class="content-section">
-        <h2 class="page-title">📝 Управление контентом</h2>
+        <h2 class="page-title">?? ���������� ���������</h2>
         
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
           <div class="container-card">
-            <div class="card-title">✏️ Изменить текст</div>
+            <div class="card-title">?? �������� �����</div>
             
             <div class="form-group">
-              <label class="form-label">Раздел</label>
+              <label class="form-label">������</label>
               <select class="form-input" id="text-section">
-                <option value="">-- Выберите раздел --</option>
-                <option value="site-name">Название сайта</option>
-                <option value="main-title">Главный заголовок</option>
-                <option value="main-description">Описание</option>
+                <option value="">-- �������� ������ --</option>
+                <option value="site-name">�������� �����</option>
+                <option value="main-title">������� ���������</option>
+                <option value="main-description">��������</option>
               </select>
             </div>
 
             <div class="form-group">
-              <label class="form-label">Новый текст</label>
+              <label class="form-label">����� �����</label>
               <textarea class="form-input" id="text-content" style="resize: vertical; min-height: 100px;"></textarea>
             </div>
 
-            <button class="btn btn-primary" id="save-text-btn" style="width: 100%;">💾 Обновить</button>
+            <button class="btn btn-primary" id="save-text-btn" style="width: 100%;">?? ��������</button>
           </div>
 
           <div class="container-card">
-            <div class="card-title">🖼️ Загрузить изображение</div>
+            <div class="card-title">??? ��������� �����������</div>
             
             <div class="form-group">
-              <label class="form-label">Раздел</label>
+              <label class="form-label">������</label>
               <select class="form-input" id="image-section">
-                <option value="">-- Выберите раздел --</option>
-                <option value="logo">Логотип</option>
-                <option value="banner">Баннер</option>
-                <option value="icon">Иконка</option>
+                <option value="">-- �������� ������ --</option>
+                <option value="logo">�������</option>
+                <option value="banner">������</option>
+                <option value="icon">������</option>
               </select>
             </div>
 
             <div class="form-group">
-              <label class="form-label">Изображение</label>
+              <label class="form-label">�����������</label>
               <input type="file" id="image-upload" class="form-input" accept="image/*" />
             </div>
 
@@ -664,30 +664,30 @@
               <img id="preview-img" style="max-width: 100%; border-radius: 8px; border: 2px solid #e2e8f0;" />
             </div>
 
-            <button class="btn btn-primary" id="save-image-btn" style="width: 100%;">💾 Загрузить</button>
+            <button class="btn btn-primary" id="save-image-btn" style="width: 100%;">?? ���������</button>
           </div>
         </div>
       </div>
 
       <!-- Chats -->
       <div id="chats" class="content-section">
-        <h2 class="page-title">💬 Чаты</h2>
+        <h2 class="page-title">?? ����</h2>
         
         <div class="table-container">
           <table class="table">
             <thead>
               <tr>
                 <th>ID</th>
-                <th>Название</th>
-                <th>Участников</th>
-                <th>Сообщений</th>
-                <th>Создан</th>
-                <th>Действия</th>
+                <th>��������</th>
+                <th>����������</th>
+                <th>���������</th>
+                <th>������</th>
+                <th>��������</th>
               </tr>
             </thead>
             <tbody id="chats-table">
               <tr>
-                <td colspan="6" style="text-align: center; padding: 20px;">Загрузка...</td>
+                <td colspan="6" style="text-align: center; padding: 20px;">��������...</td>
               </tr>
             </tbody>
           </table>
@@ -696,23 +696,23 @@
 
       <!-- Messages -->
       <div id="messages" class="content-section">
-        <h2 class="page-title">📋 Сообщения</h2>
+        <h2 class="page-title">?? ���������</h2>
         
         <div class="table-container">
           <table class="table">
             <thead>
               <tr>
                 <th>ID</th>
-                <th>Автор</th>
-                <th>Чат</th>
-                <th>Сообщение</th>
-                <th>Время</th>
-                <th>Действия</th>
+                <th>�����</th>
+                <th>���</th>
+                <th>���������</th>
+                <th>�����</th>
+                <th>��������</th>
               </tr>
             </thead>
             <tbody id="messages-table">
               <tr>
-                <td colspan="6" style="text-align: center; padding: 20px;">Загрузка...</td>
+                <td colspan="6" style="text-align: center; padding: 20px;">��������...</td>
               </tr>
             </tbody>
           </table>
@@ -721,22 +721,22 @@
 
       <!-- Settings -->
       <div id="settings" class="content-section">
-        <h2 class="page-title">⚙️ Настройки</h2>
+        <h2 class="page-title">?? ���������</h2>
         
         <div class="container-card">
-          <div class="card-title">Настройки системы</div>
+          <div class="card-title">��������� �������</div>
           
           <div class="form-group">
-            <label class="form-label">Название сайта</label>
+            <label class="form-label">�������� �����</label>
             <input type="text" class="form-input" id="site-name" value="Nexora" />
           </div>
 
           <div class="form-group">
-            <label class="form-label">Максимальный размер файла (MB)</label>
+            <label class="form-label">������������ ������ ����� (MB)</label>
             <input type="number" class="form-input" id="max-file-size" value="50" />
           </div>
 
-          <button class="btn btn-primary">💾 Сохранить настройки</button>
+          <button class="btn btn-primary">?? ��������� ���������</button>
         </div>
       </div>
     </div>
@@ -746,13 +746,13 @@
   <div id="user-modal" class="modal">
     <div class="modal-content">
       <div class="modal-header">
-        <span>Добавить пользователя</span>
-        <button class="modal-close" onclick="closeModal('user-modal')">×</button>
+        <span>�������� ������������</span>
+        <button class="modal-close" onclick="closeModal('user-modal')">?</button>
       </div>
       
       <form id="user-form">
         <div class="form-group">
-          <label class="form-label">Имя пользователя</label>
+          <label class="form-label">��� ������������</label>
           <input type="text" class="form-input" id="form-username" required />
         </div>
 
@@ -762,21 +762,21 @@
         </div>
 
         <div class="form-group">
-          <label class="form-label">Пароль</label>
+          <label class="form-label">������</label>
           <input type="password" class="form-input" id="form-password" required />
         </div>
 
         <div class="form-group">
-          <label class="form-label">Роль</label>
+          <label class="form-label">����</label>
           <select class="form-input" id="form-role">
-            <option value="user">Пользователь</option>
-            <option value="admin">Администратор</option>
+            <option value="user">������������</option>
+            <option value="admin">�������������</option>
           </select>
         </div>
 
         <div class="form-buttons">
-          <button type="submit" class="btn btn-primary">✓ Сохранить</button>
-          <button type="button" class="btn btn-secondary" onclick="closeModal('user-modal')">✕ Отмена</button>
+          <button type="submit" class="btn btn-primary">? ���������</button>
+          <button type="button" class="btn btn-secondary" onclick="closeModal('user-modal')">? ������</button>
         </div>
       </form>
     </div>
@@ -808,12 +808,12 @@
           loadUsers();
         } else {
           loginError.style.display = 'block';
-          loginError.textContent = '❌ Неверный пароль';
+          loginError.textContent = '? �������� ������';
           adminPassword.value = '';
         }
       } catch (err) {
         loginError.style.display = 'block';
-        loginError.textContent = '❌ Ошибка подключения';
+        loginError.textContent = '? ������ �����������';
         console.error('Login error:', err);
       }
     });
@@ -870,8 +870,8 @@
           table.innerHTML = '';
 
           users.forEach(user => {
-            const role = user.is_admin ? '<span class="badge badge-admin">👤 Admin</span>' : '<span class="badge badge-user">👤 User</span>';
-            const status = user.online ? '<span class="badge badge-online">🟢 Online</span>' : '<span class="badge badge-offline">⚫ Offline</span>';
+            const role = user.is_admin ? '<span class="badge badge-admin">?? Admin</span>' : '<span class="badge badge-user">?? User</span>';
+            const status = user.online ? '<span class="badge badge-online">?? Online</span>' : '<span class="badge badge-offline">? Offline</span>';
             const row = document.createElement('tr');
             row.innerHTML = `
               <td>${user.id}</td>
@@ -881,7 +881,7 @@
               <td>${role}</td>
               <td>${new Date(user.created_at).toLocaleDateString('ru-RU')}</td>
               <td>
-                <button class="btn btn-delete" onclick="deleteUser(${user.id})">🗑️ Удалить</button>
+                <button class="btn btn-delete" onclick="deleteUser(${user.id})">??? �������</button>
               </td>
             `;
             table.appendChild(row);
@@ -889,7 +889,7 @@
 
           // Load users into permission selector
           const permSelect = document.getElementById('permission-user-select');
-          permSelect.innerHTML = '<option value="">-- Выберите пользователя --</option>';
+          permSelect.innerHTML = '<option value="">-- �������� ������������ --</option>';
           users.forEach(user => {
             const option = document.createElement('option');
             option.value = user.id;
@@ -904,7 +904,7 @@
 
     // Delete user
     async function deleteUser(id) {
-      if (confirm('Вы уверены?')) {
+      if (confirm('�� �������?')) {
         try {
           const response = await fetch(`/admin/users/${id}`, { method: 'DELETE' });
           if (response.ok) {
@@ -934,7 +934,7 @@
               <td>${chat.messages || 0}</td>
               <td>${new Date(chat.created_at).toLocaleDateString('ru-RU')}</td>
               <td>
-                <button class="btn btn-delete" onclick="deleteChat(${chat.id})">🗑️ Удалить</button>
+                <button class="btn btn-delete" onclick="deleteChat(${chat.id})">??? �������</button>
               </td>
             `;
             table.appendChild(row);
@@ -947,7 +947,7 @@
 
     // Delete chat
     async function deleteChat(id) {
-      if (confirm('Вы уверены?')) {
+      if (confirm('�� �������?')) {
         try {
           const response = await fetch(`/admin/chats/${id}`, { method: 'DELETE' });
           if (response.ok) {
@@ -977,7 +977,7 @@
               <td>${msg.content.substring(0, 50)}...</td>
               <td>${new Date(msg.created_at).toLocaleDateString('ru-RU')}</td>
               <td>
-                <button class="btn btn-delete" onclick="deleteMessage(${msg.id})">🗑️ Удалить</button>
+                <button class="btn btn-delete" onclick="deleteMessage(${msg.id})">??? �������</button>
               </td>
             `;
             table.appendChild(row);
@@ -990,7 +990,7 @@
 
     // Delete message
     async function deleteMessage(id) {
-      if (confirm('Вы уверены?')) {
+      if (confirm('�� �������?')) {
         try {
           const response = await fetch(`/admin/messages/${id}`, { method: 'DELETE' });
           if (response.ok) {
@@ -1029,7 +1029,7 @@
     document.getElementById('save-permissions-btn').addEventListener('click', async () => {
       const userId = document.getElementById('permission-user-select').value;
       if (!userId) {
-        alert('Выберите пользователя');
+        alert('�������� ������������');
         return;
       }
 
@@ -1047,7 +1047,7 @@
         });
 
         if (response.ok) {
-          alert('✅ Права обновлены');
+          alert('? ����� ���������');
         }
       } catch (err) {
         console.error('Error saving permissions:', err);
@@ -1060,7 +1060,7 @@
       const content = document.getElementById('text-content').value;
 
       if (!section || !content) {
-        alert('Заполните все поля');
+        alert('��������� ��� ����');
         return;
       }
 
@@ -1072,7 +1072,7 @@
         });
 
         if (response.ok) {
-          alert('✅ Текст обновлён');
+          alert('? ����� �������');
           document.getElementById('text-section').value = '';
           document.getElementById('text-content').value = '';
         }
@@ -1100,7 +1100,7 @@
       const file = document.getElementById('image-upload').files[0];
 
       if (!section || !file) {
-        alert('Выберите раздел и изображение');
+        alert('�������� ������ � �����������');
         return;
       }
 
@@ -1115,7 +1115,7 @@
         });
 
         if (response.ok) {
-          alert('✅ Изображение загружено');
+          alert('? ����������� ���������');
           document.getElementById('image-section').value = '';
           document.getElementById('image-upload').value = '';
           document.getElementById('image-preview').style.display = 'none';
@@ -1152,12 +1152,12 @@
         });
 
         if (response.ok) {
-          alert('✅ Пользователь создан');
+          alert('? ������������ ������');
           closeModal('user-modal');
           document.getElementById('user-form').reset();
           loadUsers();
         } else {
-          alert('❌ Ошибка при создании пользователя');
+          alert('? ������ ��� �������� ������������');
         }
       } catch (err) {
         console.error('Error creating user:', err);
@@ -1187,1290 +1187,6 @@
       if (e.key === 'Enter') {
         loginBtn.click();
       }
-    });
-  </script>
-</body>
-</html>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      min-height: 100vh;
-    }
-
-    .admin-container {
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    }
-
-    /* Top Navigation */
-    .admin-sidebar {
-      background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
-      padding: 0;
-      border: none;
-      position: relative;
-      height: auto;
-      width: 100%;
-      display: flex;
-      align-items: center;
-      padding: 16px 24px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-    }
-
-    .admin-sidebar-title {
-      font-size: 24px;
-      font-weight: 800;
-      color: white;
-      margin-bottom: 0;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      flex-shrink: 0;
-    }
-
-    .admin-menu {
-      display: flex;
-      flex-direction: row;
-      gap: 4px;
-      margin-bottom: 0;
-      margin-left: 40px;
-      flex-wrap: wrap;
-      flex: 1;
-    }
-
-    .admin-menu-item {
-      padding: 10px 16px;
-      border-radius: 8px;
-      background: rgba(255, 255, 255, 0.15);
-      border: 2px solid transparent;
-      color: white;
-      cursor: pointer;
-      font-size: 14px;
-      font-weight: 600;
-      text-align: center;
-      transition: all 0.3s ease;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      white-space: nowrap;
-    }
-
-    .admin-menu-item:hover {
-      background: rgba(255, 255, 255, 0.25);
-      transform: translateY(-2px);
-    }
-
-    .admin-menu-item.active {
-      background: white;
-      color: #667eea;
-      border-color: white;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-    }
-
-    .admin-user-info {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-left: auto;
-    }
-
-    .admin-logout {
-      padding: 8px 16px;
-      background: rgba(255, 255, 255, 0.2);
-      color: white;
-      border: 2px solid white;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 13px;
-      font-weight: 600;
-      transition: all 0.3s ease;
-    }
-
-    .admin-logout:hover {
-      background: white;
-      color: #764ba2;
-      transform: translateY(-2px);
-    }
-
-    /* Main Content Area */
-    .admin-main {
-      margin-left: 0;
-      flex: 1;
-      padding: 40px;
-      overflow-y: auto;
-      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-    }
-
-    .admin-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 40px;
-      padding-bottom: 0;
-      border-bottom: none;
-    }
-
-    .admin-title {
-      font-size: 36px;
-      font-weight: 800;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 20px;
-      margin-bottom: 40px;
-    }
-
-    .stat-card {
-      background: white;
-      border: none;
-      border-radius: 16px;
-      padding: 24px;
-      transition: all 0.3s ease;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .stat-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      right: 0;
-      width: 100px;
-      height: 100px;
-      background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
-      border-radius: 50%;
-      transform: translate(50%, -50%);
-    }
-
-    .stat-card:hover {
-      transform: translateY(-8px);
-      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
-    }
-
-    .stat-label {
-      font-size: 12px;
-      color: #64748b;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      margin-bottom: 8px;
-      font-weight: 600;
-    }
-
-    .stat-value {
-      font-size: 36px;
-      font-weight: 800;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    .stat-change {
-      font-size: 12px;
-      color: #22c55e;
-      margin-top: 8px;
-      font-weight: 600;
-    }
-
-    .content-section {
-      display: none;
-    }
-
-    .content-section.active {
-      display: block;
-    }
-
-    .table-container {
-      background: white;
-      border: none;
-      border-radius: 16px;
-      overflow: hidden;
-      margin-bottom: 20px;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    }
-
-    .table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-
-    .table th {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      padding: 16px;
-      text-align: left;
-      font-size: 13px;
-      font-weight: 700;
-      color: white;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-
-    .table td {
-      padding: 16px;
-      border-bottom: 1px solid #e2e8f0;
-      color: #475569;
-      font-size: 14px;
-    }
-
-    .table tr:hover {
-      background: #f8fafc;
-    }
-
-    .table tr:last-child td {
-      border-bottom: none;
-    }
-
-    .action-btn {
-      padding: 8px 14px;
-      border-radius: 6px;
-      border: none;
-      cursor: pointer;
-      font-size: 12px;
-      font-weight: 600;
-      transition: all 0.3s ease;
-      margin-right: 4px;
-    }
-
-    .action-btn.edit {
-      background: #3b82f6;
-      color: white;
-    }
-
-    .action-btn.delete {
-      background: #ef4444;
-      color: white;
-    }
-
-    .action-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    }
-
-    .modal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.5);
-      z-index: 1000;
-      justify-content: center;
-      align-items: center;
-    }
-
-    .modal.show {
-      display: flex;
-    }
-
-    .modal-content {
-      background: white;
-      border: none;
-      border-radius: 20px;
-      padding: 32px;
-      max-width: 500px;
-      width: 90%;
-      max-height: 80vh;
-      overflow-y: auto;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-    }
-
-    .modal-header {
-      font-size: 24px;
-      font-weight: 800;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      margin-bottom: 24px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .modal-close {
-      background: none;
-      border: none;
-      color: #94a3b8;
-      font-size: 28px;
-      cursor: pointer;
-      font-weight: 300;
-    }
-
-    .form-group {
-      margin-bottom: 20px;
-    }
-
-    .form-label {
-      display: block;
-      font-size: 14px;
-      color: #475569;
-      margin-bottom: 8px;
-      font-weight: 600;
-    }
-
-    .form-input {
-      width: 100%;
-      padding: 12px 14px;
-      background: #f8fafc;
-      border: 2px solid #e2e8f0;
-      border-radius: 8px;
-      color: #1e293b;
-      font-size: 14px;
-      transition: all 0.3s ease;
-    }
-
-    .form-input:focus {
-      outline: none;
-      border-color: #667eea;
-      background: white;
-      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-    }
-
-    .form-buttons {
-      display: flex;
-      gap: 12px;
-      margin-top: 28px;
-    }
-
-    .form-buttons button {
-      flex: 1;
-      padding: 12px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: 600;
-      transition: all 0.3s ease;
-    }
-
-    .btn-save {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-    }
-
-    .btn-save:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
-    }
-
-    .btn-cancel {
-      background: #e2e8f0;
-      color: #475569;
-      border: none;
-    }
-
-    .btn-cancel:hover {
-      background: #cbd5e1;
-    }
-
-    .btn-primary {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      padding: 12px 24px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: 600;
-      transition: all 0.3s ease;
-    }
-
-    .btn-primary:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
-    }
-
-    .badge {
-      display: inline-block;
-      padding: 6px 12px;
-      border-radius: 8px;
-      font-size: 12px;
-      font-weight: 600;
-    }
-
-    .badge.online {
-      background: #dcfce7;
-      color: #15803d;
-    }
-
-    .badge.offline {
-      background: #f1f5f9;
-      color: #64748b;
-    }
-
-    .badge.admin {
-      background: #fef3c7;
-      color: #b45309;
-    }
-
-    .empty-state {
-      text-align: center;
-      padding: 60px 20px;
-      color: #94a3b8;
-    }
-
-    .empty-state-icon {
-      font-size: 48px;
-      margin-bottom: 16px;
-      opacity: 0.5;
-    }
-
-    @media (max-width: 768px) {
-      .admin-sidebar {
-        width: 100%;
-        height: auto;
-        position: relative;
-        border-right: none;
-        border-bottom: none;
-        padding: 12px 16px;
-      }
-
-      .admin-sidebar-title {
-        margin-bottom: 0;
-        font-size: 18px;
-      }
-
-      .admin-menu {
-        flex-direction: row;
-        overflow-x: auto;
-        gap: 4px;
-        margin-bottom: 0;
-        margin-left: 16px;
-      }
-
-      .admin-menu-item {
-        white-space: nowrap;
-        padding: 8px 12px;
-        flex-shrink: 0;
-        font-size: 12px;
-      }
-
-
-      .admin-main {
-        margin-left: 0;
-        padding: 24px;
-        overflow-y: auto;
-      }
-
-      .admin-title {
-        font-size: 24px;
-      }
-
-      .stats-grid {
-        grid-template-columns: 1fr;
-        gap: 12px;
-      }
-
-      .stat-card {
-        padding: 16px;
-      }
-
-      .stat-value {
-        font-size: 28px;
-      }
-
-      .table {
-        font-size: 12px;
-      }
-
-      .table th,
-      .table td {
-        padding: 10px;
-      }
-
-      .modal-content {
-        width: 95%;
-        padding: 20px;
-      }
-
-      .form-buttons {
-        flex-direction: column;
-      }
-
-      .admin-user-info {
-        margin-left: 0;
-      }
-    }
-  </style>
-</head>
-<body>
-  <div class="admin-container">
-  <div class="admin-container">
-    <!-- Форма входа в админ-панель -->
-    <div id="admin-login" style="display: flex; align-items: center; justify-content: center; min-height: 100vh;">
-      <div style="background: white; border-radius: 20px; padding: 40px; max-width: 420px; width: 90%; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
-        <div style="text-align: center; margin-bottom: 32px;">
-          <div style="font-size: 48px; margin-bottom: 12px;">🔐</div>
-          <h1 style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; text-align: center; font-size: 28px; font-weight: 800; margin: 0;">Админ-панель</h1>
-          <p style="color: #64748b; margin-top: 8px;">Введите пароль администратора</p>
-        </div>
-        
-        <div style="margin-bottom: 20px;">
-          <label style="display: block; color: #475569; margin-bottom: 8px; font-weight: 600; font-size: 14px;">Пароль</label>
-          <input type="password" id="admin-password" class="form-input" placeholder="••••••••" style="width: 100%; padding: 12px 14px; background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 8px; color: #1e293b; font-size: 16; transition: all 0.3s;" />
-        </div>
-
-        <button id="admin-login-btn" style="width: 100%; padding: 14px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; transition: all 0.3s; font-size: 16px;">
-          🚀 Войти в панель
-        </button>
-
-        <div id="login-error" style="color: #ef4444; text-align: center; margin-top: 16px; display: none; font-size: 14px; font-weight: 600;"></div>
-      </div>
-    </div>
-
-    <!-- Админ-панель (скрыта по умолчанию) -->
-    <div id="admin-panel-content" style="display: none; width: 100%;">
-      <div class="admin-sidebar">
-        <div class="admin-sidebar-title">
-          <span>⚙️</span>
-          <span>Nexora</span>
-        </div>
-        <div class="admin-menu">
-          <button class="admin-menu-item active" data-section="dashboard">📊 Dashboard</button>
-          <button class="admin-menu-item" data-section="users">👥 Пользователи</button>
-          <button class="admin-menu-item" data-section="permissions">🔐 Права</button>
-          <button class="admin-menu-item" data-section="content">📝 Контент</button>
-          <button class="admin-menu-item" data-section="chats">💬 Чаты</button>
-          <button class="admin-menu-item" data-section="messages">📋 Сообщения</button>
-          <button class="admin-menu-item" data-section="settings">⚙️ Настройки</button>
-        </div>
-        <div class="admin-user-info" style="margin-top: auto; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.2);">
-          <span style="color: white; font-size: 14px; font-weight: 600;" id="admin-username">Admin</span>
-          <button class="admin-logout" id="logout-btn">Выход</button>
-        </div>
-      </div>
-
-    <!-- Main Content -->
-    <div class="admin-main">
-      <div class="admin-header">
-        <div class="admin-title" id="section-title">Dashboard</div>
-      </div>
-
-      <!-- Dashboard Section -->
-      <div id="dashboard" class="content-section active">
-        <div class="stats-grid">
-          <div class="stat-card">
-            <div class="stat-label">👥 Всего пользователей</div>
-            <div class="stat-value" id="total-users">0</div>
-            <div class="stat-change">+5 за сегодня</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-label">🟢 Активных онлайн</div>
-            <div class="stat-value" id="online-users">0</div>
-            <div class="stat-change">Сейчас</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-label">💬 Всего чатов</div>
-            <div class="stat-value" id="total-chats">0</div>
-            <div class="stat-change">+2 за сегодня</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-label">📨 Всего сообщений</div>
-            <div class="stat-value" id="total-messages">0</div>
-            <div class="stat-change">+342 за сегодня</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Users Section -->
-      <div id="users" class="content-section">
-        <div style="margin-bottom: 20px; display: flex; gap: 10px;">
-          <button class="btn-primary" id="add-user-btn">➕ Добавить пользователя</button>
-        </div>
-        <div class="table-container">
-          <table class="table">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Имя пользователя</th>
-                <th>Email</th>
-                <th>Статус</th>
-                <th>Роль</th>
-                <th>Дата регистрации</th>
-                <th>Действия</th>
-              </tr>
-            </thead>
-            <tbody id="users-table-body">
-              <tr>
-                <td colspan="7" style="text-align: center; padding: 20px; color: #64748b;">
-                  Загрузка...
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- Permissions Section (Выдача прав) -->
-      <div id="permissions" class="content-section">
-        <div style="background: white; border: 2px solid #e2e8f0; border-radius: 16px; padding: 28px;">
-          <h3 style="color: #1e293b; margin-bottom: 24px; font-size: 20px; font-weight: 700;">🔐 Управление правами доступа</h3>
-          
-          <div class="form-group">
-            <label class="form-label">Выберите пользователя</label>
-            <select class="form-input" id="permission-user-select" style="cursor: pointer;">
-              <option value="">-- Загрузка --</option>
-            </select>
-          </div>
-
-          <div style="background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%); border: 2px dashed #cbd5e1; border-radius: 12px; padding: 20px; margin-top: 24px;">
-            <h4 style="color: #1e293b; margin-bottom: 18px; font-weight: 700;">Права пользователя</h4>
-            
-            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 14px; padding: 12px; background: white; border-radius: 8px;">
-              <input type="checkbox" id="perm-admin" style="cursor: pointer; width: 18px; height: 18px;" />
-              <label for="perm-admin" style="color: #1e293b; cursor: pointer; margin: 0; font-weight: 600; flex: 1;">
-                👤 Администратор (полный доступ)
-              </label>
-            </div>
-
-            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 14px; padding: 12px; background: white; border-radius: 8px;">
-              <input type="checkbox" id="perm-edit-content" style="cursor: pointer; width: 18px; height: 18px;" />
-              <label for="perm-edit-content" style="color: #1e293b; cursor: pointer; margin: 0; font-weight: 600; flex: 1;">
-                ✏️ Редактирование контента
-              </label>
-            </div>
-
-            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 14px; padding: 12px; background: white; border-radius: 8px;">
-              <input type="checkbox" id="perm-delete-messages" style="cursor: pointer; width: 18px; height: 18px;" />
-              <label for="perm-delete-messages" style="color: #1e293b; cursor: pointer; margin: 0; font-weight: 600; flex: 1;">
-                🗑️ Удаление сообщений
-              </label>
-            </div>
-
-            <div style="display: flex; align-items: center; gap: 12px; padding: 12px; background: white; border-radius: 8px;">
-              <input type="checkbox" id="perm-manage-users" style="cursor: pointer; width: 18px; height: 18px;" />
-              <label for="perm-manage-users" style="color: #1e293b; cursor: pointer; margin: 0; font-weight: 600; flex: 1;">
-                👥 Управление пользователями
-              </label>
-            </div>
-          </div>
-
-          <button class="btn-primary" id="save-permissions-btn" style="margin-top: 24px;">💾 Сохранить права</button>
-        </div>
-      </div>
-
-      <!-- Content Section (Изменение контента) -->
-      <div id="content" class="content-section">
-        <div style="background: white; border-radius: 16px; overflow: hidden;">
-          <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 24px;">
-            <h3 style="color: white; margin: 0; font-size: 20px; font-weight: 700;">📝 Управление контентом</h3>
-          </div>
-          
-          <div style="padding: 28px; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px;">
-            <!-- Edit Text Content -->
-            <div style="background: #0f172a; border: 1px solid #334155; border-radius: 8px; padding: 16px;">
-              <h4 style="color: #cbd5e1; margin-bottom: 12px;">✏️ Изменить текст</h4>
-              
-            <!-- Edit Text Content -->
-            <div style="background: white; border: 2px solid #e2e8f0; border-radius: 12px; padding: 20px;">
-              <h4 style="color: #1e293b; margin-bottom: 16px; font-weight: 700;">✏️ Изменить текст</h4>
-              
-              <div class="form-group">
-                <label class="form-label">Раздел</label>
-                <select class="form-input" id="text-section" style="cursor: pointer;">
-                  <option value="">-- Выберите раздел --</option>
-                  <option value="site-name">Название сайта</option>
-                  <option value="main-title">Главный заголовок</option>
-                  <option value="main-description">Описание</option>
-                </select>
-              </div>
-
-              <div class="form-group">
-                <label class="form-label">Новый текст</label>
-                <textarea class="form-input" id="text-content" style="resize: vertical; min-height: 100px; font-family: Arial, sans-serif;"></textarea>
-              </div>
-
-              <button class="btn-primary" id="save-text-btn" style="width: 100%;">💾 Обновить текст</button>
-            </div>
-
-            <!-- Edit Images -->
-            <div style="background: white; border: 2px solid #e2e8f0; border-radius: 12px; padding: 20px;">
-              <h4 style="color: #1e293b; margin-bottom: 16px; font-weight: 700;">🖼️ Загрузить изображение</h4>
-              
-              <div class="form-group">
-                <label class="form-label">Раздел</label>
-                <select class="form-input" id="image-section" style="cursor: pointer;">
-                  <option value="">-- Выберите раздел --</option>
-                  <option value="logo">Логотип</option>
-                  <option value="banner">Баннер</option>
-                  <option value="icon">Иконка</option>
-                </select>
-              </div>
-
-              <div class="form-group">
-                <label class="form-label">Выберите файл</label>
-                <input type="file" id="image-upload" class="form-input" accept="image/*" />
-              </div>
-
-              <div id="image-preview" style="margin: 12px 0; border-radius: 8px; max-width: 100%; display: none;">
-                <img id="preview-img" style="max-width: 100%; border-radius: 8px; border: 2px solid #e2e8f0;" />
-              </div>
-
-              <button class="btn-primary" id="save-image-btn" style="width: 100%;">💾 Загрузить</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Chats Section -->
-      <div id="chats" class="content-section">
-        <div class="table-container">
-          <table class="table">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Название</th>
-                <th>Участников</th>
-                <th>Сообщений</th>
-                <th>Создан</th>
-                <th>Действия</th>
-              </tr>
-            </thead>
-            <tbody id="chats-table-body">
-              <tr>
-                <td colspan="6" style="text-align: center; padding: 20px; color: #64748b;">
-                  Загрузка...
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- Messages Section -->
-      <div id="messages" class="content-section">
-        <div class="table-container">
-          <table class="table">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Автор</th>
-                <th>Чат</th>
-                <th>Сообщение</th>
-                <th>Время</th>
-                <th>Действия</th>
-              </tr>
-            </thead>
-            <tbody id="messages-table-body">
-              <tr>
-                <td colspan="6" style="text-align: center; padding: 20px; color: #64748b;">
-                  Загрузка...
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- Settings Section -->
-      <div id="settings" class="content-section">
-        <div style="background: white; border: 2px solid #e2e8f0; border-radius: 16px; padding: 28px;">
-          <h3 style="color: #1e293b; margin-bottom: 24px; font-size: 20px; font-weight: 700;">⚙️ Настройки системы</h3>
-          
-          <div class="form-group">
-            <label class="form-label">Название сайта</label>
-            <input type="text" class="form-input" id="site-name" value="Nexora" />
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">Максимальный размер файла (MB)</label>
-            <input type="number" class="form-input" id="max-file-size" value="50" />
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">Требовать подтверждение email</label>
-            <input type="checkbox" id="require-email-verify" style="margin-top: 6px; cursor: pointer;" />
-          </div>
-
-          <button class="btn-primary" style="display: inline-flex; margin-top: 20px;">💾 Сохранить настройки</button>
-        </div>
-      </div>
-    </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- User Modal -->
-  <div id="user-modal" class="modal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <span id="modal-title">Добавить пользователя</span>
-        <button class="modal-close" onclick="closeModal('user-modal')">×</button>
-      </div>
-      <form id="user-form">
-        <div class="form-group">
-          <label class="form-label">Имя пользователя</label>
-          <input type="text" class="form-input" id="form-username" required />
-        </div>
-        <div class="form-group">
-          <label class="form-label">Email</label>
-          <input type="email" class="form-input" id="form-email" required />
-        </div>
-        <div class="form-group">
-          <label class="form-label">Пароль</label>
-          <input type="password" class="form-input" id="form-password" required />
-        </div>
-        <div class="form-group">
-          <label class="form-label">Роль</label>
-          <select class="form-input" id="form-role" style="cursor: pointer;">
-            <option value="user">Пользователь</option>
-            <option value="admin">Администратор</option>
-          </select>
-        </div>
-        <div class="form-buttons">
-          <button type="submit" class="btn-save">✓ Сохранить</button>
-          <button type="button" class="btn-cancel" onclick="closeModal('user-modal')">✕ Отмена</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <script>
-    let isAdminAuthenticated = false;
-
-    // Функция входа в админ-панель
-    function authenticateAdmin() {
-      const password = document.getElementById('admin-password').value;
-      const errorDiv = document.getElementById('login-error');
-      
-      if (!password) {
-        errorDiv.textContent = 'Введите пароль';
-        errorDiv.style.display = 'block';
-        return;
-      }
-
-      fetch('/admin/auth', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password })
-      })
-        .then(res => res.json())
-        .then(data => {
-          console.log('Auth response:', data);
-          if (data.ok) {
-            isAdminAuthenticated = true;
-            showAdminPanel();
-          } else {
-            errorDiv.textContent = data.error || 'Неверный пароль';
-            errorDiv.style.display = 'block';
-          }
-        })
-        .catch(err => {
-          console.error('Auth error:', err);
-          errorDiv.textContent = 'Ошибка сервера';
-          errorDiv.style.display = 'block';
-        });
-    }
-
-    // Показать админ-панель
-    function showAdminPanel() {
-      document.getElementById('admin-login').style.display = 'none';
-      document.getElementById('admin-panel-content').style.display = 'flex';
-      loadDashboardStats();
-    }
-
-    // Load dashboard stats
-    function loadDashboardStats() {
-      fetch('/admin/stats', { cache: 'no-store' })
-        .then(res => res.json())
-        .then(data => {
-          document.getElementById('total-users').textContent = data.totalUsers || 0;
-          document.getElementById('online-users').textContent = data.onlineUsers || 0;
-          document.getElementById('total-chats').textContent = data.totalChats || 0;
-          document.getElementById('total-messages').textContent = data.totalMessages || 0;
-        });
-    }
-
-    // Load users
-    function loadUsers() {
-      fetch('/admin/users', { cache: 'no-store' })
-        .then(res => res.json())
-        .then(data => {
-          const tbody = document.getElementById('users-table-body');
-          tbody.innerHTML = '';
-          
-          if (!data.users || data.users.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 20px; color: #64748b;">Нет пользователей</td></tr>';
-            return;
-          }
-
-          data.users.forEach(user => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-              <td>${user.id}</td>
-              <td>${user.username}</td>
-              <td>${user.email || '-'}</td>
-              <td><span class="badge ${user.online ? 'online' : 'offline'}">${user.online ? 'Онлайн' : 'Офлайн'}</span></td>
-              <td><span class="badge ${user.is_admin ? 'admin' : ''}">${user.is_admin ? 'Админ' : 'Пользователь'}</span></td>
-              <td>${new Date(user.created_at).toLocaleDateString('ru-RU')}</td>
-              <td>
-                <button class="action-btn edit" onclick="editUser(${user.id})">Редактировать</button>
-                <button class="action-btn delete" onclick="deleteUser(${user.id})">Удалить</button>
-              </td>
-            `;
-            tbody.appendChild(row);
-          });
-        })
-        .catch(err => console.error('Error loading users:', err));
-    }
-
-    // Load chats
-    function loadChats() {
-      fetch('/admin/chats', { cache: 'no-store' })
-        .then(res => res.json())
-        .then(data => {
-          const tbody = document.getElementById('chats-table-body');
-          tbody.innerHTML = '';
-          
-          if (!data.chats || data.chats.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 20px; color: #64748b;">Нет чатов</td></tr>';
-            return;
-          }
-
-          data.chats.forEach(chat => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-              <td>${chat.id}</td>
-              <td>${chat.name}</td>
-              <td>${chat.members || 0}</td>
-              <td>${chat.messageCount || 0}</td>
-              <td>${new Date(chat.created_at).toLocaleDateString('ru-RU')}</td>
-              <td>
-                <button class="action-btn delete" onclick="deleteChat(${chat.id})">Удалить</button>
-              </td>
-            `;
-            tbody.appendChild(row);
-          });
-        });
-    }
-
-    // Load messages
-    function loadMessages() {
-      fetch('/admin/messages', { cache: 'no-store' })
-        .then(res => res.json())
-        .then(data => {
-          const tbody = document.getElementById('messages-table-body');
-          tbody.innerHTML = '';
-          
-          if (!data.messages || data.messages.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 20px; color: #64748b;">Нет сообщений</td></tr>';
-            return;
-          }
-
-          data.messages.slice(0, 100).forEach(msg => {
-            const row = document.createElement('tr');
-            const text = msg.text ? msg.text.substring(0, 50) : '[Файл/Стикер]';
-            row.innerHTML = `
-              <td>${msg.id}</td>
-              <td>${msg.author}</td>
-              <td>${msg.chatId}</td>
-              <td title="${msg.text}">${text}${msg.text && msg.text.length > 50 ? '...' : ''}</td>
-              <td>${new Date(msg.created_at).toLocaleDateString('ru-RU')}</td>
-              <td>
-                <button class="action-btn delete" onclick="deleteMessage(${msg.id})">Удалить</button>
-              </td>
-            `;
-            tbody.appendChild(row);
-          });
-        });
-    }
-
-    // Delete user
-    function deleteUser(userId) {
-      if (!confirm('Вы уверены? Это действие необратимо.')) return;
-      
-      fetch(`/admin/users/${userId}`, { method: 'DELETE' })
-        .then(res => res.json())
-        .then(data => {
-          if (data.ok) {
-            loadUsers();
-          }
-        });
-    }
-
-    // Delete chat
-    function deleteChat(chatId) {
-      if (!confirm('Вы уверены? Это действие необратимо.')) return;
-      
-      fetch(`/admin/chats/${chatId}`, { method: 'DELETE' })
-        .then(res => res.json())
-        .then(data => {
-          if (data.ok) {
-            loadChats();
-          }
-        });
-    }
-
-    // Delete message
-    function deleteMessage(msgId) {
-      if (!confirm('Вы уверены?')) return;
-      
-      fetch(`/admin/messages/${msgId}`, { method: 'DELETE' })
-        .then(res => res.json())
-        .then(data => {
-          if (data.ok) {
-            loadMessages();
-          }
-        });
-    }
-
-    // Modal functions
-    function closeModal(modalId) {
-      document.getElementById(modalId).classList.remove('show');
-    }
-
-    // Menu navigation
-    document.querySelectorAll('.admin-menu-item').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const section = btn.dataset.section;
-        const titleMap = {
-          dashboard: 'Dashboard',
-          users: 'Пользователи',
-          chats: 'Чаты',
-          messages: 'Сообщения',
-          settings: 'Настройки'
-        };
-
-        // Hide all sections
-        document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
-        document.getElementById(section).classList.add('active');
-
-        // Update active button
-        document.querySelectorAll('.admin-menu-item').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-
-        // Update title
-        document.getElementById('section-title').textContent = titleMap[section];
-
-        // Load data for this section
-        if (section === 'users') loadUsers();
-        else if (section === 'chats') loadChats();
-        else if (section === 'messages') loadMessages();
-        else if (section === 'dashboard') loadDashboardStats();
-      });
-    });
-
-    // Logout
-    document.getElementById('logout-btn').addEventListener('click', () => {
-      fetch('/logout', { method: 'POST' })
-        .then(() => window.location.href = '/');
-    });
-
-    // Add user button
-    document.getElementById('add-user-btn').addEventListener('click', () => {
-      document.getElementById('modal-title').textContent = 'Добавить пользователя';
-      document.getElementById('user-form').reset();
-      document.getElementById('user-modal').classList.add('show');
-    });
-
-    // User form submit
-    document.getElementById('user-form').addEventListener('submit', (e) => {
-      e.preventDefault();
-      
-      const data = {
-        username: document.getElementById('form-username').value,
-        email: document.getElementById('form-email').value,
-        password: document.getElementById('form-password').value,
-        isAdmin: document.getElementById('form-role').value === 'admin'
-      };
-
-      fetch('/admin/users', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-      })
-        .then(res => res.json())
-        .then(data => {
-          if (data.ok) {
-            closeModal('user-modal');
-            loadUsers();
-          }
-        });
-    });
-
-    // Initial load
-    document.getElementById('admin-login-btn').addEventListener('click', authenticateAdmin);
-    document.getElementById('admin-password').addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') authenticateAdmin();
-    });
-
-    // ===== PERMISSIONS SECTION =====
-    // Load users for permissions select
-    function loadPermissionsUsers() {
-      fetch('/admin/users', { cache: 'no-store' })
-        .then(res => res.json())
-        .then(data => {
-          const select = document.getElementById('permission-user-select');
-          select.innerHTML = '<option value="">-- Выберите пользователя --</option>';
-          
-          if (data.users) {
-            data.users.forEach(user => {
-              const option = document.createElement('option');
-              option.value = user.id;
-              option.textContent = `${user.username} (${user.is_admin ? 'Админ' : 'Пользователь'})`;
-              select.appendChild(option);
-            });
-          }
-        });
-    }
-
-    // Load permissions for selected user
-    document.getElementById('permission-user-select').addEventListener('change', async (e) => {
-      const userId = e.target.value;
-      if (!userId) return;
-
-      try {
-        const res = await fetch(`/admin/users/${userId}/permissions`);
-        const data = await res.json();
-        
-        if (data.ok) {
-          document.getElementById('perm-admin').checked = data.permissions.is_admin || false;
-          document.getElementById('perm-edit-content').checked = data.permissions.can_edit_content || false;
-          document.getElementById('perm-delete-messages').checked = data.permissions.can_delete_messages || false;
-          document.getElementById('perm-manage-users').checked = data.permissions.can_manage_users || false;
-        }
-      } catch (err) {
-        console.error('Error loading permissions:', err);
-      }
-    });
-
-    // Save permissions
-    document.getElementById('save-permissions-btn').addEventListener('click', async () => {
-      const userId = document.getElementById('permission-user-select').value;
-      if (!userId) {
-        alert('Выберите пользователя');
-        return;
-      }
-
-      const permissions = {
-        is_admin: document.getElementById('perm-admin').checked,
-        can_edit_content: document.getElementById('perm-edit-content').checked,
-        can_delete_messages: document.getElementById('perm-delete-messages').checked,
-        can_manage_users: document.getElementById('perm-manage-users').checked
-      };
-
-      try {
-        const res = await fetch(`/admin/users/${userId}/permissions`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(permissions)
-        });
-        
-        const data = await res.json();
-        if (data.ok) {
-          alert('✓ Права успешно обновлены');
-          loadPermissionsUsers();
-        } else {
-          alert('Ошибка: ' + (data.error || 'Неизвестная ошибка'));
-        }
-      } catch (err) {
-        alert('Ошибка при сохранении: ' + err.message);
-      }
-    });
-
-    // ===== CONTENT SECTION =====
-    // Image preview
-    document.getElementById('image-upload').addEventListener('change', (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
-
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const preview = document.getElementById('image-preview');
-        const img = document.getElementById('preview-img');
-        img.src = event.target.result;
-        preview.style.display = 'block';
-      };
-      reader.readAsDataURL(file);
-    });
-
-    // Save text content
-    document.getElementById('save-text-btn').addEventListener('click', async () => {
-      const section = document.getElementById('text-section').value;
-      const content = document.getElementById('text-content').value;
-
-      if (!section || !content) {
-        alert('Выберите раздел и введите текст');
-        return;
-      }
-
-      try {
-        const res = await fetch('/admin/content/text', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ section, content })
-        });
-
-        const data = await res.json();
-        if (data.ok) {
-          alert('✓ Текст успешно обновлен');
-          document.getElementById('text-content').value = '';
-        } else {
-          alert('Ошибка: ' + (data.error || 'Неизвестная ошибка'));
-        }
-      } catch (err) {
-        alert('Ошибка при сохранении: ' + err.message);
-      }
-    });
-
-    // Save image content
-    document.getElementById('save-image-btn').addEventListener('click', async () => {
-      const section = document.getElementById('image-section').value;
-      const fileInput = document.getElementById('image-upload');
-      const file = fileInput.files[0];
-
-      if (!section || !file) {
-        alert('Выберите раздел и файл изображения');
-        return;
-      }
-
-      const formData = new FormData();
-      formData.append('section', section);
-      formData.append('image', file);
-
-      try {
-        const res = await fetch('/admin/content/image', {
-          method: 'POST',
-          body: formData
-        });
-
-        const data = await res.json();
-        if (data.ok) {
-          alert('✓ Изображение успешно загружено');
-          document.getElementById('image-upload').value = '';
-          document.getElementById('image-preview').style.display = 'none';
-        } else {
-          alert('Ошибка: ' + (data.error || 'Неизвестная ошибка'));
-        }
-      } catch (err) {
-        alert('Ошибка при загрузке: ' + err.message);
-      }
-    });
-
-    // Override menu navigation to load permissions users
-    const originalMenuClick = document.querySelectorAll('.admin-menu-item')[0].onclick;
-    document.querySelectorAll('.admin-menu-item').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const section = btn.dataset.section;
-        
-        // Load data for permissions section
-        if (section === 'permissions') {
-          setTimeout(() => loadPermissionsUsers(), 100);
-        }
-      });
     });
   </script>
 </body>
