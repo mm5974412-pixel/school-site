@@ -1046,15 +1046,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-  // Обработчик клика на название чата — открыть профиль пользователя
-  if (chatTitleEl) {
-    chatTitleEl.addEventListener("click", () => {
-      if (currentPeerUserId) {
-        window.location.href = `/user-profile.html?id=${currentPeerUserId}`;
-      }
-    });
-  }
-
   // Отправка сообщения
   if (form && input) {
     form.addEventListener("submit", (e) => {
