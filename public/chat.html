@@ -1735,26 +1735,22 @@ document.addEventListener('DOMContentLoaded', function() {
 
     contextMenu.classList.add("show");
 
-    // Позиционируем меню рядом с кликом
-    if (event && contextContent) {
+    // Позиционируем меню рядом с сообщением
+    if (event && contextContent && element) {
       // Ждем следующий фрейм чтобы получить реальные размеры меню
       setTimeout(() => {
         const menuWidth = contextContent.offsetWidth || 220;
         const menuHeight = contextContent.offsetHeight || 300;
         const padding = 15; // отступ от краев экрана
         
-        let x = event.clientX + 10; // небольшой отступ от курсора
-        let y = event.clientY + 10;
+        // Получаем позицию элемента сообщения
+        const elementRect = element.getBoundingClientRect();
+        const messageRight = elementRect.right;
+        const messageTop = elementRect.top;
         
-        // Проверяем, не выходит ли меню за правую границу
-        if (x + menuWidth + padding > window.innerWidth) {
-          x = Math.max(padding, event.clientX - menuWidth - 10);
-        }
-        
-        // Проверяем, не выходит ли меню за нижнюю границу
-        if (y + menuHeight + padding > window.innerHeight) {
-          y = Math.max(padding, event.clientY - menuHeight - 10);
-        }
+        // Позиционируем меню сверху от сообщения и справа
+        let x = Math.min(messageRight - menuWidth - 10, window.innerWidth - menuWidth - padding);
+        let y = messageTop - menuHeight - 10;
         
         // Убедимся что x не выходит за левую границу
         if (x < padding) {
@@ -1764,6 +1760,11 @@ document.addEventListener('DOMContentLoaded', function() {
         // Убедимся что x не выходит за правую границу
         if (x + menuWidth + padding > window.innerWidth) {
           x = Math.max(padding, window.innerWidth - menuWidth - padding);
+        }
+        
+        // Если меню выходит за верхнюю границу - показываем снизу
+        if (y < padding) {
+          y = messageTop + elementRect.height + 10;
         }
         
         // Финальная проверка y - не даем уйти за нижнюю границу вообще
