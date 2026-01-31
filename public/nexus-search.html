@@ -294,6 +294,9 @@
         return;
       }
 
+      // Сохраняем текущий query чтобы проверить актуальность результатов
+      const currentQuery = query;
+
       searchResults.innerHTML = `
         <div class="nexus-search-loading">
           <div class="nexus-search-loading-spinner"></div>
@@ -304,6 +307,11 @@
       try {
         const res = await fetch(`/api/nexus/search/all?q=${encodeURIComponent(query)}`);
         const data = await res.json();
+
+        // Проверяем, что поиск еще актуален (пользователь не изменил строку)
+        if (searchInput.value.trim() !== currentQuery) {
+          return;
+        }
 
         if (!data.ok) {
           searchResults.innerHTML = '<div class="nexus-search-error">Ошибка при поиске</div>';
