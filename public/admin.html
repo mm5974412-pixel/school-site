@@ -782,7 +782,69 @@
     </div>
   </div>
 
+  <script src="/socket.io/socket.io.js"></script>
   <script>
+    // Подключение к Socket.IO
+    const socket = io();
+    
+    // Переменные для отслеживания статистики
+    let statsCache = {
+      totalUsers: 0,
+      onlineUsers: 0,
+      totalChats: 0,
+      totalMessages: 0,
+      newUsersWeek: 0,
+      newMessagesWeek: 0,
+      newChatsWeek: 0
+    };
+    
+    // При подключении отправить уведомление о подключении админа
+    socket.on('connect', () => {
+      console.log('Admin panel connected to server');
+    });
+    
+    // Слушать обновления статистики
+    socket.on('stats-update', (stats) => {
+      console.log('Received stats update:', stats);
+      if (stats.onlineUsers !== undefined) {
+        statsCache.onlineUsers = stats.onlineUsers;
+        updateDashboardOnline();
+      }
+    });
+    
+    // Проверить сессию при загрузке страницы
+    async function checkSessionOnLoad() {
+      try {
+        const response = await fetch('/admin/check-session', { credentials: 'include' });
+        const data = await response.json();
+        
+        if (data.authenticated) {
+          document.getElementById('login-screen').style.display = 'none';
+          document.getElementById('admin-panel').style.display = 'flex';
+          loadStats();
+          loadUsers();
+          // Обновлять статистику каждые 5 секунд
+          setInterval(() => loadStats(), 5000);
+        } else {
+          document.getElementById('login-screen').style.display = 'flex';
+          document.getElementById('admin-panel').style.display = 'none';
+        }
+      } catch (err) {
+        console.error('Session check error:', err);
+      }
+    }
+    
+    // Функция для обновления онлайн статистики на Dashboard
+    function updateDashboardOnline() {
+      const onlineElement = document.getElementById('online-users');
+      if (onlineElement) {
+        onlineElement.textContent = statsCache.onlineUsers;
+      }
+    }
+    
+    // Проверить сессию при загрузке страницы
+    window.addEventListener('load', checkSessionOnLoad);
+    
     // Login functionality
     const loginBtn = document.getElementById('login-btn');
     const adminPassword = document.getElementById('admin-password');
@@ -851,10 +913,42 @@
         const response = await fetch('/admin/stats', { credentials: 'include' });
         if (response.ok) {
           const stats = await response.json();
+          
+          // Обновить кэш статистики
+          statsCache.totalUsers = stats.totalUsers || 0;
+          statsCache.onlineUsers = stats.onlineUsers || 0;
+          statsCache.totalChats = stats.totalChats || 0;
+          statsCache.totalMessages = stats.totalMessages || 0;
+          statsCache.newUsersWeek = stats.newUsersWeek || 0;
+          statsCache.newMessagesWeek = stats.newMessagesWeek || 0;
+          statsCache.newChatsWeek = stats.newChatsWeek || 0;
+          
+          // Обновить Dashboard
           document.getElementById('total-users').textContent = stats.totalUsers || 0;
           document.getElementById('online-users').textContent = stats.onlineUsers || 0;
           document.getElementById('total-chats').textContent = stats.totalChats || 0;
           document.getElementById('total-messages').textContent = stats.totalMessages || 0;
+          
+          // Обновить зелёные надписи
+          const userElements = document.querySelectorAll('.stat-card');
+          if (userElements.length >= 1) {
+            const userChangeEl = userElements[0].querySelector('.stat-change');
+            if (userChangeEl) {
+              userChangeEl.textContent = `+${stats.newUsersWeek} за неделю`;
+            }
+          }
+          if (userElements.length >= 3) {
+            const chatChangeEl = userElements[2].querySelector('.stat-change');
+            if (chatChangeEl) {
+              chatChangeEl.textContent = `+${stats.newChatsWeek} за неделю`;
+            }
+          }
+          if (userElements.length >= 4) {
+            const messageChangeEl = userElements[3].querySelector('.stat-change');
+            if (messageChangeEl) {
+              messageChangeEl.textContent = `+${stats.newMessagesWeek} за неделю`;
+            }
+          }
         }
       } catch (err) {
         console.error('Error loading stats:', err);

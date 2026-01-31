@@ -14,9 +14,27 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
+// Глобальное хранилище подключённых пользователей
+const onlineUsers = new Map(); // { userId: { socketId, username, connectedAt } }
+
 // ======= SOCKET.IO: комнаты для личных чатов =======
 io.on("connection", (socket) => {
   console.log("Socket connected", socket.id);
+
+  // Пользователь подключается и отправляет свой ID
+  socket.on("user-online", (userId) => {
+    if (userId && !onlineUsers.has(userId)) {
+      onlineUsers.set(userId, {
+        socketId: socket.id,
+        userId,
+        connectedAt: new Date()
+      });
+      console.log(`User ${userId} is online. Total online: ${onlineUsers.size}`);
+      io.emit("stats-update", {
+        onlineUsers: onlineUsers.size
+      });
+    }
+  });
 
   // Пользователь заходит в чат
   socket.on("join-chat", (chatId) => {
@@ -32,6 +50,17 @@ io.on("connection", (socket) => {
 
   socket.on("disconnect", () => {
     console.log("Socket disconnected:", socket.id);
+    // Найти и удалить пользователя
+    for (const [userId, user] of onlineUsers.entries()) {
+      if (user.socketId === socket.id) {
+        onlineUsers.delete(userId);
+        console.log(`User ${userId} is offline. Total online: ${onlineUsers.size}`);
+        io.emit("stats-update", {
+          onlineUsers: onlineUsers.size
+        });
+        break;
+      }
+    }
   });
 });
 
@@ -1195,6 +1224,15 @@ async function checkAdmin(req, res, next) {
   next();
 }
 
+// Проверить сессию админа
+app.get("/admin/check-session", (req, res) => {
+  if (req.session && req.session.admin) {
+    res.json({ ok: true, authenticated: true });
+  } else {
+    res.json({ ok: true, authenticated: false });
+  }
+});
+
 // Получить статистику
 app.get("/admin/stats", checkAdmin, async (req, res) => {
   try {
@@ -1202,11 +1240,32 @@ app.get("/admin/stats", checkAdmin, async (req, res) => {
     const chatsResult = await pool.query("SELECT COUNT(*) as count FROM chats");
     const messagesResult = await pool.query("SELECT COUNT(*) as count FROM messages");
     
+    // Получить пользователей за последние 7 дней
+    const weekAgoUsers = await pool.query(
+      "SELECT COUNT(*) as count FROM users WHERE created_at >= NOW() - INTERVAL '7 days'"
+    );
+    
+    // Получить сообщений за последние 7 дней
+    const weekAgoMessages = await pool.query(
+      "SELECT COUNT(*) as count FROM messages WHERE created_at >= NOW() - INTERVAL '7 days'"
+    );
+    
+    // Получить чатов за последние 7 дней
+    const weekAgoChats = await pool.query(
+      "SELECT COUNT(*) as count FROM chats WHERE created_at >= NOW() - INTERVAL '7 days'"
+    );
+    
+    const totalUsers = parseInt(usersResult.rows[0].count);
+    const newUsersWeek = parseInt(weekAgoUsers.rows[0].count);
+    
     res.json({
-      totalUsers: parseInt(usersResult.rows[0].count),
-      onlineUsers: 0, // TODO: implement socket-based online tracking
+      totalUsers: totalUsers,
+      onlineUsers: onlineUsers.size,
       totalChats: parseInt(chatsResult.rows[0].count),
-      totalMessages: parseInt(messagesResult.rows[0].count)
+      totalMessages: parseInt(messagesResult.rows[0].count),
+      newUsersWeek: newUsersWeek,
+      newMessagesWeek: parseInt(weekAgoMessages.rows[0].count),
+      newChatsWeek: parseInt(weekAgoChats.rows[0].count)
     });
   } catch (err) {
     console.error("Stats error:", err);
@@ -1229,7 +1288,7 @@ app.get("/admin/users", checkAdmin, async (req, res) => {
       username: u.username,
       email: u.email,
       is_admin: u.is_admin,
-      online: false,
+      online: onlineUsers.has(u.id),
       created_at: u.created_at
     })));
   } catch (err) {
