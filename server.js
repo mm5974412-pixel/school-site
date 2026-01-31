@@ -52,6 +52,18 @@ io.on("connection", (socket) => {
     socket.leave(`chat:${chatId}`);
   });
 
+  // Пользователь заходит в нексферу
+  socket.on("join-nexfery", (nexferyId) => {
+    if (!nexferyId) return;
+    socket.join(`nexfery:${nexferyId}`);
+  });
+
+  // Пользователь уходит из нексферы
+  socket.on("leave-nexfery", (nexferyId) => {
+    if (!nexferyId) return;
+    socket.leave(`nexfery:${nexferyId}`);
+  });
+
   socket.on("disconnect", () => {
     console.log("Socket disconnected:", socket.id);
     // Найти и удалить пользователя
@@ -370,8 +382,45 @@ async function initDb() {
     );
   `);
 
+  // 8. Нексферы (публичные групповые чаты)
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS nexferies (
+      id SERIAL PRIMARY KEY,
+      title TEXT NOT NULL,
+      handle TEXT UNIQUE NOT NULL,
+      description TEXT,
+      avatar_data TEXT,
+      author_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      is_public BOOLEAN DEFAULT TRUE,
+      created_at TIMESTAMPTZ DEFAULT NOW()
+    );
+  `);
+
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS nexferies_members (
+      nexfery_id INTEGER NOT NULL REFERENCES nexferies(id) ON DELETE CASCADE,
+      user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      role TEXT DEFAULT 'member',
+      joined_at TIMESTAMPTZ DEFAULT NOW(),
+      PRIMARY KEY (nexfery_id, user_id)
+    );
+  `);
+
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS nexferies_messages (
+      id SERIAL PRIMARY KEY,
+      nexfery_id INTEGER NOT NULL REFERENCES nexferies(id) ON DELETE CASCADE,
+      author_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      text TEXT,
+      file_url TEXT,
+      file_type TEXT,
+      file_name TEXT,
+      created_at TIMESTAMPTZ DEFAULT NOW()
+    );
+  `);
+
   console.log(
-    "База данных инициализирована (users, chats, chat_members, messages, blocked_users, settings, nexus готовы)"
+    "База данных инициализирована (users, chats, chat_members, messages, blocked_users, settings, nexus, nexferies готовы)"
   );
 }
 
@@ -476,6 +525,14 @@ app.get("/nexus/edit", (req, res) => {
     return res.redirect("/login.html");
   }
   res.sendFile(path.join(__dirname, "public", "nexus-edit.html"));
+});
+
+// ======= НЕКСФЕРЫ (страница) =======
+app.get("/nexferies", (req, res) => {
+  if (!req.session.user) {
+    return res.redirect("/login.html");
+  }
+  res.sendFile(path.join(__dirname, "public", "nexferies.html"));
 });
 
 // Статика
@@ -1917,6 +1974,417 @@ app.post("/delete-account", async (req, res) => {
   } catch (err) {
     console.error(err);
     res.send("Ошибка при удалении аккаунта");
+  }
+});
+
+// ======= НЕКСФЕРЫ (публичные групповые чаты) =======
+
+// Создать новую нексферу
+app.post("/api/nexferies", requireAuth, upload.single("avatar"), async (req, res) => {
+  try {
+    const userId = req.session.user.id;
+    const title = (req.body.title || "").trim();
+    const rawHandle = (req.body.handle || "").trim().toLowerCase();
+    const description = (req.body.description || "").trim();
+
+    // Валидируем название
+    if (!title || title.length < 3 || title.length > 60) {
+      return res.status(400).json({ ok: false, error: "Название должно быть от 3 до 60 символов" });
+    }
+
+    // Валидируем и проверяем уникальность ника
+    const NEXFERY_HANDLE_REGEX = /^[a-z][a-z0-9_]{4,29}$/;
+    if (!NEXFERY_HANDLE_REGEX.test(rawHandle)) {
+      return res.status(400).json({ ok: false, error: "Ник должен быть 5-30 символов, начинаться с буквы" });
+    }
+
+    const handleCheck = await pool.query(
+      "SELECT id FROM nexferies WHERE handle = $1",
+      [rawHandle]
+    );
+    if (handleCheck.rowCount > 0) {
+      return res.status(400).json({ ok: false, error: "Такой ник нексферы уже занят" });
+    }
+
+    // Обработка аватара
+    let avatarData = null;
+    if (req.file) {
+      const fileData = fs.readFileSync(req.file.path);
+      const base64Data = fileData.toString('base64');
+      const mimeType = req.file.mimetype;
+      avatarData = `data:${mimeType};base64,${base64Data}`;
+      
+      // Удаляем временный файл
+      fs.unlinkSync(req.file.path);
+    }
+
+    // Создаём нексферу
+    const result = await pool.query(
+      `
+      INSERT INTO nexferies (title, handle, description, avatar_data, author_id)
+      VALUES ($1, $2, $3, $4, $5)
+      RETURNING id, title, handle, description, avatar_data, author_id, created_at
+      `,
+      [title, rawHandle, description, avatarData, userId]
+    );
+
+    const nexfery = result.rows[0];
+
+    // Автор автоматически становится членом
+    await pool.query(
+      "INSERT INTO nexferies_members (nexfery_id, user_id, role) VALUES ($1, $2, $3)",
+      [nexfery.id, userId, 'owner']
+    );
+
+    // Получаем автора
+    const authorResult = await pool.query(
+      "SELECT username, display_name FROM users WHERE id = $1",
+      [userId]
+    );
+    const author = authorResult.rows[0];
+
+    res.json({ ok: true, nexfery: {
+      id: nexfery.id,
+      title: nexfery.title,
+      handle: nexfery.handle,
+      description: nexfery.description,
+      avatarData: nexfery.avatar_data,
+      author: author.display_name || author.username,
+      authorId: nexfery.author_id,
+      createdAt: nexfery.created_at
+    }});
+  } catch (err) {
+    console.error("Ошибка при создании нексферы:", err);
+    res.status(500).json({ ok: false, error: "Ошибка сервера" });
+  }
+});
+
+// Получить список нексфер текущего пользователя
+app.get("/api/nexferies", requireAuth, async (req, res) => {
+  try {
+    const userId = req.session.user.id;
+
+    const result = await pool.query(
+      `
+      SELECT 
+        n.id, n.title, n.handle, n.description, n.avatar_data, n.author_id, n.created_at,
+        u.username as author_username, u.display_name as author_display_name,
+        (SELECT COUNT(*) FROM nexferies_members WHERE nexfery_id = n.id) as members_count,
+        (SELECT COUNT(*) FROM nexferies_messages WHERE nexfery_id = n.id) as messages_count
+      FROM nexferies n
+      JOIN nexferies_members nm ON n.id = nm.nexfery_id
+      JOIN users u ON n.author_id = u.id
+      WHERE nm.user_id = $1
+      ORDER BY n.created_at DESC
+      `,
+      [userId]
+    );
+
+    res.json({ ok: true, nexferies: result.rows.map(row => ({
+      id: row.id,
+      title: row.title,
+      handle: row.handle,
+      description: row.description,
+      avatarData: row.avatar_data,
+      author: row.author_display_name || row.author_username,
+      authorId: row.author_id,
+      createdAt: row.created_at,
+      membersCount: parseInt(row.members_count),
+      messagesCount: parseInt(row.messages_count)
+    })) });
+  } catch (err) {
+    console.error("Ошибка при получении нексфер:", err);
+    res.status(500).json({ ok: false, error: "Ошибка сервера" });
+  }
+});
+
+// Поиск публичных нексфер
+app.get("/api/nexferies/search/all", requireAuth, async (req, res) => {
+  try {
+    const query = req.query.q || "";
+
+    const result = await pool.query(
+      `
+      SELECT 
+        n.id, n.title, n.handle, n.description, n.avatar_data, n.author_id, n.created_at,
+        u.username as author_username, u.display_name as author_display_name,
+        (SELECT COUNT(*) FROM nexferies_members WHERE nexfery_id = n.id) as members_count,
+        (SELECT COUNT(*) FROM nexferies_messages WHERE nexfery_id = n.id) as messages_count
+      FROM nexferies n
+      JOIN users u ON n.author_id = u.id
+      WHERE n.is_public = TRUE AND (n.title ILIKE $1 OR n.handle ILIKE $1)
+      ORDER BY n.created_at DESC
+      LIMIT 50
+      `,
+      [`%${query}%`]
+    );
+
+    res.json({ ok: true, nexferies: result.rows.map(row => ({
+      id: row.id,
+      title: row.title,
+      handle: row.handle,
+      description: row.description,
+      avatarData: row.avatar_data,
+      author: row.author_display_name || row.author_username,
+      authorId: row.author_id,
+      createdAt: row.created_at,
+      membersCount: parseInt(row.members_count),
+      messagesCount: parseInt(row.messages_count)
+    })) });
+  } catch (err) {
+    console.error("Ошибка при поиске нексфер:", err);
+    res.status(500).json({ ok: false, error: "Ошибка сервера" });
+  }
+});
+
+// Получить информацию о конкретной нексфере
+app.get("/api/nexferies/:nexferyId", requireAuth, async (req, res) => {
+  try {
+    const userId = req.session.user.id;
+    const nexferyId = parseInt(req.params.nexferyId, 10);
+
+    const result = await pool.query(
+      `
+      SELECT 
+        n.id, n.title, n.handle, n.description, n.avatar_data, n.author_id, n.created_at,
+        u.username as author_username, u.display_name as author_display_name,
+        (SELECT COUNT(*) FROM nexferies_members WHERE nexfery_id = n.id) as members_count,
+        (SELECT role FROM nexferies_members WHERE nexfery_id = n.id AND user_id = $1) as user_role
+      FROM nexferies n
+      JOIN users u ON n.author_id = u.id
+      WHERE n.id = $2
+      `,
+      [userId, nexferyId]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ ok: false, error: "Нексфера не найдена" });
+    }
+
+    const row = result.rows[0];
+    res.json({ ok: true, nexfery: {
+      id: row.id,
+      title: row.title,
+      handle: row.handle,
+      description: row.description,
+      avatarData: row.avatar_data,
+      author: row.author_display_name || row.author_username,
+      authorId: row.author_id,
+      createdAt: row.created_at,
+      membersCount: parseInt(row.members_count),
+      userRole: row.user_role
+    }});
+  } catch (err) {
+    console.error("Ошибка при получении информации о нексфере:", err);
+    res.status(500).json({ ok: false, error: "Ошибка сервера" });
+  }
+});
+
+// Присоединиться к нексфере
+app.post("/api/nexferies/:nexferyId/join", requireAuth, async (req, res) => {
+  try {
+    const userId = req.session.user.id;
+    const nexferyId = parseInt(req.params.nexferyId, 10);
+
+    // Проверяем, что нексфера существует
+    const nexferyCheck = await pool.query(
+      "SELECT id FROM nexferies WHERE id = $1",
+      [nexferyId]
+    );
+
+    if (nexferyCheck.rowCount === 0) {
+      return res.status(404).json({ ok: false, error: "Нексфера не найдена" });
+    }
+
+    // Добавляем пользователя членом
+    await pool.query(
+      `
+      INSERT INTO nexferies_members (nexfery_id, user_id, role)
+      VALUES ($1, $2, 'member')
+      ON CONFLICT (nexfery_id, user_id) DO NOTHING
+      `,
+      [nexferyId, userId]
+    );
+
+    // Отправляем событие всем подключённым
+    io.emit("nexferies:updated");
+
+    res.json({ ok: true });
+  } catch (err) {
+    console.error("Ошибка при присоединении к нексфере:", err);
+    res.status(500).json({ ok: false, error: "Ошибка сервера" });
+  }
+});
+
+// Выйти из нексферы
+app.post("/api/nexferies/:nexferyId/leave", requireAuth, async (req, res) => {
+  try {
+    const userId = req.session.user.id;
+    const nexferyId = parseInt(req.params.nexferyId, 10);
+
+    // Проверяем, что пользователь не владелец
+    const ownerCheck = await pool.query(
+      "SELECT author_id FROM nexferies WHERE id = $1",
+      [nexferyId]
+    );
+
+    if (ownerCheck.rowCount === 0) {
+      return res.status(404).json({ ok: false, error: "Нексфера не найдена" });
+    }
+
+    if (ownerCheck.rows[0].author_id === userId) {
+      return res.status(400).json({ ok: false, error: "Владелец не может выйти из нексферы" });
+    }
+
+    // Удаляем пользователя
+    await pool.query(
+      "DELETE FROM nexferies_members WHERE nexfery_id = $1 AND user_id = $2",
+      [nexferyId, userId]
+    );
+
+    // Отправляем событие
+    io.emit("nexferies:updated");
+
+    res.json({ ok: true });
+  } catch (err) {
+    console.error("Ошибка при выходе из нексферы:", err);
+    res.status(500).json({ ok: false, error: "Ошибка сервера" });
+  }
+});
+
+// Получить сообщения нексферы
+app.get("/api/nexferies/:nexferyId/messages", requireAuth, async (req, res) => {
+  try {
+    const userId = req.session.user.id;
+    const nexferyId = parseInt(req.params.nexferyId, 10);
+
+    // Проверяем, что пользователь член нексферы
+    const memberCheck = await pool.query(
+      "SELECT 1 FROM nexferies_members WHERE nexfery_id = $1 AND user_id = $2",
+      [nexferyId, userId]
+    );
+
+    if (memberCheck.rowCount === 0) {
+      return res.status(403).json({ ok: false, error: "Вы не член этой нексферы" });
+    }
+
+    const result = await pool.query(
+      `
+      SELECT 
+        m.id, m.text, m.file_url, m.file_type, m.file_name, m.created_at,
+        u.username, u.display_name, u.avatar_data
+      FROM nexferies_messages m
+      JOIN users u ON m.author_id = u.id
+      WHERE m.nexfery_id = $1
+      ORDER BY m.created_at DESC
+      LIMIT 100
+      `,
+      [nexferyId]
+    );
+
+    res.json({ ok: true, messages: result.rows.map(row => ({
+      id: row.id,
+      text: row.text,
+      fileUrl: row.file_url,
+      fileType: row.file_type,
+      fileName: row.file_name,
+      author: row.display_name || row.username,
+      authorAvatar: row.avatar_data,
+      createdAt: row.created_at
+    })).reverse() });
+  } catch (err) {
+    console.error("Ошибка при получении сообщений нексферы:", err);
+    res.status(500).json({ ok: false, error: "Ошибка сервера" });
+  }
+});
+
+// Отправить сообщение в нексферу
+app.post("/api/nexferies/:nexferyId/messages", requireAuth, async (req, res) => {
+  try {
+    const userId = req.session.user.id;
+    const nexferyId = parseInt(req.params.nexferyId, 10);
+    const { text } = req.body;
+
+    if (!text || !text.trim()) {
+      return res.status(400).json({ ok: false, error: "Сообщение не может быть пустым" });
+    }
+
+    // Проверяем, что пользователь член нексферы
+    const memberCheck = await pool.query(
+      "SELECT 1 FROM nexferies_members WHERE nexfery_id = $1 AND user_id = $2",
+      [nexferyId, userId]
+    );
+
+    if (memberCheck.rowCount === 0) {
+      return res.status(403).json({ ok: false, error: "Вы не член этой нексферы" });
+    }
+
+    // Сохраняем сообщение
+    const result = await pool.query(
+      `
+      INSERT INTO nexferies_messages (nexfery_id, author_id, text)
+      VALUES ($1, $2, $3)
+      RETURNING id, text, created_at
+      `,
+      [nexferyId, userId, text.trim()]
+    );
+
+    const message = result.rows[0];
+
+    // Получаем информацию об авторе
+    const userResult = await pool.query(
+      "SELECT username, display_name, avatar_data FROM users WHERE id = $1",
+      [userId]
+    );
+    const author = userResult.rows[0];
+
+    const msgData = {
+      id: message.id,
+      nexferyId,
+      text: message.text,
+      author: author.display_name || author.username,
+      authorId: userId,
+      authorAvatar: author.avatar_data,
+      createdAt: message.created_at
+    };
+
+    // Отправляем сообщение по сокету
+    io.to(`nexfery:${nexferyId}`).emit("nexfery:new-message", msgData);
+
+    res.json({ ok: true, message: msgData });
+  } catch (err) {
+    console.error("Ошибка при отправке сообщения в нексферу:", err);
+    res.status(500).json({ ok: false, error: "Ошибка сервера" });
+  }
+});
+
+// Получить участников нексферы
+app.get("/api/nexferies/:nexferyId/members", requireAuth, async (req, res) => {
+  try {
+    const nexferyId = parseInt(req.params.nexferyId, 10);
+
+    const result = await pool.query(
+      `
+      SELECT 
+        u.id, u.username, u.display_name, u.avatar_data, nm.role
+      FROM nexferies_members nm
+      JOIN users u ON nm.user_id = u.id
+      WHERE nm.nexfery_id = $1
+      ORDER BY nm.joined_at DESC
+      `,
+      [nexferyId]
+    );
+
+    res.json({ ok: true, members: result.rows.map(row => ({
+      id: row.id,
+      username: row.username,
+      displayName: row.display_name,
+      avatarData: row.avatar_data,
+      role: row.role
+    })) });
+  } catch (err) {
+    console.error("Ошибка при получении участников нексферы:", err);
+    res.status(500).json({ ok: false, error: "Ошибка сервера" });
   }
 });
 

@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nexora — нексферы</title>
+  <link rel="stylesheet" href="/style-v2.css" />
+  <script>
+    (function() {
+      const savedTheme = localStorage.getItem('theme');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const shouldBeLight = savedTheme === 'light' || (!savedTheme && !prefersDark);
+      if (shouldBeLight) {
+        document.documentElement.classList.add('light');
+      }
+    })();
+  </script>
+  <script src="/theme-toggle.js" defer></script>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo-circle">✨</div>
+        <div class="logo-text">
+          <div class="logo-name">Nexora</div>
+          <div class="logo-subtitle">групповые чаты</div>
+        </div>
+      </div>
+
+      <div class="current-user" id="profile-link" style="cursor: pointer;">
+        <span class="current-user-label">Вы:</span>
+        <span class="current-user-name" id="current-username">...</span>
+      </div>
+
+      <button id="theme-toggle" class="theme-toggle" style="width: 100%; margin-bottom: 10px;">🌙</button>
+
+      <a
+        href="/chat"
+        class="btn-secondary"
+        style="width: 100%; margin: 6px 0; text-align: center; text-decoration: none;"
+      >
+        💬 К чатам
+      </a>
+
+      <a
+        id="admin-panel-btn"
+        href="/admin.html"
+        class="btn-primary"
+        style="width: 100%; margin: 6px 0; display: none; text-align: center; text-decoration: none;"
+      >
+        ⚙️ Админ-панель
+      </a>
+
+      <div class="sidebar-section-title">Нексферы</div>
+      <div style="display: flex; gap: 6px; margin-bottom: 12px;">
+        <button id="create-nexfery-btn" class="btn-secondary" style="flex: 1; padding: 8px;">
+          ➕ Создать
+        </button>
+        <button id="search-nexfery-btn" class="btn-secondary" style="flex: 1; padding: 8px;">
+          🔍 Найти
+        </button>
+      </div>
+
+      <ul class="chat-list" id="nexferies-list"></ul>
+    </aside>
+
+    <main class="chat-main">
+      <div class="chat-main-header">
+        <div class="chat-main-top">
+          <button id="back-to-nexferies" class="back-btn" type="button" style="display: none;">
+            ← Нексферы
+          </button>
+
+          <div class="chat-main-titles">
+            <div class="chat-main-title" id="nexfery-title" style="cursor: pointer;">
+              🫂 Выберите нексферу
+            </div>
+            <div class="chat-main-subtitle" id="nexfery-subtitle">
+              Нажмите на нексферу слева, чтобы начать переписку, или создайте новую.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <section id="messages" class="chat-main-messages"></section>
+
+      <form id="nexfery-form" class="chat-main-input" style="display: none;">
+        <input id="nexfery-input" type="text" placeholder="Напишите сообщение..." autocomplete="off"/>
+        <button type="submit" class="btn-primary input-send-btn" id="nexfery-send-btn" title="Отправить">⬆️</button>
+      </form>
+    </main>
+  </div>
+
+  <!-- Модальное окно создания нексферы -->
+  <div id="create-nexfery-modal" class="nexus-modal" style="display: none;">
+    <div class="nexus-modal-backdrop"></div>
+    <div class="nexus-modal-content">
+      <div class="nexus-modal-header">
+        <h3>✨ Создать нексферу</h3>
+        <button type="button" class="nexus-modal-close" id="create-nexfery-close">✕</button>
+      </div>
+      <form id="create-nexfery-form" class="nexus-form" enctype="multipart/form-data">
+        <div class="nexus-form-row">
+          <label>📝 Название</label>
+          <input type="text" name="title" id="nexfery-title-input" placeholder="Например, Наш проект" required />
+        </div>
+        <div class="nexus-form-row">
+          <label>🔗 Ник (латиница)</label>
+          <div class="nexus-handle-input">
+            <span>@</span>
+            <input type="text" name="handle" id="nexfery-handle-input" placeholder="nexfery_name" required />
+          </div>
+        </div>
+        <div class="nexus-form-row">
+          <label>📋 Описание (опционально)</label>
+          <textarea name="description" id="nexfery-description-input" rows="3" placeholder="О чём эта нексфера?"></textarea>
+        </div>
+        <div class="nexus-form-row">
+          <label>🖼️ Аватар</label>
+          <div class="nexus-file-input-wrapper">
+            <input type="file" name="avatar" id="nexfery-avatar-input" accept="image/*" />
+            <div class="nexus-file-label">
+              <span class="nexus-file-icon">📷</span>
+              <span class="nexus-file-text">Выберите изображение</span>
+            </div>
+          </div>
+        </div>
+        <button type="submit" class="btn-primary" style="width: 100%; margin-top: 12px;">
+          ✨ Создать нексферу
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Модальное окно поиска нексфер -->
+  <div id="search-nexfery-modal" class="nexus-modal" style="display: none;">
+    <div class="nexus-modal-backdrop"></div>
+    <div class="nexus-modal-content">
+      <div class="nexus-modal-header">
+        <h3>🔍 Поиск нексфер</h3>
+        <button type="button" class="nexus-modal-close" id="search-nexfery-close">✕</button>
+      </div>
+      <div class="nexus-modal-body">
+        <input type="text" id="search-nexfery-input" placeholder="Поиск по названию или нику..." style="width: 100%; padding: 10px; border: 1px solid rgba(139, 92, 246, 0.3); border-radius: 8px; background: rgba(139, 92, 246, 0.05); color: inherit; margin-bottom: 12px;" />
+        <div id="search-nexfery-results" style="max-height: 400px; overflow-y: auto;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Модальное окно информации о нексфере -->
+  <div id="nexfery-info-modal" class="nexus-modal" style="display: none;">
+    <div class="nexus-modal-backdrop"></div>
+    <div class="nexus-modal-content">
+      <div class="nexus-modal-header">
+        <button type="button" class="nexus-modal-close" id="nexfery-info-close">✕</button>
+      </div>
+      <div class="nexus-modal-body" id="nexfery-info-body"></div>
+    </div>
+  </div>
+
+  <!-- Socket.IO подключение -->
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+
+  <script>
+    const socket = io();
+    let currentNexferyId = null;
+    let currentUserId = null;
+    let currentUsername = null;
+
+    // Инициализация
+    async function init() {
+      try {
+        const response = await fetch('/profile');
+        if (!response.ok) {
+          window.location.href = '/login.html';
+          return;
+        }
+
+        const data = await response.json();
+        currentUserId = data.user.id;
+        currentUsername = data.user.display_name || data.user.username;
+
+        document.getElementById('current-username').textContent = currentUsername;
+
+        // Проверяем админа
+        if (data.user.is_admin) {
+          document.getElementById('admin-panel-btn').style.display = 'block';
+        }
+
+        // Загружаем список нексфер
+        loadNexferies();
+
+        // Подписываемся на обновления
+        socket.emit('user-online', currentUserId);
+      } catch (err) {
+        console.error('Ошибка инициализации:', err);
+        window.location.href = '/login.html';
+      }
+    }
+
+    // Загрузить список нексфер
+    async function loadNexferies() {
+      try {
+        const response = await fetch('/api/nexferies');
+        if (!response.ok) throw new Error('Ошибка загрузки');
+
+        const data = await response.json();
+        const list = document.getElementById('nexferies-list');
+        list.innerHTML = '';
+
+        if (data.nexferies.length === 0) {
+          list.innerHTML = '<li style="padding: 12px; text-align: center; color: rgba(255,255,255,0.5);">Нет нексфер</li>';
+          return;
+        }
+
+        data.nexferies.forEach(nexfery => {
+          const li = document.createElement('li');
+          li.className = 'chat-item';
+          li.innerHTML = `
+            <div class="chat-item-content" onclick="selectNexfery(${nexfery.id})">
+              <div class="chat-item-avatar" style="background: ${nexfery.avatarData ? '' : '#8b5cf6'};">
+                ${nexfery.avatarData ? `<img src="${nexfery.avatarData}" style="width: 100%; height: 100%; object-fit: cover;" />` : '🫂'}
+              </div>
+              <div class="chat-item-info">
+                <div class="chat-item-name">${escapeHtml(nexfery.title)}</div>
+                <div class="chat-item-preview">@${escapeHtml(nexfery.handle)} • ${nexfery.membersCount} участников</div>
+              </div>
+            </div>
+          `;
+          list.appendChild(li);
+        });
+      } catch (err) {
+        console.error('Ошибка загрузки нексфер:', err);
+      }
+    }
+
+    // Выбрать нексферу
+    async function selectNexfery(nexferyId) {
+      currentNexferyId = nexferyId;
+
+      try {
+        // Получаем информацию о нексфере
+        const infoResponse = await fetch(`/api/nexferies/${nexferyId}`);
+        if (!infoResponse.ok) throw new Error('Ошибка загрузки');
+
+        const infoData = await infoResponse.json();
+        const nexfery = infoData.nexfery;
+
+        // Обновляем заголовок
+        document.getElementById('nexfery-title').textContent = nexfery.title;
+        document.getElementById('nexfery-subtitle').textContent = `@${nexfery.handle} • ${nexfery.membersCount} участников`;
+
+        // Показываем форму отправки сообщений
+        document.getElementById('nexfery-form').style.display = 'flex';
+
+        // Подключаемся к комнате сокета
+        socket.emit('join-nexfery', nexferyId);
+
+        // Загружаем сообщения
+        loadNexferyMessages(nexferyId);
+
+        // Обновляем выделение в списке
+        document.querySelectorAll('.chat-item').forEach((item, i) => {
+          item.classList.remove('active');
+        });
+        event.currentTarget.classList.add('active');
+      } catch (err) {
+        console.error('Ошибка выбора нексферы:', err);
+      }
+    }
+
+    // Загрузить сообщения нексферы
+    async function loadNexferyMessages(nexferyId) {
+      try {
+        const response = await fetch(`/api/nexferies/${nexferyId}/messages`);
+        if (!response.ok) throw new Error('Ошибка загрузки');
+
+        const data = await response.json();
+        const messagesDiv = document.getElementById('messages');
+        messagesDiv.innerHTML = '';
+
+        data.messages.forEach(msg => {
+          const messageEl = createMessageElement(msg);
+          messagesDiv.appendChild(messageEl);
+        });
+
+        // Прокручиваем вниз
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+      } catch (err) {
+        console.error('Ошибка загрузки сообщений:', err);
+      }
+    }
+
+    // Создать элемент сообщения
+    function createMessageElement(msg) {
+      const div = document.createElement('div');
+      div.className = 'message';
+      if (msg.authorId === currentUserId) {
+        div.classList.add('message-own');
+      }
+
+      const time = new Date(msg.createdAt).toLocaleTimeString('ru-RU', {
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+
+      div.innerHTML = `
+        <div class="message-content">
+          ${msg.authorId !== currentUserId ? `<div class="message-author">${escapeHtml(msg.author)}</div>` : ''}
+          <div class="message-text">${escapeHtml(msg.text)}</div>
+          <div class="message-time">${time}</div>
+        </div>
+      `;
+
+      return div;
+    }
+
+    // Отправить сообщение
+    document.getElementById('nexfery-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      if (!currentNexferyId) return;
+
+      const input = document.getElementById('nexfery-input');
+      const text = input.value.trim();
+
+      if (!text) return;
+
+      try {
+        const response = await fetch(`/api/nexferies/${currentNexferyId}/messages`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text })
+        });
+
+        if (!response.ok) throw new Error('Ошибка отправки');
+
+        input.value = '';
+        input.focus();
+      } catch (err) {
+        console.error('Ошибка отправки сообщения:', err);
+      }
+    });
+
+    // Слушаем новые сообщения по сокету
+    socket.on('nexfery:new-message', (msg) => {
+      if (msg.nexferyId === currentNexferyId) {
+        const messagesDiv = document.getElementById('messages');
+        const messageEl = createMessageElement(msg);
+        messagesDiv.appendChild(messageEl);
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+      }
+    });
+
+    // Слушаем обновления нексфер
+    socket.on('nexferies:updated', () => {
+      loadNexferies();
+    });
+
+    // Создание нексферы
+    document.getElementById('create-nexfery-btn').addEventListener('click', () => {
+      document.getElementById('create-nexfery-modal').style.display = 'flex';
+    });
+
+    document.getElementById('create-nexfery-close').addEventListener('click', () => {
+      document.getElementById('create-nexfery-modal').style.display = 'none';
+    });
+
+    document.getElementById('create-nexfery-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const formData = new FormData(e.target);
+
+      try {
+        const response = await fetch('/api/nexferies', {
+          method: 'POST',
+          body: formData
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          alert('Ошибка: ' + error.error);
+          return;
+        }
+
+        document.getElementById('create-nexfery-modal').style.display = 'none';
+        e.target.reset();
+        loadNexferies();
+      } catch (err) {
+        console.error('Ошибка создания нексферы:', err);
+        alert('Ошибка при создании нексферы');
+      }
+    });
+
+    // Поиск нексфер
+    document.getElementById('search-nexfery-btn').addEventListener('click', () => {
+      document.getElementById('search-nexfery-modal').style.display = 'flex';
+      document.getElementById('search-nexfery-input').focus();
+    });
+
+    document.getElementById('search-nexfery-close').addEventListener('click', () => {
+      document.getElementById('search-nexfery-modal').style.display = 'none';
+    });
+
+    let searchTimeout;
+    document.getElementById('search-nexfery-input').addEventListener('input', async (e) => {
+      clearTimeout(searchTimeout);
+      const query = e.target.value.trim();
+
+      if (!query) {
+        document.getElementById('search-nexfery-results').innerHTML = '';
+        return;
+      }
+
+      searchTimeout = setTimeout(async () => {
+        try {
+          const response = await fetch(`/api/nexferies/search/all?q=${encodeURIComponent(query)}`);
+          if (!response.ok) throw new Error('Ошибка поиска');
+
+          const data = await response.json();
+          const resultsDiv = document.getElementById('search-nexfery-results');
+          resultsDiv.innerHTML = '';
+
+          if (data.nexferies.length === 0) {
+            resultsDiv.innerHTML = '<p style="text-align: center; color: rgba(255,255,255,0.5);">Не найдено</p>';
+            return;
+          }
+
+          data.nexferies.forEach(nexfery => {
+            const div = document.createElement('div');
+            div.className = 'nexus-search-result';
+            div.style.cssText = 'padding: 12px; border-bottom: 1px solid rgba(139, 92, 246, 0.1); cursor: pointer; border-radius: 8px; margin-bottom: 8px; background: rgba(139, 92, 246, 0.05);';
+            div.innerHTML = `
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                  <div style="font-weight: 500;">${escapeHtml(nexfery.title)}</div>
+                  <div style="font-size: 12px; color: rgba(255,255,255,0.5);">@${escapeHtml(nexfery.handle)} • ${nexfery.membersCount} участников</div>
+                </div>
+                <button class="btn-secondary" style="padding: 4px 12px; font-size: 12px;">Присоединиться</button>
+              </div>
+            `;
+
+            div.querySelector('button').addEventListener('click', async (ev) => {
+              ev.preventDefault();
+              ev.stopPropagation();
+
+              try {
+                const joinResponse = await fetch(`/api/nexferies/${nexfery.id}/join`, {
+                  method: 'POST'
+                });
+
+                if (!joinResponse.ok) throw new Error('Ошибка присоединения');
+
+                document.getElementById('search-nexfery-modal').style.display = 'none';
+                loadNexferies();
+              } catch (err) {
+                console.error('Ошибка присоединения:', err);
+                alert('Ошибка при присоединении');
+              }
+            });
+
+            resultsDiv.appendChild(div);
+          });
+        } catch (err) {
+          console.error('Ошибка поиска:', err);
+        }
+      }, 500);
+    });
+
+    // Клик на заголовок нексферы - показываем инфо
+    document.getElementById('nexfery-title').addEventListener('click', async () => {
+      if (!currentNexferyId) return;
+
+      try {
+        const membersResponse = await fetch(`/api/nexferies/${currentNexferyId}/members`);
+        if (!membersResponse.ok) throw new Error('Ошибка загрузки');
+
+        const membersData = await membersResponse.json();
+        const infoResponse = await fetch(`/api/nexferies/${currentNexferyId}`);
+        const infoData = await infoResponse.json();
+        const nexfery = infoData.nexfery;
+
+        const body = document.getElementById('nexfery-info-body');
+        body.innerHTML = `
+          <div style="text-align: center; margin-bottom: 20px;">
+            <div class="profile-avatar" style="width: 80px; height: 80px; margin: 0 auto 12px; background: #8b5cf6;">
+              ${nexfery.avatarData ? `<img src="${nexfery.avatarData}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;" />` : '🫂'}
+            </div>
+            <h2 style="margin: 0 0 4px 0;">${escapeHtml(nexfery.title)}</h2>
+            <p style="margin: 0; color: rgba(255,255,255,0.5);">@${escapeHtml(nexfery.handle)}</p>
+          </div>
+
+          ${nexfery.description ? `<p style="margin-bottom: 16px; padding: 12px; background: rgba(139, 92, 246, 0.05); border-radius: 8px;">${escapeHtml(nexfery.description)}</p>` : ''}
+
+          <div style="margin-bottom: 16px;">
+            <h4 style="margin: 0 0 8px 0; color: rgba(255,255,255,0.7);">📊 Статистика</h4>
+            <p style="margin: 4px 0; font-size: 14px;">👥 Участников: ${nexfery.membersCount}</p>
+          </div>
+
+          <div style="margin-bottom: 16px;">
+            <h4 style="margin: 0 0 8px 0; color: rgba(255,255,255,0.7);">👥 Участники</h4>
+            <div style="max-height: 200px; overflow-y: auto;">
+              ${membersData.members.map(member => `
+                <div style="padding: 8px; margin-bottom: 4px; background: rgba(139, 92, 246, 0.05); border-radius: 6px; font-size: 14px;">
+                  ${escapeHtml(member.displayName || member.username)}
+                  ${member.role === 'owner' ? ' <span style="color: #fbbf24;">👑</span>' : ''}
+                </div>
+              `).join('')}
+            </div>
+          </div>
+
+          ${nexfery.userRole !== 'owner' ? `
+            <button class="btn-ghost" style="width: 100%; padding: 8px;" id="leave-nexfery-btn">
+              Выйти из нексферы
+            </button>
+          ` : ''}
+        `;
+
+        if (nexfery.userRole !== 'owner') {
+          body.querySelector('#leave-nexfery-btn').addEventListener('click', async () => {
+            if (confirm('Вы уверены?')) {
+              try {
+                const leaveResponse = await fetch(`/api/nexferies/${currentNexferyId}/leave`, {
+                  method: 'POST'
+                });
+
+                if (!leaveResponse.ok) throw new Error('Ошибка выхода');
+
+                document.getElementById('nexfery-info-modal').style.display = 'none';
+                currentNexferyId = null;
+                document.getElementById('nexfery-form').style.display = 'none';
+                document.getElementById('messages').innerHTML = '';
+                document.getElementById('nexfery-title').textContent = '🫂 Выберите нексферу';
+                document.getElementById('nexfery-subtitle').textContent = 'Нажмите на нексферу слева, чтобы начать переписку, или создайте новую.';
+                loadNexferies();
+              } catch (err) {
+                console.error('Ошибка выхода:', err);
+                alert('Ошибка при выходе');
+              }
+            }
+          });
+        }
+
+        document.getElementById('nexfery-info-modal').style.display = 'flex';
+      } catch (err) {
+        console.error('Ошибка загрузки инфо:', err);
+      }
+    });
+
+    document.getElementById('nexfery-info-close').addEventListener('click', () => {
+      document.getElementById('nexfery-info-modal').style.display = 'none';
+    });
+
+    // Закрытие модалей при клике на фон
+    ['create-nexfery-modal', 'search-nexfery-modal', 'nexfery-info-modal'].forEach(modalId => {
+      const modal = document.getElementById(modalId);
+      if (modal) {
+        modal.addEventListener('click', (e) => {
+          if (e.target === modal) {
+            modal.style.display = 'none';
+          }
+        });
+      }
+    });
+
+    // Утилита для экранирования HTML
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // Инициализируем при загрузке
+    init();
+  </script>
+</body>
+</html>
