@@ -138,6 +138,20 @@
         transform: scale(1.02);
       }
     }
+
+    /* Только иконка кнопки темы на главной странице */
+    @media (max-width: 768px) {
+      #theme-toggle {
+        font-size: 20px !important;
+        width: 40px !important;
+        height: 40px !important;
+        padding: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        border-radius: 8px !important;
+      }
+    }
   </style>
   <script>
     // Применяем сохранённую тему до отрисовки страницы
