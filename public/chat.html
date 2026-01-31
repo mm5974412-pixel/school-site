@@ -576,10 +576,57 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     } else {
       // Обычное текстовое сообщение
-      const textEl = document.createElement("span");
-      textEl.classList.add("message-text");
-      textEl.textContent = msg.text;
-      el.appendChild(textEl);
+      const messageText = msg.text || "";
+      
+      // Проверяем, есть ли ответ на сообщение (начинается с ↩)
+      if (messageText.startsWith("↩ ")) {
+        const lines = messageText.split("\n");
+        const replyLine = lines[0]; // ↩ Author: text
+        const actualText = lines.slice(1).join("\n"); // Остальной текст
+        
+        // Парсим строку ответа: ↩ Author: text
+        const replyMatch = replyLine.match(/^↩ ([^:]+): (.+)$/);
+        if (replyMatch) {
+          const replyAuthorName = replyMatch[1];
+          const replyTextContent = replyMatch[2];
+          
+          // Создаем блок ответа
+          const replyBlock = document.createElement("div");
+          replyBlock.classList.add("message-reply-block");
+          
+          const replyAuthorEl = document.createElement("div");
+          replyAuthorEl.classList.add("message-reply-author");
+          replyAuthorEl.textContent = replyAuthorName;
+          
+          const replyTextEl = document.createElement("div");
+          replyTextEl.classList.add("message-reply-text");
+          replyTextEl.textContent = replyTextContent;
+          
+          replyBlock.appendChild(replyAuthorEl);
+          replyBlock.appendChild(replyTextEl);
+          el.appendChild(replyBlock);
+          
+          // Если есть текст после ответа, показываем его
+          if (actualText.trim()) {
+            const textEl = document.createElement("span");
+            textEl.classList.add("message-text");
+            textEl.textContent = actualText.trim();
+            el.appendChild(textEl);
+          }
+        } else {
+          // Если парсинг не удался, показываем как обычный текст
+          const textEl = document.createElement("span");
+          textEl.classList.add("message-text");
+          textEl.textContent = messageText;
+          el.appendChild(textEl);
+        }
+      } else {
+        // Обычное сообщение без ответа
+        const textEl = document.createElement("span");
+        textEl.classList.add("message-text");
+        textEl.textContent = messageText;
+        el.appendChild(textEl);
+      }
     }
 
     const timeEl = document.createElement("span");

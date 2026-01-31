@@ -1547,6 +1547,47 @@ html.light .chat-main-messages::-webkit-scrollbar-thumb {
   filter: none;
 }
 
+/* Блок ответа в сообщении */
+.message-reply-block {
+  padding: 8px 10px;
+  margin-bottom: 6px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.25), rgba(79, 70, 229, 0.25));
+  border-left: 3px solid #6366f1;
+  backdrop-filter: blur(10px);
+}
+
+.message.me .message-reply-block {
+  background: linear-gradient(135deg, rgba(147, 197, 253, 0.3), rgba(125, 211, 252, 0.3));
+  border-left: 3px solid #93c5fd;
+}
+
+.message-reply-author {
+  font-size: 11px;
+  font-weight: 600;
+  color: #c7d2fe;
+  margin-bottom: 2px;
+  letter-spacing: 0.3px;
+}
+
+.message.me .message-reply-author {
+  color: #dbeafe;
+}
+
+.message-reply-text {
+  font-size: 12px;
+  color: #e0e7ff;
+  opacity: 0.9;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.message.me .message-reply-text {
+  color: #f0f9ff;
+}
+
 /* Кнопка удаления сообщения */
 
 .msg-delete-btn {
@@ -1994,6 +2035,32 @@ html.light .message {
 html.light .message.me {
   background: #3b82f6;
   color: #eff6ff;
+}
+
+html.light .message-reply-block {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(79, 70, 229, 0.15));
+  border-left: 3px solid #6366f1;
+}
+
+html.light .message.me .message-reply-block {
+  background: linear-gradient(135deg, rgba(191, 219, 254, 0.4), rgba(147, 197, 253, 0.4));
+  border-left: 3px solid #bfdbfe;
+}
+
+html.light .message-reply-author {
+  color: #4338ca;
+}
+
+html.light .message.me .message-reply-author {
+  color: #f0f9ff;
+}
+
+html.light .message-reply-text {
+  color: #4c1d95;
+}
+
+html.light .message.me .message-reply-text {
+  color: #e0f2fe;
 }
 
 html.light .btn-primary,
