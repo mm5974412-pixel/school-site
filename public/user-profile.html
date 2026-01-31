@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NovaChat — профиль пользователя</title>
+  <link rel="stylesheet" href="/style-v2.css" />
+  <style>
+    .profile-page {
+      min-height: 100vh;
+      display: flex;
+      gap: 20px;
+      padding: 20px;
+    }
+
+    .profile-sidebar {
+      width: 280px;
+      background: linear-gradient(135deg, #1e1e30 0%, #2d1b69 100%);
+      border-radius: 20px;
+      padding: 24px 16px;
+      border: 1px solid rgba(139, 92, 246, 0.3);
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      height: fit-content;
+      position: sticky;
+      top: 20px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    }
+
+    .profile-header {
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid rgba(139, 92, 246, 0.2);
+      padding-bottom: 20px;
+    }
+
+    .profile-avatar-circle {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #8b5cf6, #6366f1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 40px;
+      border: 3px solid rgba(139, 92, 246, 0.5);
+      box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+      background-size: cover;
+      background-position: center;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .profile-name-sidebar {
+      font-size: 18px;
+      font-weight: 700;
+      color: #e5e7eb;
+    }
+
+    .profile-login-sidebar {
+      font-size: 13px;
+      color: #9ca3af;
+    }
+
+    .profile-nav-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .profile-nav-btn {
+      padding: 12px 16px;
+      border: 1px solid rgba(139, 92, 246, 0.3);
+      background: rgba(139, 92, 246, 0.05);
+      border-radius: 12px;
+      color: #c7d2fe;
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-align: center;
+    }
+
+    .profile-nav-btn:hover {
+      background: rgba(139, 92, 246, 0.15);
+      border-color: rgba(139, 92, 246, 0.5);
+    }
+
+    .profile-nav-btn.primary {
+      background: linear-gradient(135deg, #8b5cf6, #6366f1);
+      border-color: #8b5cf6;
+      color: white;
+    }
+
+    .profile-nav-btn.danger {
+      background: rgba(239, 68, 68, 0.1);
+      border-color: rgba(239, 68, 68, 0.3);
+      color: #fca5a5;
+    }
+
+    .profile-nav-btn.danger:hover {
+      background: rgba(239, 68, 68, 0.2);
+      border-color: rgba(239, 68, 68, 0.5);
+    }
+
+    .profile-main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      max-width: 700px;
+    }
+
+    .profile-card {
+      background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+      border-radius: 16px;
+      padding: 28px;
+      border: 1px solid rgba(107, 114, 128, 0.2);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    }
+
+    .profile-card h2 {
+      margin-top: 0;
+      margin-bottom: 20px;
+      font-size: 18px;
+      color: #e5e7eb;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(107, 114, 128, 0.1);
+    }
+
+    .info-row:last-child {
+      border-bottom: none;
+    }
+
+    .info-label {
+      font-size: 13px;
+      color: #9ca3af;
+      font-weight: 600;
+    }
+
+    .info-value {
+      font-size: 14px;
+      color: #e5e7eb;
+    }
+
+    .bio-section {
+      background: rgba(139, 92, 246, 0.08);
+      border-left: 4px solid #8b5cf6;
+      border-radius: 8px;
+      padding: 14px;
+      margin: 16px 0;
+    }
+
+    .bio-section h3 {
+      margin: 0 0 8px 0;
+      font-size: 13px;
+      color: #c7d2fe;
+      font-weight: 600;
+    }
+
+    .bio-section p {
+      margin: 0;
+      font-size: 14px;
+      color: #e5e7eb;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+
+    .message-btn {
+      width: 100%;
+      padding: 12px 16px;
+      background: linear-gradient(135deg, #8b5cf6, #6366f1);
+      border: none;
+      border-radius: 10px;
+      color: white;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .message-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(139, 92, 246, 0.3);
+    }
+
+    /* Мобильные стили */
+    @media (max-width: 1024px) {
+      .profile-page {
+        flex-direction: column;
+      }
+
+      .profile-sidebar {
+        width: 100%;
+        position: relative;
+        top: 0;
+        display: grid;
+        grid-template-columns: auto 1fr;
+        align-items: start;
+        gap: 20px;
+      }
+
+      .profile-header {
+        grid-column: 1;
+        border-right: 1px solid rgba(139, 92, 246, 0.2);
+        border-bottom: none;
+        padding-right: 20px;
+        padding-bottom: 0;
+      }
+
+      .profile-nav-buttons {
+        grid-column: 2;
+        grid-row: 1;
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .profile-nav-buttons button:nth-child(1) {
+        grid-column: 1 / -1;
+      }
+
+      .profile-main {
+        gap: 16px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .profile-page {
+        padding: 8px;
+      }
+
+      .profile-sidebar {
+        padding: 12px;
+        grid-template-columns: auto 1fr;
+      }
+
+      .profile-avatar-circle {
+        width: 70px;
+        height: 70px;
+        font-size: 28px;
+      }
+
+      .profile-name-sidebar {
+        font-size: 15px;
+      }
+
+      .profile-card {
+        padding: 20px 16px;
+      }
+
+      .profile-card h2 {
+        font-size: 16px;
+        margin-bottom: 16px;
+      }
+
+      .message-btn {
+        padding: 10px 12px;
+        font-size: 13px;
+      }
+
+      .profile-main {
+        gap: 16px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .profile-page {
+        padding: 4px;
+      }
+
+      .profile-sidebar {
+        padding: 10px;
+        gap: 12px;
+        grid-template-columns: 1fr;
+      }
+
+      .profile-avatar-circle {
+        width: 60px;
+        height: 60px;
+        font-size: 24px;
+        border-width: 2px;
+      }
+
+      .profile-header {
+        grid-column: 1;
+        border-right: none;
+        border-bottom: 1px solid rgba(139, 92, 246, 0.2);
+        padding-right: 0;
+        padding-bottom: 12px;
+      }
+
+      .profile-name-sidebar {
+        font-size: 14px;
+      }
+
+      .profile-login-sidebar {
+        font-size: 12px;
+      }
+
+      .profile-nav-buttons {
+        grid-column: 1;
+        grid-row: auto;
+        grid-template-columns: 1fr;
+      }
+
+      .profile-nav-buttons button:nth-child(1) {
+        grid-column: 1;
+      }
+
+      .profile-card {
+        padding: 16px 14px;
+      }
+
+      .profile-card h2 {
+        font-size: 15px;
+        margin-bottom: 14px;
+      }
+
+      .message-btn {
+        padding: 10px 12px;
+        font-size: 12px;
+      }
+
+      .profile-main {
+        gap: 16px;
+      }
+    }
+
+    .loading {
+      text-align: center;
+      padding: 40px;
+      font-size: 16px;
+      color: #9ca3af;
+    }
+
+    .error {
+      background: rgba(239, 68, 68, 0.1);
+      border-left: 4px solid #ef4444;
+      border-radius: 8px;
+      padding: 14px;
+      color: #fecaca;
+      font-size: 14px;
+    }
+  </style>
+  <script>
+    (function() {
+      const savedTheme = localStorage.getItem('theme');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const shouldBeLight = savedTheme === 'light' || (!savedTheme && !prefersDark);
+      if (shouldBeLight) {
+        document.documentElement.classList.add('light');
+      }
+    })();
+  </script>
+  <script src="/theme-toggle.js" defer></script>
+</head>
+<body>
+  <div class="profile-page" id="profile-page">
+    <!-- Сайдбар слева -->
+    <aside class="profile-sidebar">
+      <div class="profile-header">
+        <div class="profile-avatar-circle" id="profile-avatar-sidebar">?</div>
+        <div>
+          <div class="profile-name-sidebar" id="profile-name-sidebar">Загрузка...</div>
+          <div class="profile-login-sidebar">@<span id="profile-login-sidebar">—</span></div>
+        </div>
+      </div>
+
+      <div class="profile-nav-buttons">
+        <button id="back-to-chats-btn" class="profile-nav-btn primary">← Чаты</button>
+        <button id="send-message-btn" class="profile-nav-btn">✉️ Сообщение</button>
+      </div>
+    </aside>
+
+    <!-- Основной контент -->
+    <main class="profile-main">
+      <!-- Информация об аккаунте -->
+      <div class="profile-card">
+        <h2>📊 Информация</h2>
+        <div class="info-row">
+          <span class="info-label">Ник</span>
+          <span class="info-value" id="profile-username">—</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Статус</span>
+          <span class="info-value">🟢 Активен</span>
+        </div>
+      </div>
+
+      <!-- О себе -->
+      <div id="bio-container" class="profile-card" style="display: none;">
+        <div class="bio-section">
+          <h3>📝 О себе</h3>
+          <p id="user-bio"></p>
+        </div>
+      </div>
+
+      <!-- Содержимое загрузки -->
+      <div id="loading-container" class="profile-card">
+        <div class="loading">Загрузка профиля...</div>
+      </div>
+
+      <!-- Ошибка -->
+      <div id="error-container" class="profile-card" style="display: none;">
+        <div class="error" id="error-message"></div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const backBtn = document.getElementById("back-to-chats-btn");
+    const sendMessageBtn = document.getElementById("send-message-btn");
+    const profileAvatarSidebar = document.getElementById("profile-avatar-sidebar");
+    const profileNameSidebar = document.getElementById("profile-name-sidebar");
+    const profileLoginSidebar = document.getElementById("profile-login-sidebar");
+    const profileUsername = document.getElementById("profile-username");
+    const bioContainer = document.getElementById("bio-container");
+    const userBio = document.getElementById("user-bio");
+    const loadingContainer = document.getElementById("loading-container");
+    const errorContainer = document.getElementById("error-container");
+    const errorMessage = document.getElementById("error-message");
+
+    function displayAvatar(element, avatarUrl, username) {
+      if (avatarUrl && avatarUrl.trim()) {
+        element.style.backgroundImage = `url('${avatarUrl}')`;
+        element.style.backgroundSize = 'cover';
+        element.style.backgroundPosition = 'center';
+        element.textContent = '';
+      } else if (username && username.trim()) {
+        element.style.backgroundImage = '';
+        element.textContent = username[0].toUpperCase();
+      } else {
+        element.style.backgroundImage = '';
+        element.textContent = '?';
+      }
+    }
+
+    // Получаем userId из URL параметра
+    const urlParams = new URLSearchParams(window.location.search);
+    const userId = urlParams.get('id');
+
+    if (!userId) {
+      loadingContainer.style.display = 'none';
+      errorContainer.style.display = 'block';
+      errorMessage.textContent = '❌ ID пользователя не найден';
+    } else {
+      // Загружаем профиль пользователя
+      fetch(`/api/user/${userId}`)
+        .then(res => {
+          if (res.status === 404) {
+            throw new Error('Пользователь не найден');
+          }
+          if (!res.ok) {
+            throw new Error('Ошибка сервера');
+          }
+          return res.json();
+        })
+        .then(data => {
+          if (!data.ok) {
+            throw new Error(data.error || 'Ошибка загрузки');
+          }
+
+          const displayName = data.displayName || data.username;
+          profileNameSidebar.textContent = displayName;
+          profileLoginSidebar.textContent = data.username;
+          profileUsername.textContent = data.username;
+
+          displayAvatar(profileAvatarSidebar, data.avatarUrl, displayName);
+
+          // Показываем био если оно есть
+          if (data.bio && data.bio.trim()) {
+            userBio.textContent = data.bio;
+            bioContainer.style.display = 'block';
+          }
+
+          loadingContainer.style.display = 'none';
+
+          // Сохраняем данные пользователя для кнопки сообщения
+          sendMessageBtn.dataset.userId = userId;
+          sendMessageBtn.dataset.username = data.username;
+        })
+        .catch(err => {
+          console.error('Ошибка:', err);
+          loadingContainer.style.display = 'none';
+          errorContainer.style.display = 'block';
+          errorMessage.textContent = `❌ ${err.message}`;
+        });
+    }
+
+    // Навигация
+    backBtn.addEventListener('click', () => {
+      window.location.href = '/chat';
+    });
+
+    // Отправка сообщения
+    sendMessageBtn.addEventListener('click', async () => {
+      const targetUserId = sendMessageBtn.dataset.userId;
+      if (!targetUserId) return;
+
+      try {
+        const response = await fetch('/chats/get-or-create', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: targetUserId })
+        });
+
+        const data = await response.json();
+        if (data.ok && data.chatId) {
+          window.location.href = `/chat?chatId=${data.chatId}`;
+        }
+      } catch (err) {
+        console.error('Ошибка:', err);
+      }
+    });
+  </script>
+</body>
+</html>

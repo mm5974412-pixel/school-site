@@ -622,6 +622,20 @@
             <div class="form-hint">Буквы, цифры, _ и - (мин. 3 символа). По этому нику вас можно найти.</div>
           </div>
 
+          <!-- О себе -->
+          <div class="form-group">
+            <label for="bio-input" class="form-label">О себе</label>
+            <textarea 
+              id="bio-input" 
+              name="bio" 
+              placeholder="Расскажите о себе..."
+              maxlength="300"
+              class="form-input"
+              style="resize: vertical; min-height: 80px; font-family: inherit;"
+            ></textarea>
+            <div class="form-hint" id="bio-hint">0 / 300 символов</div>
+          </div>
+
           <button type="submit" class="btn-save">💾 Сохранить</button>
         </form>
       </div>
@@ -754,8 +768,9 @@
     const profileEditForm = document.getElementById("profile-edit-form");
     const backBtn = document.getElementById("back-to-chats-btn");
     const deleteAccountBtn = document.getElementById("delete-account-btn");
-
-          const usernameInput = document.getElementById("username-input");
+    const usernameInput = document.getElementById("username-input");
+    const bioInput = document.getElementById("bio-input");
+    const bioHint = document.getElementById("bio-hint");
 
     let currentUserData = null;
 
@@ -811,6 +826,14 @@
       });
     }
 
+    // Счетчик символов для био
+    if (bioInput) {
+      bioInput.addEventListener("input", () => {
+        const count = bioInput.value.length;
+        bioHint.textContent = `${count} / 300 символов`;
+      });
+    }
+
     // Загрузка профиля
     function loadCurrentUser() {
       return fetch("/me")
@@ -836,6 +859,14 @@
 
           displayNameInput.value = data.displayName || '';
           usernameInput.value = data.username || '';
+          bioInput.value = data.bio || '';
+          
+          // Обновляем счетчик символов
+          if (bioHint) {
+            const bioCount = bioInput.value.length;
+            bioHint.textContent = `${bioCount} / 300 символов`;
+          }
+          
           displayAvatar(profileAvatarSidebar, data.avatarUrl, displayName);
           displayAvatar(avatarPreview, data.avatarUrl, displayName);
         })
@@ -851,6 +882,7 @@
       const formData = new FormData();
       formData.append("displayName", displayNameInput.value);
       formData.append("username", usernameInput.value);
+      formData.append("bio", bioInput.value);
       if (avatarInput.files[0]) {
         formData.append("avatar", avatarInput.files[0]);
       }
@@ -869,6 +901,7 @@
           currentUserData.displayName = result.displayName;
           currentUserData.avatarUrl = result.avatarUrl;
           currentUserData.username = result.username;
+          currentUserData.bio = result.bio;
           
           const displayName = result.displayName || result.username;
           profileNameSidebar.textContent = displayName;

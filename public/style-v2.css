@@ -1539,6 +1539,7 @@ form input[type="password"]:focus {
   font-weight: 600;
   color: #e5e7eb;
   transition: color 0.3s ease;
+  cursor: pointer;
 }
 
 .chat-main-title:hover {

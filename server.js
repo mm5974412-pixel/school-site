@@ -70,7 +70,8 @@ async function initDb() {
     ADD COLUMN IF NOT EXISTS avatar_url TEXT,
     ADD COLUMN IF NOT EXISTS avatar_data TEXT,
     ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW(),
-    ADD COLUMN IF NOT EXISTS is_admin BOOLEAN DEFAULT FALSE;
+    ADD COLUMN IF NOT EXISTS is_admin BOOLEAN DEFAULT FALSE,
+    ADD COLUMN IF NOT EXISTS bio TEXT;
   `).catch(() => {
     // Игнорируем ошибки если колонки уже существуют
   });
@@ -293,7 +294,7 @@ app.get("/me", async (req, res) => {
 
   try {
     const result = await pool.query(
-      "SELECT username, display_name, avatar_data, created_at, is_admin FROM users WHERE id = $1",
+      "SELECT username, display_name, avatar_data, created_at, is_admin, bio FROM users WHERE id = $1",
       [req.session.user.id]
     );
 
@@ -310,6 +311,7 @@ app.get("/me", async (req, res) => {
       avatarUrl: user.avatar_data,
       registeredAt: user.created_at,
       isAdmin: user.is_admin || false,
+      bio: user.bio || "",
     });
   } catch (err) {
     console.error("Ошибка при получении информации пользователя:", err);
@@ -363,20 +365,23 @@ app.post("/update-profile", upload.single("avatar"), async (req, res) => {
       fs.unlinkSync(req.file.path);
     }
 
+    // Получаем bio из request body
+    const bio = req.body.bio || null;
+
     // Обновляем профиль
     let query, params;
     if (avatarData && username && username !== oldUsername) {
-      query = "UPDATE users SET username = $1, display_name = $2, avatar_data = $3 WHERE id = $4 RETURNING username, display_name, avatar_data";
-      params = [username, displayName || null, avatarData, userId];
+      query = "UPDATE users SET username = $1, display_name = $2, avatar_data = $3, bio = $4 WHERE id = $5 RETURNING username, display_name, avatar_data, bio";
+      params = [username, displayName || null, avatarData, bio, userId];
     } else if (avatarData) {
-      query = "UPDATE users SET display_name = $1, avatar_data = $2 WHERE id = $3 RETURNING username, display_name, avatar_data";
-      params = [displayName || null, avatarData, userId];
+      query = "UPDATE users SET display_name = $1, avatar_data = $2, bio = $3 WHERE id = $4 RETURNING username, display_name, avatar_data, bio";
+      params = [displayName || null, avatarData, bio, userId];
     } else if (username && username !== oldUsername) {
-      query = "UPDATE users SET username = $1, display_name = $2 WHERE id = $3 RETURNING username, display_name, avatar_data";
-      params = [username, displayName || null, userId];
+      query = "UPDATE users SET username = $1, display_name = $2, bio = $3 WHERE id = $4 RETURNING username, display_name, avatar_data, bio";
+      params = [username, displayName || null, bio, userId];
     } else {
-      query = "UPDATE users SET display_name = $1 WHERE id = $2 RETURNING username, display_name, avatar_data";
-      params = [displayName || null, userId];
+      query = "UPDATE users SET display_name = $1, bio = $2 WHERE id = $3 RETURNING username, display_name, avatar_data, bio";
+      params = [displayName || null, bio, userId];
     }
 
     const result = await pool.query(query, params);
@@ -391,6 +396,7 @@ app.post("/update-profile", upload.single("avatar"), async (req, res) => {
       username: updatedUser.username,
       displayName: updatedUser.display_name,
       avatarUrl: updatedUser.avatar_data,
+      bio: updatedUser.bio,
     });
 
     res.json({
@@ -398,6 +404,7 @@ app.post("/update-profile", upload.single("avatar"), async (req, res) => {
       username: updatedUser.username,
       displayName: updatedUser.display_name,
       avatarUrl: updatedUser.avatar_data,
+      bio: updatedUser.bio,
     });
   } catch (err) {
     console.error("Ошибка при обновлении профиля:", err);
@@ -405,6 +412,34 @@ app.post("/update-profile", upload.single("avatar"), async (req, res) => {
   }
 });
 
+// ======= ПОЛУЧИТЬ ПРОФИЛЬ ПОЛЬЗОВАТЕЛЯ =======
+app.get("/api/user/:userId", async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    
+    const result = await pool.query(
+      "SELECT id, username, display_name, avatar_data, bio FROM users WHERE id = $1",
+      [userId]
+    );
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({ ok: false, error: "Пользователь не найден" });
+    }
+    
+    const user = result.rows[0];
+    res.json({
+      ok: true,
+      id: user.id,
+      username: user.username,
+      displayName: user.display_name,
+      avatarUrl: user.avatar_data,
+      bio: user.bio || "",
+    });
+  } catch (err) {
+    console.error("Ошибка при получении профиля:", err);
+    res.status(500).json({ ok: false, error: "Ошибка сервера" });
+  }
+});
 
 // ======= СПИСОК ЛИЧНЫХ ЧАТОВ =======
 app.get("/chats/list", async (req, res) => {
@@ -532,6 +567,80 @@ app.post("/chats/new", async (req, res) => {
     });
   } catch (err) {
     console.error("Ошибка при создании чата:", err);
+    res.status(500).json({ ok: false, error: "Ошибка сервера" });
+  }
+});
+
+// ======= ПОЛУЧИТЬ ИЛИ СОЗДАТЬ ЧАТ (по userId) =======
+app.post("/chats/get-or-create", async (req, res) => {
+  if (!req.session.user) {
+    return res.status(401).json({ ok: false, error: "Не авторизован" });
+  }
+
+  const myId = req.session.user.id;
+  const { userId } = req.body;
+
+  if (!userId) {
+    return res.status(400).json({ ok: false, error: "Укажите ID пользователя" });
+  }
+
+  if (myId === parseInt(userId)) {
+    return res.status(400).json({ ok: false, error: "Нельзя создать чат с самим собой" });
+  }
+
+  try {
+    // Проверяем существование пользователя
+    const userCheck = await pool.query(
+      "SELECT id, username FROM users WHERE id = $1",
+      [userId]
+    );
+
+    if (userCheck.rowCount === 0) {
+      return res.status(404).json({ ok: false, error: "Пользователь не найден" });
+    }
+
+    // Проверяем наличие существующего чата
+    const existing = await pool.query(
+      `
+      SELECT c.id
+      FROM chats c
+      JOIN chat_members cm1 ON cm1.chat_id = c.id AND cm1.user_id = $1
+      JOIN chat_members cm2 ON cm2.chat_id = c.id AND cm2.user_id = $2
+      LIMIT 1;
+      `,
+      [myId, userId]
+    );
+
+    if (existing.rowCount > 0) {
+      return res.json({
+        ok: true,
+        chatId: existing.rows[0].id,
+      });
+    }
+
+    // Создаем новый чат
+    const chatInsert = await pool.query(
+      "INSERT INTO chats DEFAULT VALUES RETURNING id, created_at"
+    );
+    const chatId = chatInsert.rows[0].id;
+
+    await pool.query(
+      `
+      INSERT INTO chat_members (chat_id, user_id)
+      VALUES ($1, $2), ($1, $3);
+      `,
+      [chatId, myId, userId]
+    );
+
+    // 🔥 Уведомляем все клиенты об изменении списка чатов
+    io.emit("chats:updated");
+
+    res.json({
+      ok: true,
+      chatId,
+    });
+  } catch (err) {
+    console.error("Ошибка при получении/создании чата:", err);
     res.status(500).json({ ok: false, error: "Ошибка сервера" });
   }
 });
