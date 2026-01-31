@@ -632,8 +632,8 @@
 
       <!-- Permissions Section (Выдача прав) -->
       <div id="permissions" class="content-section">
-        <div style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border: 1px solid #334155; border-radius: 16px; padding: 24px; margin-bottom: 20px;">
-          <h3 style="color: #e2e8f0; margin-bottom: 16px;">🔐 Управление правами доступа</h3>
+        <div style="background: white; border: 2px solid #e2e8f0; border-radius: 16px; padding: 28px;">
+          <h3 style="color: #1e293b; margin-bottom: 24px; font-size: 20px; font-weight: 700;">🔐 Управление правами доступа</h3>
           
           <div class="form-group">
             <label class="form-label">Выберите пользователя</label>
@@ -642,51 +642,57 @@
             </select>
           </div>
 
-          <div style="background: #0f172a; border: 1px solid #334155; border-radius: 8px; padding: 16px; margin-top: 20px;">
-            <h4 style="color: #cbd5e1; margin-bottom: 16px;">Права пользователя</h4>
+          <div style="background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%); border: 2px dashed #cbd5e1; border-radius: 12px; padding: 20px; margin-top: 24px;">
+            <h4 style="color: #1e293b; margin-bottom: 18px; font-weight: 700;">Права пользователя</h4>
             
-            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
-              <input type="checkbox" id="perm-admin" style="cursor: pointer;" />
-              <label for="perm-admin" style="color: #cbd5e1; cursor: pointer; margin: 0;">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 14px; padding: 12px; background: white; border-radius: 8px;">
+              <input type="checkbox" id="perm-admin" style="cursor: pointer; width: 18px; height: 18px;" />
+              <label for="perm-admin" style="color: #1e293b; cursor: pointer; margin: 0; font-weight: 600; flex: 1;">
                 👤 Администратор (полный доступ)
               </label>
             </div>
 
-            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
-              <input type="checkbox" id="perm-edit-content" style="cursor: pointer;" />
-              <label for="perm-edit-content" style="color: #cbd5e1; cursor: pointer; margin: 0;">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 14px; padding: 12px; background: white; border-radius: 8px;">
+              <input type="checkbox" id="perm-edit-content" style="cursor: pointer; width: 18px; height: 18px;" />
+              <label for="perm-edit-content" style="color: #1e293b; cursor: pointer; margin: 0; font-weight: 600; flex: 1;">
                 ✏️ Редактирование контента
               </label>
             </div>
 
-            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
-              <input type="checkbox" id="perm-delete-messages" style="cursor: pointer;" />
-              <label for="perm-delete-messages" style="color: #cbd5e1; cursor: pointer; margin: 0;">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 14px; padding: 12px; background: white; border-radius: 8px;">
+              <input type="checkbox" id="perm-delete-messages" style="cursor: pointer; width: 18px; height: 18px;" />
+              <label for="perm-delete-messages" style="color: #1e293b; cursor: pointer; margin: 0; font-weight: 600; flex: 1;">
                 🗑️ Удаление сообщений
               </label>
             </div>
 
-            <div style="display: flex; align-items: center; gap: 10px;">
-              <input type="checkbox" id="perm-manage-users" style="cursor: pointer;" />
-              <label for="perm-manage-users" style="color: #cbd5e1; cursor: pointer; margin: 0;">
+            <div style="display: flex; align-items: center; gap: 12px; padding: 12px; background: white; border-radius: 8px;">
+              <input type="checkbox" id="perm-manage-users" style="cursor: pointer; width: 18px; height: 18px;" />
+              <label for="perm-manage-users" style="color: #1e293b; cursor: pointer; margin: 0; font-weight: 600; flex: 1;">
                 👥 Управление пользователями
               </label>
             </div>
           </div>
 
-          <button class="btn-primary" id="save-permissions-btn" style="display: inline-flex; margin-top: 20px;">💾 Сохранить права</button>
+          <button class="btn-primary" id="save-permissions-btn" style="margin-top: 24px;">💾 Сохранить права</button>
         </div>
       </div>
 
       <!-- Content Section (Изменение контента) -->
       <div id="content" class="content-section">
-        <div style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border: 1px solid #334155; border-radius: 16px; padding: 24px; margin-bottom: 20px;">
-          <h3 style="color: #e2e8f0; margin-bottom: 16px;">📝 Управление контентом</h3>
+        <div style="background: white; border-radius: 16px; overflow: hidden;">
+          <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 24px;">
+            <h3 style="color: white; margin: 0; font-size: 20px; font-weight: 700;">📝 Управление контентом</h3>
+          </div>
           
-          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+          <div style="padding: 28px; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px;">
             <!-- Edit Text Content -->
             <div style="background: #0f172a; border: 1px solid #334155; border-radius: 8px; padding: 16px;">
               <h4 style="color: #cbd5e1; margin-bottom: 12px;">✏️ Изменить текст</h4>
+              
+            <!-- Edit Text Content -->
+            <div style="background: white; border: 2px solid #e2e8f0; border-radius: 12px; padding: 20px;">
+              <h4 style="color: #1e293b; margin-bottom: 16px; font-weight: 700;">✏️ Изменить текст</h4>
               
               <div class="form-group">
                 <label class="form-label">Раздел</label>
@@ -703,12 +709,12 @@
                 <textarea class="form-input" id="text-content" style="resize: vertical; min-height: 100px; font-family: Arial, sans-serif;"></textarea>
               </div>
 
-              <button class="btn-primary" id="save-text-btn" style="display: inline-flex; width: 100%;">💾 Обновить текст</button>
+              <button class="btn-primary" id="save-text-btn" style="width: 100%;">💾 Обновить текст</button>
             </div>
 
             <!-- Edit Images -->
-            <div style="background: #0f172a; border: 1px solid #334155; border-radius: 8px; padding: 16px;">
-              <h4 style="color: #cbd5e1; margin-bottom: 12px;">🖼️ Загрузить изображение</h4>
+            <div style="background: white; border: 2px solid #e2e8f0; border-radius: 12px; padding: 20px;">
+              <h4 style="color: #1e293b; margin-bottom: 16px; font-weight: 700;">🖼️ Загрузить изображение</h4>
               
               <div class="form-group">
                 <label class="form-label">Раздел</label>
@@ -726,10 +732,10 @@
               </div>
 
               <div id="image-preview" style="margin: 12px 0; border-radius: 8px; max-width: 100%; display: none;">
-                <img id="preview-img" style="max-width: 100%; border-radius: 8px;" />
+                <img id="preview-img" style="max-width: 100%; border-radius: 8px; border: 2px solid #e2e8f0;" />
               </div>
 
-              <button class="btn-primary" id="save-image-btn" style="display: inline-flex; width: 100%;">💾 Загрузить</button>
+              <button class="btn-primary" id="save-image-btn" style="width: 100%;">💾 Загрузить</button>
             </div>
           </div>
         </div>
@@ -787,12 +793,12 @@
 
       <!-- Settings Section -->
       <div id="settings" class="content-section">
-        <div style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border: 1px solid #334155; border-radius: 16px; padding: 24px;">
-          <h3 style="color: #e2e8f0; margin-bottom: 16px;">Настройки системы</h3>
+        <div style="background: white; border: 2px solid #e2e8f0; border-radius: 16px; padding: 28px;">
+          <h3 style="color: #1e293b; margin-bottom: 24px; font-size: 20px; font-weight: 700;">⚙️ Настройки системы</h3>
           
           <div class="form-group">
             <label class="form-label">Название сайта</label>
-            <input type="text" class="form-input" id="site-name" value="NovaChat" />
+            <input type="text" class="form-input" id="site-name" value="Nexora" />
           </div>
 
           <div class="form-group">
@@ -1284,4 +1290,5 @@
     });
   </script>
 </body>
+</html>
 </html>
