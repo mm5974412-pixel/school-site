@@ -659,10 +659,6 @@ app.get("/chats/list", async (req, res) => {
       JOIN users u
         ON u.id = cm_peer.user_id
       WHERE cm_self.user_id = $1
-      AND NOT EXISTS (
-        SELECT 1 FROM blocked_users
-        WHERE blocker_id = cm_peer.user_id AND blocked_id = $1
-      )
       ORDER BY c.created_at DESC;
       `,
       [userId]
