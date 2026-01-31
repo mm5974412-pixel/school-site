@@ -4680,3 +4680,185 @@ html.light .nexfery-content {
     max-width: none;
   }
 }
+
+/* ===== СТИЛИ ДЛЯ ГРУППОВОГО ЧАТА НЕКСФЕРЫ ===== */
+
+.message-wrapper {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+  align-items: flex-start;
+  animation: messageSlideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.message-wrapper.message-own {
+  flex-direction: row-reverse;
+  align-self: flex-end;
+}
+
+.message-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 600;
+  color: white;
+  flex-shrink: 0;
+  overflow: hidden;
+  border: 2px solid rgba(139, 92, 246, 0.3);
+}
+
+.message-own .message-avatar {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  border-color: rgba(59, 130, 246, 0.5);
+}
+
+.message-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-width: 60%;
+  padding: 8px 12px;
+  border-radius: 12px;
+  background: rgba(31, 41, 55, 0.8);
+  border: 1px solid rgba(139, 92, 246, 0.2);
+}
+
+.message-own .message-content {
+  background: rgba(59, 130, 246, 0.15);
+  border-color: rgba(59, 130, 246, 0.3);
+}
+
+.message-author {
+  font-size: 12px;
+  font-weight: 600;
+  color: #c7d2fe;
+  margin-bottom: 2px;
+}
+
+.message-own .message-author {
+  color: #93c5fd;
+}
+
+.message-text {
+  font-size: 14px;
+  line-height: 1.5;
+  color: #e5e7eb;
+  word-wrap: break-word;
+  word-break: break-word;
+}
+
+.message-own .message-text {
+  color: #f0f9ff;
+}
+
+.message-time {
+  font-size: 11px;
+  color: #6b7280;
+  margin-top: 2px;
+}
+
+.message-own .message-time {
+  color: #3b82f6;
+}
+
+.message-actions {
+  display: flex;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.message-actions button {
+  background: rgba(139, 92, 246, 0.1);
+  border: none;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  color: #a78bfa;
+  transition: all 0.2s;
+}
+
+.message-actions button:hover {
+  background: rgba(139, 92, 246, 0.2);
+}
+
+.message-reactions {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+.reaction {
+  background: rgba(139, 92, 246, 0.15);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  padding: 2px 6px;
+  border-radius: 12px;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.reaction:hover {
+  background: rgba(139, 92, 246, 0.25);
+  border-color: rgba(139, 92, 246, 0.5);
+}
+
+.reaction-add {
+  background: transparent;
+  border: 1px dashed rgba(139, 92, 246, 0.3);
+  padding: 2px 6px;
+  border-radius: 12px;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.reaction-add:hover {
+  background: rgba(139, 92, 246, 0.1);
+  border-color: rgba(139, 92, 246, 0.5);
+}
+
+.edited-label {
+  font-size: 10px;
+  color: #9ca3af;
+  margin-left: 4px;
+}
+
+html.light .message-wrapper {
+  opacity: 1;
+}
+
+html.light .message-content {
+  background: rgba(243, 244, 246, 0.8);
+  border-color: rgba(139, 92, 246, 0.2);
+}
+
+html.light .message-text {
+  color: #1f2937;
+}
+
+html.light .message-author {
+  color: #7c3aed;
+}
+
+html.light .message-time {
+  color: #9ca3af;
+}
+
+html.light .message-own .message-content {
+  background: rgba(59, 130, 246, 0.1);
+  border-color: rgba(59, 130, 246, 0.3);
+}
+
+html.light .message-own .message-text {
+  color: #1e40af;
+}
+
+html.light .message-own .message-author {
+  color: #2563eb;
+}

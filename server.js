@@ -54,15 +54,67 @@ io.on("connection", (socket) => {
   });
 
   // Пользователь заходит в нексферу
-  socket.on("join-nexfery", (nexferyId) => {
+  socket.on("join-nexfery", async (data) => {
+    const nexferyId = data && typeof data === 'object' ? data.nexferyId : data;
+    const userId = data && typeof data === 'object' ? data.userId : null;
+    
     if (!nexferyId) return;
     socket.join(`nexfery:${nexferyId}`);
+    
+    // Если пришли данные о пользователе, отправляем системное сообщение
+    if (userId) {
+      try {
+        const userResult = await pool.query(
+          "SELECT display_name, username FROM users WHERE id = $1",
+          [userId]
+        );
+        if (userResult.rowCount > 0) {
+          const user = userResult.rows[0];
+          const username = user.display_name || user.username;
+          
+          // Отправляем системное сообщение всем в комнате
+          io.to(`nexfery:${nexferyId}`).emit("nexfery:system-message", {
+            type: 'member-joined',
+            text: `👋 ${username} присоединился к нексфере`,
+            timestamp: new Date()
+          });
+        }
+      } catch (err) {
+        console.error("Ошибка при отправке системного сообщения:", err);
+      }
+    }
   });
 
   // Пользователь уходит из нексферы
-  socket.on("leave-nexfery", (nexferyId) => {
+  socket.on("leave-nexfery", async (data) => {
+    const nexferyId = data && typeof data === 'object' ? data.nexferyId : data;
+    const userId = data && typeof data === 'object' ? data.userId : null;
+    
     if (!nexferyId) return;
     socket.leave(`nexfery:${nexferyId}`);
+    
+    // Если пришли данные о пользователе, отправляем системное сообщение
+    if (userId) {
+      try {
+        const userResult = await pool.query(
+          "SELECT display_name, username FROM users WHERE id = $1",
+          [userId]
+        );
+        if (userResult.rowCount > 0) {
+          const user = userResult.rows[0];
+          const username = user.display_name || user.username;
+          
+          // Отправляем системное сообщение всем в комнате
+          io.to(`nexfery:${nexferyId}`).emit("nexfery:system-message", {
+            type: 'member-left',
+            text: `👋 ${username} покинул нексферу`,
+            timestamp: new Date()
+          });
+        }
+      } catch (err) {
+        console.error("Ошибка при отправке системного сообщения:", err);
+      }
+    }
   });
 
   socket.on("disconnect", () => {
@@ -2227,8 +2279,8 @@ app.post("/api/nexferies", requireAuth, upload.single("avatar"), async (req, res
       [nexfery.id, userId, 'owner']
     );
 
-    // Уведомляем всех клиентов об обновлении нексоленты
-    io.emit("nexus:updated");
+    // Уведомляем всех клиентов об обновлении нексфер
+    io.emit("nexferies:updated");
 
     // Получаем автора
     const authorResult = await pool.query(
