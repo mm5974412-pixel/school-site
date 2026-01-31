@@ -148,7 +148,6 @@
   </div>
 
   <script>
-    alert('Script loading...');
     const currentUsernameEl = document.getElementById('current-username');
     const adminPanelBtn = document.getElementById('admin-panel-btn');
     const nexusListEl = document.getElementById('nexus-list');
@@ -158,8 +157,6 @@
     const nexusModalBody = document.getElementById('nexus-modal-body');
     const nexusProfileModal = document.getElementById('nexus-profile-modal');
     const nexusProfileModalBody = document.getElementById('nexus-profile-modal-body');
-
-    alert('createForm found: ' + (createForm ? 'YES' : 'NO'));
 
     let currentUser = null;
 
@@ -602,17 +599,6 @@
       document.getElementById('create-nexus-buttons').style.display = 'none';
       document.querySelector('.nexus-form-card').scrollIntoView({ behavior: 'smooth' });
     });
-
-    // Добавляем обработчик на кнопку submit
-    const submitBtn = document.querySelector('.nexus-form-actions button[type="submit"]');
-    alert('Submit button found: ' + (submitBtn ? 'YES' : 'NO'));
-    if (submitBtn) {
-      submitBtn.addEventListener('click', (e) => {
-        alert('Submit button clicked!');
-        e.preventDefault();
-        createForm.dispatchEvent(new Event('submit'));
-      });
-    }
 
     (async () => {
       await loadMe();
