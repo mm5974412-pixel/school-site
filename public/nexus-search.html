@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Поиск нексусов — Nexora</title>
+  <link rel="stylesheet" href="/style-v2.css" />
+  <script>
+    (function() {
+      const savedTheme = localStorage.getItem('theme');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const shouldBeLight = savedTheme === 'light' || (!savedTheme && !prefersDark);
+      if (shouldBeLight) {
+        document.documentElement.classList.add('light');
+      }
+    })();
+  </script>
+  <script src="/theme-toggle.js" defer></script>
+  <style>
+    .nexus-search-container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .nexus-search-header {
+      margin-bottom: 30px;
+      text-align: center;
+    }
+
+    .nexus-search-header h1 {
+      margin: 0 0 10px 0;
+      font-size: 28px;
+      background: linear-gradient(135deg, #22c55e, #22d3ee);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .nexus-search-input-wrapper {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 30px;
+    }
+
+    .nexus-search-input {
+      flex: 1;
+      padding: 12px 16px;
+      border-radius: 12px;
+      border: 1px solid #1f2937;
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.6), rgba(20, 30, 48, 0.6));
+      color: #e5e7eb;
+      font-size: 14px;
+      transition: all 0.3s ease;
+    }
+
+    .nexus-search-input:focus {
+      outline: none;
+      border-color: #2563eb;
+      background: rgba(15, 23, 42, 0.95);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+    }
+
+    .nexus-search-input::placeholder {
+      color: #6b7280;
+    }
+
+    .nexus-search-clear {
+      padding: 10px 16px;
+      border-radius: 12px;
+      border: 1px solid #4b5563;
+      background: transparent;
+      color: #9ca3af;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .nexus-search-clear:hover {
+      background: rgba(75, 85, 99, 0.2);
+      color: #e5e7eb;
+    }
+
+    .nexus-search-results {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .nexus-search-empty {
+      text-align: center;
+      padding: 40px 20px;
+      color: #9ca3af;
+    }
+
+    .nexus-search-empty-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+    }
+
+    .nexus-search-loading {
+      text-align: center;
+      padding: 40px 20px;
+      color: #9ca3af;
+    }
+
+    .nexus-search-error {
+      padding: 16px;
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      border-radius: 12px;
+      color: #fca5a5;
+      text-align: center;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 20px;
+      color: #22c55e;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+
+    .back-link:hover {
+      gap: 12px;
+      color: #22d3ee;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo-circle">✨</div>
+        <div class="logo-text">
+          <div class="logo-name">Nexora</div>
+          <div class="logo-subtitle">поиск нексусов</div>
+        </div>
+      </div>
+
+      <div class="current-user" id="profile-link" style="cursor: pointer;">
+        <span class="current-user-label">Вы:</span>
+        <span class="current-user-name" id="current-username">...</span>
+      </div>
+
+      <button id="theme-toggle" class="theme-toggle" style="width: 100%; margin-bottom: 10px;">🌙</button>
+
+      <a
+        href="/nexus"
+        class="btn-secondary"
+        style="width: 100%; margin: 6px 0; text-align: center; text-decoration: none;"
+      >
+        🧭 К нексусам
+      </a>
+
+      <a
+        href="/chat"
+        class="btn-secondary"
+        style="width: 100%; margin: 6px 0; text-align: center; text-decoration: none;"
+      >
+        💬 К чатам
+      </a>
+    </aside>
+
+    <main class="chat-main">
+      <div class="chat-main-header">
+        <div class="chat-main-top">
+          <div class="chat-main-titles">
+            <div class="chat-main-title">🔍 Глобальный поиск нексусов</div>
+            <div class="chat-main-subtitle">Найдите интересующий вас нексус</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="nexus-search-container">
+        <a href="/nexus" class="back-link">← Вернуться к нексусам</a>
+
+        <div class="nexus-search-header">
+          <h1>🔎 Поиск нексусов</h1>
+          <p style="color: #9ca3af; margin: 10px 0 0 0;">Введите название, ник или описание</p>
+        </div>
+
+        <div class="nexus-search-input-wrapper">
+          <input
+            type="text"
+            id="nexus-search-input"
+            class="nexus-search-input"
+            placeholder="Поиск по названию, нику или описанию..."
+            autocomplete="off"
+          />
+          <button id="nexus-search-clear" class="nexus-search-clear">Очистить</button>
+        </div>
+
+        <div id="nexus-search-results" class="nexus-search-results">
+          <div class="nexus-search-empty">
+            <div class="nexus-search-empty-icon">🔍</div>
+            <p>Начните вводить текст для поиска</p>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Модальное окно для профиля нексуса -->
+  <div id="nexus-profile-modal" class="nexus-modal" style="display: none;">
+    <div class="nexus-modal-backdrop"></div>
+    <div class="nexus-modal-content" style="max-width: 400px;">
+      <div class="nexus-modal-header">
+        <button class="nexus-modal-close" id="nexus-profile-modal-close">✕</button>
+      </div>
+      <div class="nexus-modal-body" id="nexus-profile-modal-body"></div>
+    </div>
+  </div>
+
+  <script>
+    const searchInput = document.getElementById('nexus-search-input');
+    const searchResults = document.getElementById('nexus-search-results');
+    const clearBtn = document.getElementById('nexus-search-clear');
+    const profileLink = document.getElementById('profile-link');
+    const currentUsernameEl = document.getElementById('current-username');
+    const nexusProfileModal = document.getElementById('nexus-profile-modal');
+    const nexusProfileModalBody = document.getElementById('nexus-profile-modal-body');
+
+    let searchTimeout;
+
+    async function loadMe() {
+      const res = await fetch('/me');
+      const data = await res.json();
+      if (!data.loggedIn) {
+        window.location.href = '/login.html';
+        return;
+      }
+      currentUsernameEl.textContent = data.displayName || data.username;
+      profileLink.onclick = () => {
+        window.location.href = '/profile.html';
+      };
+    }
+
+    async function performSearch(query) {
+      if (!query.trim()) {
+        searchResults.innerHTML = `
+          <div class="nexus-search-empty">
+            <div class="nexus-search-empty-icon">🔍</div>
+            <p>Начните вводить текст для поиска</p>
+          </div>
+        `;
+        return;
+      }
+
+      searchResults.innerHTML = '<div class="nexus-search-loading">Поиск...</div>';
+
+      try {
+        const res = await fetch(`/api/nexus/search/all?q=${encodeURIComponent(query)}`);
+        const data = await res.json();
+
+        if (!data.ok) {
+          searchResults.innerHTML = '<div class="nexus-search-error">Ошибка при поиске</div>';
+          return;
+        }
+
+        if (data.nexus.length === 0) {
+          searchResults.innerHTML = `
+            <div class="nexus-search-empty">
+              <div class="nexus-search-empty-icon">😔</div>
+              <p>Нексусы не найдены</p>
+            </div>
+          `;
+          return;
+        }
+
+        searchResults.innerHTML = '';
+        data.nexus.forEach(item => {
+          const card = createNexusCard(item);
+          searchResults.appendChild(card);
+        });
+      } catch (err) {
+        console.error(err);
+        searchResults.innerHTML = '<div class="nexus-search-error">Ошибка при поиске</div>';
+      }
+    }
+
+    function createNexusCard(item) {
+      const card = document.createElement('div');
+      card.className = 'nexus-card';
+
+      const header = document.createElement('div');
+      header.className = 'nexus-card-header';
+
+      const avatar = document.createElement('div');
+      avatar.className = 'nexus-avatar';
+      if (item.avatar_data) {
+        avatar.style.backgroundImage = `url(${item.avatar_data})`;
+      } else {
+        avatar.textContent = item.title.charAt(0).toUpperCase();
+      }
+
+      const info = document.createElement('div');
+      info.className = 'nexus-info';
+
+      const title = document.createElement('div');
+      title.className = 'nexus-title';
+      title.textContent = item.title;
+      title.style.cursor = 'pointer';
+      title.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        openNexusProfile(item.id);
+      });
+
+      const handle = document.createElement('div');
+      handle.className = 'nexus-handle';
+      handle.textContent = `@${item.handle}`;
+
+      const meta = document.createElement('div');
+      meta.className = 'nexus-meta';
+      const authorName = item.author_display_name || item.author_username;
+      meta.textContent = `Автор: ${authorName} · Подписчики: ${item.subscribers_count} · Посты: ${item.posts_count}`;
+
+      info.appendChild(title);
+      info.appendChild(handle);
+      info.appendChild(meta);
+
+      header.appendChild(avatar);
+      header.appendChild(info);
+
+      const desc = document.createElement('div');
+      desc.className = 'nexus-desc';
+      desc.textContent = item.description || 'Без описания';
+
+      const actions = document.createElement('div');
+      actions.className = 'nexus-actions';
+
+      const openBtn = document.createElement('button');
+      openBtn.className = 'btn-secondary';
+      openBtn.textContent = 'Открыть';
+      openBtn.onclick = (e) => {
+        e.preventDefault();
+        if (window.innerWidth <= 768) {
+          window.location.href = `/nexus/profile?id=${item.id}`;
+        } else {
+          window.location.href = `/nexus/profile?id=${item.id}`;
+        }
+      };
+
+      actions.appendChild(openBtn);
+
+      const role = item.my_role;
+      if (role === 'owner') {
+        const ownerBadge = document.createElement('span');
+        ownerBadge.className = 'nexus-badge';
+        ownerBadge.textContent = 'Владелец';
+        actions.appendChild(ownerBadge);
+      } else {
+        const subBtn = document.createElement('button');
+        subBtn.className = role ? 'btn-ghost' : 'btn-primary';
+        subBtn.textContent = role ? 'Отписаться' : 'Подписаться';
+        subBtn.onclick = async () => {
+          subBtn.disabled = true;
+          try {
+            if (role) {
+              await fetch(`/api/nexus/${item.id}/unsubscribe`, { method: 'POST' });
+            } else {
+              await fetch(`/api/nexus/${item.id}/subscribe`, { method: 'POST' });
+            }
+            // Перезагрузить результаты поиска
+            performSearch(searchInput.value);
+          } catch (err) {
+            console.error(err);
+          } finally {
+            subBtn.disabled = false;
+          }
+        };
+        actions.appendChild(subBtn);
+      }
+
+      card.appendChild(header);
+      card.appendChild(desc);
+      card.appendChild(actions);
+
+      return card;
+    }
+
+    async function openNexusProfile(nexusId) {
+      nexusProfileModal.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+
+      try {
+        const res = await fetch(`/api/nexus/${nexusId}`);
+        const data = await res.json();
+        if (!data.ok) {
+          nexusProfileModalBody.innerHTML = `<div class="nexus-error">${data.error || 'Нексус не найден'}</div>`;
+          return;
+        }
+
+        const nexus = data.nexus;
+        const isSubscribed = nexus.my_role === 'subscriber';
+
+        let html = `
+          <div style="text-align: center;">
+            <div class="nexus-modal-avatar" style="${nexus.avatar_data ? `background-image: url(${nexus.avatar_data})` : ''}; width: 120px; height: 120px; margin: 0 auto 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 48px; background-size: cover; background-position: center;">
+              ${!nexus.avatar_data ? nexus.title.charAt(0).toUpperCase() : ''}
+            </div>
+            <h2 style="margin: 0 0 4px 0; font-size: 20px; color: #e5e7eb;">${nexus.title}</h2>
+            <p style="margin: 0 0 12px 0; color: #9ca3af; font-size: 14px;">@${nexus.handle}</p>
+            <p style="margin: 0 0 16px 0; color: #d1d5db; font-size: 14px;">${nexus.description || 'Без описания'}</p>
+            <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 20px;">
+              <button id="nexus-report-btn" class="btn-secondary" style="padding: 10px 16px; width: 100%;">⚠️ Пожаловаться</button>
+              ${isSubscribed ? `<button id="nexus-leave-btn" class="btn-secondary" style="padding: 10px 16px; width: 100%;">👋 Покинуть нексус</button>` : ''}
+            </div>
+          </div>
+        `;
+        nexusProfileModalBody.innerHTML = html;
+
+        const reportBtn = document.getElementById('nexus-report-btn');
+        if (reportBtn) {
+          reportBtn.addEventListener('click', () => {
+            alert('Спасибо за сообщение. Администратор проверит жалобу.');
+            closeNexusProfile();
+          });
+        }
+
+        const leaveBtn = document.getElementById('nexus-leave-btn');
+        if (leaveBtn) {
+          leaveBtn.addEventListener('click', async () => {
+            if (confirm('Вы уверены, что хотите покинуть этот нексус?')) {
+              try {
+                const leaveRes = await fetch(`/api/nexus/${nexusId}/unsubscribe`, { method: 'POST' });
+                const leaveData = await leaveRes.json();
+                if (leaveData.ok) {
+                  performSearch(searchInput.value);
+                  closeNexusProfile();
+                } else {
+                  alert('Ошибка при выходе из нексуса');
+                }
+              } catch (err) {
+                console.error(err);
+                alert('Ошибка при выходе из нексуса');
+              }
+            }
+          });
+        }
+      } catch (err) {
+        console.error(err);
+        nexusProfileModalBody.innerHTML = '<div class="nexus-error">Ошибка при загрузке профиля</div>';
+      }
+    }
+
+    function closeNexusProfile() {
+      nexusProfileModal.style.display = 'none';
+      document.body.style.overflow = 'auto';
+    }
+
+    document.getElementById('nexus-profile-modal-close').addEventListener('click', closeNexusProfile);
+    
+    document.querySelector('.nexus-modal-backdrop').addEventListener('click', closeNexusProfile);
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && nexusProfileModal.style.display !== 'none') {
+        closeNexusProfile();
+      }
+    });
+
+    // Поиск с debounce
+    searchInput.addEventListener('input', (e) => {
+      clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(() => {
+        performSearch(e.target.value);
+      }, 300);
+    });
+
+    // Очистка поиска
+    clearBtn.addEventListener('click', () => {
+      searchInput.value = '';
+      searchResults.innerHTML = `
+        <div class="nexus-search-empty">
+          <div class="nexus-search-empty-icon">🔍</div>
+          <p>Начните вводить текст для поиска</p>
+        </div>
+      `;
+      searchInput.focus();
+    });
+
+    (async () => {
+      await loadMe();
+    })();
+  </script>
+</body>
+</html>

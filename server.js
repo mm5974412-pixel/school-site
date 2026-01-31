@@ -838,6 +838,54 @@ app.get("/api/nexus", requireAuth, async (req, res) => {
   }
 });
 
+// Глобальный поиск всех нексусов
+app.get("/api/nexus/search/all", requireAuth, async (req, res) => {
+  try {
+    const userId = req.session.user.id;
+    const search = req.query.q || '';
+    const searchTerm = `%${search}%`;
+
+    const result = await pool.query(
+      `
+        SELECT
+          n.id,
+          n.title,
+          n.handle,
+          n.description,
+          n.avatar_data,
+          n.author_id,
+          n.created_at,
+          u.username AS author_username,
+          u.display_name AS author_display_name,
+          COALESCE(subs.subscribers_count, 0) AS subscribers_count,
+          COALESCE(posts.posts_count, 0) AS posts_count,
+          ns_me.role AS my_role
+        FROM nexus n
+        JOIN users u ON u.id = n.author_id
+        LEFT JOIN (
+          SELECT nexus_id, COUNT(*)::int AS subscribers_count
+          FROM nexus_subscribers
+          GROUP BY nexus_id
+        ) subs ON subs.nexus_id = n.id
+        LEFT JOIN (
+          SELECT nexus_id, COUNT(*)::int AS posts_count
+          FROM nexus_posts
+          GROUP BY nexus_id
+        ) posts ON posts.nexus_id = n.id
+        LEFT JOIN nexus_subscribers ns_me ON ns_me.nexus_id = n.id AND ns_me.user_id = $1
+        WHERE n.title ILIKE $2 OR n.handle ILIKE $2 OR n.description ILIKE $2
+        ORDER BY n.created_at DESC
+      `,
+      [userId, searchTerm]
+    );
+
+    res.json({ ok: true, nexus: result.rows });
+  } catch (err) {
+    console.error("Ошибка при поиске нексусов:", err);
+    res.status(500).json({ ok: false, error: "Ошибка сервера" });
+  }
+});
+
 app.get("/api/nexus/:nexusId", requireAuth, async (req, res) => {
   try {
     const userId = req.session.user.id;
