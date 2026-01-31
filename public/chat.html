@@ -1065,6 +1065,26 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
+  // ===== ОТПРАВКА СТАТУСА ПЕЧАТИ =====
+  let typingTimeout;
+  if (input) {
+    input.addEventListener("input", () => {
+      // Если есть текст в поле - отправляем статус печати
+      if (input.value.trim() && currentChatId && currentUser) {
+        socket.emit("user-typing", {
+          userId: currentUser.id,
+          chatId: currentChatId
+        });
+      }
+      
+      // Сбросить таймер и установить новый
+      clearTimeout(typingTimeout);
+      typingTimeout = setTimeout(() => {
+        // После 3 секунд неактивности статус вернется в "в сети" автоматически на сервере
+      }, 3000);
+    });
+  }
+
   // Отправка сообщения
   if (form && input) {
     form.addEventListener("submit", (e) => {
@@ -1142,6 +1162,23 @@ document.addEventListener('DOMContentLoaded', function() {
         `📎 Отправить файл: ${file.name}`,
         "",
         async (caption) => {
+          // Определяем тип файла для статуса
+          const isImage = file.type.startsWith('image/');
+          const isVideo = file.type.startsWith('video/');
+          
+          // Отправляем статус загрузки файла
+          if (currentUser) {
+            if (isImage) {
+              socket.emit("user-sending-photo", {
+                userId: currentUser.id
+              });
+            } else if (isVideo) {
+              socket.emit("user-sending-video", {
+                userId: currentUser.id
+              });
+            }
+          }
+
           // Создаём FormData для отправки файла
           const formData = new FormData();
           formData.append("file", file);
@@ -1264,6 +1301,13 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     try {
+      // Отправляем статус "записывает голосовое сообщение"
+      if (currentUser) {
+        socket.emit("user-recording-voice", {
+          userId: currentUser.id
+        });
+      }
+
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       recordingStream = stream;
       recordingChunks = [];
@@ -1396,6 +1440,21 @@ document.addEventListener('DOMContentLoaded', function() {
     if (blockerId === currentPeerUserId && unblockedId === currentUser?.id) {
       amBlockedInCurrentChat = false;
       updateInputBlockedStatus();
+    }
+  });
+
+  // Обработка изменения статуса пользователя
+  socket.on("user-status-changed", (data) => {
+    if (!data) return;
+    const { userId, statusText } = data;
+    
+    // Если это текущий собеседник - обновляем subtitle
+    if (userId === currentPeerUserId && chatSubtitleEl) {
+      if (statusText) {
+        chatSubtitleEl.textContent = statusText;
+      } else {
+        chatSubtitleEl.textContent = "Личный чат. Сообщения сохраняются.";
+      }
     }
   });
 

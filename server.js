@@ -59,18 +59,22 @@ io.on("connection", (socket) => {
       if (user.socketId === socket.id) {
         onlineUsers.delete(userId);
         // Установить статус offline и время last_seen
+        const lastSeenTime = new Date();
         userStatuses.set(userId, {
           status: 'offline',
-          lastSeen: new Date()
+          lastSeen: lastSeenTime
         });
         console.log(`User ${userId} is offline. Total online: ${onlineUsers.size}`);
         io.emit("stats-update", {
           onlineUsers: onlineUsers.size
         });
+        // Форматируем время для статуса
+        const timeStr = lastSeenTime.toLocaleString('ru-RU');
         io.emit("user-status-changed", {
           userId,
           status: 'offline',
-          lastSeen: new Date()
+          statusText: `👻 оставил цифровой след "${timeStr}"`,
+          lastSeen: lastSeenTime
         });
         break;
       }
@@ -89,7 +93,7 @@ io.on("connection", (socket) => {
       io.emit("user-status-changed", {
         userId,
         status: 'typing',
-        statusText: '📝 Печатает...'
+        statusText: '⌨️ стучит по клавишам'
       });
       // Автоматически вернуть в онлайн через 3 секунды если нет нового события
       setTimeout(() => {
@@ -101,7 +105,7 @@ io.on("connection", (socket) => {
           io.emit("user-status-changed", {
             userId,
             status: 'online',
-            statusText: '✅ В сети'
+            statusText: '🔌 на проводе'
           });
         }
       }, 3000);
@@ -119,7 +123,7 @@ io.on("connection", (socket) => {
       io.emit("user-status-changed", {
         userId,
         status: 'recording_voice',
-        statusText: '🎤 Записывает голосовое сообщение...'
+        statusText: '🎤 оставляет свой цифровой след'
       });
     }
   });
@@ -135,7 +139,7 @@ io.on("connection", (socket) => {
       io.emit("user-status-changed", {
         userId,
         status: 'sending_photo',
-        statusText: '📸 Отправляет фото...'
+        statusText: '📸 фото?'
       });
       setTimeout(() => {
         if (userStatuses.get(userId)?.status === 'sending_photo') {
@@ -146,7 +150,7 @@ io.on("connection", (socket) => {
           io.emit("user-status-changed", {
             userId,
             status: 'online',
-            statusText: '✅ В сети'
+            statusText: '🔌 на проводе'
           });
         }
       }, 2000);
@@ -164,7 +168,7 @@ io.on("connection", (socket) => {
       io.emit("user-status-changed", {
         userId,
         status: 'sending_video',
-        statusText: '🎥 Отправляет видео...'
+        statusText: '🎥 видео?'
       });
       setTimeout(() => {
         if (userStatuses.get(userId)?.status === 'sending_video') {
@@ -175,7 +179,7 @@ io.on("connection", (socket) => {
           io.emit("user-status-changed", {
             userId,
             status: 'online',
-            statusText: '✅ В сети'
+            statusText: '🔌 на проводе'
           });
         }
       }, 3000);
