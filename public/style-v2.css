@@ -1713,26 +1713,15 @@ html.light .chat-main-messages::-webkit-scrollbar-thumb {
 }
 
 .input-icon-btn {
-  padding: 0 !important;
+  padding: 10px 12px !important;
   border-radius: 50% !important;
   font-size: 18px;
   transition: all 0.2s ease;
   flex-shrink: 0;
-  width: 38px;
-  height: 38px;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  background: transparent !important;
-  border: 2px solid rgba(139, 92, 246, 0.4) !important;
-  color: #9ca3af !important;
-  cursor: pointer;
 }
 
 .input-icon-btn:hover {
-  border-color: rgba(139, 92, 246, 0.8) !important;
-  color: #e5e7eb !important;
-  transform: scale(1.05) !important;
+  transform: scale(1.1) !important;
 }
 
 .input-icon-btn:active {
@@ -1740,25 +1729,20 @@ html.light .chat-main-messages::-webkit-scrollbar-thumb {
 }
 
 .input-send-btn {
-  padding: 0 !important;
+  padding: 10px 14px !important;
   border-radius: 50% !important;
-  font-size: 18px;
+  font-size: 16px;
   display: flex !important;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  width: 38px;
-  height: 38px;
+  width: 44px;
+  height: 44px;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
-  border: none !important;
-  color: white !important;
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
 }
 
 .input-send-btn:hover {
-  transform: scale(1.08) !important;
-  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+  transform: scale(1.08) translateY(-2px) !important;
 }
 
 .input-send-btn:active {
@@ -2230,17 +2214,16 @@ html.light #delete-chat-btn:hover {
   }
 
   body.mobile-dialog-open .input-icon-btn {
-    padding: 0 !important;
-    width: 34px !important;
-    height: 34px !important;
+    padding: 6px 8px !important;
     font-size: 16px;
   }
 
   body.mobile-dialog-open .input-send-btn {
-    width: 34px !important;
-    height: 34px !important;
-    font-size: 16px !important;
-    padding: 0 !important;
+    width: 36px !important;
+    height: 36px !important;
+    font-size: 14px !important;
+    padding: 6px 8px !important;
+    min-width: 36px !important;
   }
 
   .chat-main-input input {
@@ -2291,21 +2274,17 @@ html.light #delete-chat-btn:hover {
     align-items: center;
   }
 
-  body.mobile-dialog-open .chat-main-input input {
-    padding-right: 130px;
-  }
-
-  body.mobile-dialog-open .input-buttons-container {
-    right: 4px;
-    gap: 5px;
+  body.mobile-dialog-open .input-icon-btn {
+    padding: 5px 6px !important;
+    font-size: 14px !important;
   }
 
   body.mobile-dialog-open .input-send-btn {
-    width: 30px !important;
-    height: 30px !important;
+    width: 32px !important;
+    height: 32px !important;
     font-size: 12px !important;
-    padding: 4px 6px !important;
-    min-width: 32px !important;
+    padding: 6px 8px !important;
+    min-width: 36px !important;
   }
 
   .chat-main-title {
