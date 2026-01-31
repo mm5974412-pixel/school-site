@@ -101,36 +101,36 @@
   </div>
 
   <!-- Модальное окно создания нексферы -->
-  <div id="create-nexfery-modal" class="nexus-modal" style="display: none;">
-    <div class="nexus-modal-backdrop"></div>
-    <div class="nexus-modal-content">
-      <div class="nexus-modal-header">
+  <div id="create-nexfery-modal" class="nexfery-modal" style="display: none;">
+    <div class="nexfery-modal-backdrop"></div>
+    <div class="nexfery-modal-content">
+      <div class="nexfery-modal-header">
         <h3>✨ Создать нексферу</h3>
-        <button type="button" class="nexus-modal-close" id="create-nexfery-close">✕</button>
+        <button type="button" class="nexfery-modal-close" id="create-nexfery-close">✕</button>
       </div>
-      <form id="create-nexfery-form" class="nexus-form" enctype="multipart/form-data">
-        <div class="nexus-form-row">
+      <form id="create-nexfery-form" class="nexfery-form" enctype="multipart/form-data">
+        <div class="nexfery-form-row">
           <label>📝 Название</label>
           <input type="text" name="title" id="nexfery-title-input" placeholder="Например, Наш проект" required />
         </div>
-        <div class="nexus-form-row">
+        <div class="nexfery-form-row">
           <label>🔗 Ник (латиница)</label>
-          <div class="nexus-handle-input">
+          <div class="nexfery-handle-input">
             <span>@</span>
             <input type="text" name="handle" id="nexfery-handle-input" placeholder="nexfery_name" required />
           </div>
         </div>
-        <div class="nexus-form-row">
+        <div class="nexfery-form-row">
           <label>📋 Описание (опционально)</label>
           <textarea name="description" id="nexfery-description-input" rows="3" placeholder="О чём эта нексфера?"></textarea>
         </div>
-        <div class="nexus-form-row">
+        <div class="nexfery-form-row">
           <label>🖼️ Аватар</label>
-          <div class="nexus-file-input-wrapper">
+          <div class="nexfery-file-input-wrapper">
             <input type="file" name="avatar" id="nexfery-avatar-input" accept="image/*" />
-            <div class="nexus-file-label">
-              <span class="nexus-file-icon">📷</span>
-              <span class="nexus-file-text">Выберите изображение</span>
+            <div class="nexfery-file-label">
+              <span class="nexfery-file-icon">📷</span>
+              <span class="nexfery-file-text">Выберите изображение</span>
             </div>
           </div>
         </div>
@@ -142,14 +142,14 @@
   </div>
 
   <!-- Модальное окно поиска нексфер -->
-  <div id="search-nexfery-modal" class="nexus-modal" style="display: none;">
-    <div class="nexus-modal-backdrop"></div>
-    <div class="nexus-modal-content">
-      <div class="nexus-modal-header">
+  <div id="search-nexfery-modal" class="nexfery-modal" style="display: none;">
+    <div class="nexfery-modal-backdrop"></div>
+    <div class="nexfery-modal-content">
+      <div class="nexfery-modal-header">
         <h3>🔍 Поиск нексфер</h3>
-        <button type="button" class="nexus-modal-close" id="search-nexfery-close">✕</button>
+        <button type="button" class="nexfery-modal-close" id="search-nexfery-close">✕</button>
       </div>
-      <div class="nexus-modal-body">
+      <div class="nexfery-modal-body">
         <input type="text" id="search-nexfery-input" placeholder="Поиск по названию или нику..." style="width: 100%; padding: 10px; border: 1px solid rgba(139, 92, 246, 0.3); border-radius: 8px; background: rgba(139, 92, 246, 0.05); color: inherit; margin-bottom: 12px;" />
         <div id="search-nexfery-results" style="max-height: 400px; overflow-y: auto;"></div>
       </div>
@@ -157,13 +157,13 @@
   </div>
 
   <!-- Модальное окно информации о нексфере -->
-  <div id="nexfery-info-modal" class="nexus-modal" style="display: none;">
-    <div class="nexus-modal-backdrop"></div>
-    <div class="nexus-modal-content">
-      <div class="nexus-modal-header">
-        <button type="button" class="nexus-modal-close" id="nexfery-info-close">✕</button>
+  <div id="nexfery-info-modal" class="nexfery-modal" style="display: none;">
+    <div class="nexfery-modal-backdrop"></div>
+    <div class="nexfery-modal-content">
+      <div class="nexfery-modal-header">
+        <button type="button" class="nexfery-modal-close" id="nexfery-info-close">✕</button>
       </div>
-      <div class="nexus-modal-body" id="nexfery-info-body"></div>
+      <div class="nexfery-modal-body" id="nexfery-info-body"></div>
     </div>
   </div>
 
