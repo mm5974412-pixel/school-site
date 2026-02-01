@@ -2020,6 +2020,14 @@ app.post("/api/nexpheres/:nexphereId/messages/:messageId/pin", requireAuth, asyn
         "DELETE FROM nexphere_pinned_messages WHERE nexphere_id = $1 AND message_id = $2",
         [nexphereId, messageId]
       );
+
+      // Отправляем Socket.io событие об откреплении
+      io.to(`nexphere:${nexphereId}`).emit("nexphere:message-pinned", {
+        messageId: messageId,
+        nexphereId: nexphereId,
+        pinned: false
+      });
+
       res.json({ ok: true, pinned: false });
     } else {
       // Закрепляем сообщение
@@ -2027,10 +2035,57 @@ app.post("/api/nexpheres/:nexphereId/messages/:messageId/pin", requireAuth, asyn
         "INSERT INTO nexphere_pinned_messages (nexphere_id, message_id, pinned_by) VALUES ($1, $2, $3)",
         [nexphereId, messageId, userId]
       );
+
+      // Отправляем Socket.io событие об обновлении закрепления
+      io.to(`nexphere:${nexphereId}`).emit("nexphere:message-pinned", {
+        messageId: messageId,
+        nexphereId: nexphereId,
+        pinned: true
+      });
+
       res.json({ ok: true, pinned: true });
     }
   } catch (err) {
     console.error("Ошибка при закреплении сообщения в нексфере:", err);
+    res.status(500).json({ ok: false, error: "Ошибка сервера" });
+  }
+});
+
+// Получить список закреплённых сообщений нексферы
+app.get("/api/nexpheres/:nexphereId/pinned-messages", requireAuth, async (req, res) => {
+  try {
+    const userId = req.session.user.id;
+    const nexphereId = parseInt(req.params.nexphereId, 10);
+
+    if (!nexphereId || Number.isNaN(nexphereId)) {
+      return res.status(400).json({ ok: false, error: "Некорректные параметры" });
+    }
+
+    // Проверяем, что пользователь участник нексферы
+    const memberCheck = await pool.query(
+      "SELECT 1 FROM nexphere_members WHERE nexphere_id = $1 AND user_id = $2 LIMIT 1",
+      [nexphereId, userId]
+    );
+
+    if (memberCheck.rowCount === 0) {
+      return res.status(403).json({ ok: false, error: "У вас нет доступа к этой нексфере" });
+    }
+
+    // Получаем закреплённые сообщения
+    const result = await pool.query(
+      `
+      SELECT npm.message_id
+      FROM nexphere_pinned_messages npm
+      WHERE npm.nexphere_id = $1
+      ORDER BY npm.pinned_at DESC
+      `,
+      [nexphereId]
+    );
+
+    const pinnedMessageIds = result.rows.map(row => row.message_id);
+    res.json({ ok: true, pinnedMessages: pinnedMessageIds });
+  } catch (err) {
+    console.error("Ошибка при получении закреплённых сообщений нексферы:", err);
     res.status(500).json({ ok: false, error: "Ошибка сервера" });
   }
 });

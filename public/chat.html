@@ -1801,17 +1801,23 @@
 
   // Загрузить сообщения нексферы
   function loadNexphereMessages(nexphereId) {
-    fetch(`/api/nexpheres/${nexphereId}/messages`)
-      .then(r => r.json())
-      .then(data => {
-        if (!data.ok) {
-          console.error("Ошибка при загрузке сообщений:", data.error);
+    // Загружаем сообщения и закреплённые сообщения параллельно
+    Promise.all([
+      fetch(`/api/nexpheres/${nexphereId}/messages`).then(r => r.json()),
+      fetch(`/api/nexpheres/${nexphereId}/pinned-messages`).then(r => r.json())
+    ])
+      .then(([messagesData, pinnedData]) => {
+        if (!messagesData.ok) {
+          console.error("Ошибка при загрузке сообщений:", messagesData.error);
           return;
         }
 
+        // Сохраняем ID закреплённых сообщений в глобальную переменную
+        window.nexspherePinnedMessages = pinnedData.ok ? pinnedData.pinnedMessages || [] : [];
+
         messagesDiv.innerHTML = "";
 
-        if (data.messages.length === 0) {
+        if (messagesData.messages.length === 0) {
           const emptyDiv = document.createElement("div");
           emptyDiv.style.cssText = "text-align: center; color: #9ca3af; padding: 40px;";
           emptyDiv.textContent = "В нексфере ещё нет сообщений";
@@ -1820,7 +1826,7 @@
         }
 
         // Добавляем сообщения в порядке возрастания (старые снизу, новые сверху)
-        data.messages.forEach(msg => {
+        messagesData.messages.forEach(msg => {
           appendMessage({
             id: msg.id,
             author: msg.author,
@@ -1831,6 +1837,14 @@
             sticker_id: msg.sticker_id,
             time: msg.time
           });
+
+          // Если это закреплённое сообщение, добавляем класс
+          if (window.nexspherePinnedMessages.includes(msg.id)) {
+            const msgEl = messagesDiv.querySelector(`[data-message-id="${msg.id}"]`);
+            if (msgEl) {
+              msgEl.classList.add("pinned");
+            }
+          }
         });
 
         scrollMessagesToBottom();
@@ -1961,6 +1975,34 @@
     const messageEl = messagesDiv.querySelector(`[data-message-id="${data.messageId}"]`);
     if (messageEl) {
       messageEl.remove();
+    }
+  });
+
+  // Socket.io обработчик закрепления сообщения в нексфере
+  socket.on("nexphere:message-pinned", (data) => {
+    // Проверяем, что это событие из текущей нексферы
+    if (data.nexphereId !== window.currentNexphereId) {
+      return;
+    }
+
+    // Обновляем локальный список закреплённых сообщений
+    if (!window.nexspherePinnedMessages) {
+      window.nexspherePinnedMessages = [];
+    }
+
+    const messageEl = messagesDiv.querySelector(`[data-message-id="${data.messageId}"]`);
+    if (!messageEl) return;
+
+    if (data.pinned) {
+      // Добавляем класс pinned
+      if (!window.nexspherePinnedMessages.includes(data.messageId)) {
+        window.nexspherePinnedMessages.push(data.messageId);
+      }
+      messageEl.classList.add("pinned");
+    } else {
+      // Удаляем класс pinned
+      window.nexspherePinnedMessages = window.nexspherePinnedMessages.filter(id => id !== data.messageId);
+      messageEl.classList.remove("pinned");
     }
   });
 
