@@ -2908,6 +2908,27 @@
       nexphereProfileVisibilityEl.textContent = nexphere.visibility === "private" ? "частная" : "публичная";
     }
 
+    // Обновляем стили кнопок видимости
+    const isPublic = nexphere.visibility === "public";
+    if (nexphereVisibilityPublicBtn) {
+      if (isPublic) {
+        nexphereVisibilityPublicBtn.classList.add("btn-primary");
+        nexphereVisibilityPublicBtn.classList.remove("btn-ghost");
+      } else {
+        nexphereVisibilityPublicBtn.classList.remove("btn-primary");
+        nexphereVisibilityPublicBtn.classList.add("btn-ghost");
+      }
+    }
+    if (nexphereVisibilityPrivateBtn) {
+      if (!isPublic) {
+        nexphereVisibilityPrivateBtn.classList.add("btn-primary");
+        nexphereVisibilityPrivateBtn.classList.remove("btn-ghost");
+      } else {
+        nexphereVisibilityPrivateBtn.classList.remove("btn-primary");
+        nexphereVisibilityPrivateBtn.classList.add("btn-ghost");
+      }
+    }
+
     const isOwner = currentUser && nexphere.owner_id === currentUser.id;
     if (nexphereProfileActionsEl) {
       nexphereProfileActionsEl.style.display = isOwner ? "flex" : "none";
