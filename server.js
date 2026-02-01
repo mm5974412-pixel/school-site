@@ -2060,13 +2060,19 @@ app.delete("/api/nexpheres/:nexphereId", requireAuth, async (req, res) => {
     console.log(`[DELETE /api/nexpheres/:nexphereId] Nexphere deleted successfully, rowCount=${result.rowCount}`);
 
     // Отправляем Socket.io уведомление всем участникам
-    const roomName = `nexphere:${nexphereId}`;
-    io.to(roomName).emit("nexphere:deleted", { nexphereId });
-    
-    // Также уведомляем каждого участника персонально
-    memberIds.forEach(memberId => {
-      io.to(`user:${memberId}`).emit("nexphere:deleted", { nexphereId });
-    });
+    try {
+      const roomName = `nexphere:${nexphereId}`;
+      io.to(roomName).emit("nexphere:deleted", { nexphereId });
+      
+      // Также уведомляем каждого участника персонально
+      memberIds.forEach(memberId => {
+        io.to(`user:${memberId}`).emit("nexphere:deleted", { nexphereId });
+      });
+      console.log(`[DELETE /api/nexpheres/:nexphereId] Socket.io events sent successfully`);
+    } catch (socketErr) {
+      console.error(`[DELETE /api/nexpheres/:nexphereId] Error sending Socket.io events:`, socketErr);
+      // Продолжаем, несмотря на ошибку Socket.io
+    }
 
     res.json({ ok: true });
   } catch (err) {

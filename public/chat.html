@@ -3035,13 +3035,28 @@
             console.log(`[DELETE nexphere] Response data:`, data);
 
             if (response.ok) {
+              // Сначала очищаем UI
               socket.emit("nexphere:leave", { nexphereId: currentNexphereId });
+              const nexphereIdToDelete = currentNexphereId;
               closeNexphereProfileModal();
               currentNexphereId = null;
               currentNexsphereName = null;
-              loadChats();
               nexpherePanel.style.display = "none";
               chatPanel.style.display = "none";
+              
+              // Удаляем из списка нексфер
+              const nexphereEl = document.querySelector(`.nexspheres-list li[data-nexsphere-id="${nexphereIdToDelete}"]`);
+              if (nexphereEl) {
+                nexphereEl.remove();
+              }
+              
+              // Перезагружаем список чатов
+              try {
+                await loadChats();
+              } catch (e) {
+                console.error("Ошибка при перезагрузке чатов:", e);
+              }
+              
               showAlert("Нексфера успешно удалена", "Успех", "ОК", "success");
             } else {
               console.error(`[DELETE nexphere] Error response:`, data.error);
