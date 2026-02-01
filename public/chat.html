@@ -2137,6 +2137,52 @@
     }
   });
 
+  // Socket.io обработчик удаления нексферы владельцем
+  socket.on("nexphere:deleted", (data) => {
+    console.log(`[nexphere:deleted] Нексфера ${data.nexphereId} была удалена`);
+    
+    // Если это текущая нексфера, закрыть её окно
+    if (data.nexphereId === window.currentNexphereId) {
+      console.log(`[nexphere:deleted] Закрываю текущую нексферу`);
+      closeNexphereProfileModal();
+      currentNexphereId = null;
+      currentNexsphereName = null;
+      nexpherePanel.style.display = "none";
+      chatPanel.style.display = "none";
+      showAlert("Нексфера была удалена владельцем", "Нексфера удалена", "ОК", "info");
+    }
+
+    // Удаляем из списка нексфер в левой панели
+    const nexphereEl = document.querySelector(`.nexspheres-list li[data-nexsphere-id="${data.nexphereId}"]`);
+    if (nexphereEl) {
+      nexphereEl.remove();
+      console.log(`[nexphere:deleted] Удалена из списка нексфер`);
+    }
+  });
+
+  // Socket.io обработчик удаления из нексферы (когда владелец удаляет участника)
+  socket.on("nexphere:removed", (data) => {
+    console.log(`[nexphere:removed] Я был удален из нексферы ${data.nexphereId}`);
+    
+    // Если это текущая нексфера, закрыть её окно
+    if (data.nexphereId === window.currentNexphereId) {
+      console.log(`[nexphere:removed] Закрываю текущую нексферу`);
+      closeNexphereProfileModal();
+      currentNexphereId = null;
+      currentNexsphereName = null;
+      nexpherePanel.style.display = "none";
+      chatPanel.style.display = "none";
+      showAlert("Вас удалили из нексферы", "Удалены из нексферы", "ОК", "warning");
+    }
+
+    // Удаляем из списка нексфер в левой панели
+    const nexphereEl = document.querySelector(`.nexspheres-list li[data-nexsphere-id="${data.nexphereId}"]`);
+    if (nexphereEl) {
+      nexphereEl.remove();
+      console.log(`[nexphere:removed] Удалена из списка нексфер`);
+    }
+  });
+
   // Создать новую нексферу
   async function createNewNexphere(name) {
     try {

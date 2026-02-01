@@ -1898,6 +1898,9 @@ app.delete("/api/nexpheres/:nexphereId/members/:userId", requireAuth, async (req
       [nexphereId, targetUserId]
     );
 
+    // Отправляем Socket.io уведомление удаленному пользователю
+    io.to(`user:${targetUserId}`).emit("nexphere:removed", { nexphereId });
+
     res.json({ ok: true });
   } catch (err) {
     console.error("Ошибка при удалении участника:", err);
@@ -2030,6 +2033,14 @@ app.delete("/api/nexpheres/:nexphereId", requireAuth, async (req, res) => {
       return res.status(403).json({ ok: false, error: "Только владелец может удалить нексферу" });
     }
 
+    // Получаем всех участников перед удалением
+    const membersResult = await pool.query(
+      "SELECT user_id FROM nexphere_members WHERE nexphere_id = $1",
+      [nexphereId]
+    );
+
+    const memberIds = membersResult.rows.map(r => r.user_id);
+
     // Удаляем нексферу (каскадно удалятся члены, сообщения и закрепленные сообщения)
     const result = await pool.query(
       "DELETE FROM nexpheres WHERE id = $1",
@@ -2037,6 +2048,16 @@ app.delete("/api/nexpheres/:nexphereId", requireAuth, async (req, res) => {
     );
 
     console.log(`[DELETE /api/nexpheres/:nexphereId] Nexphere deleted successfully, rowCount=${result.rowCount}`);
+
+    // Отправляем Socket.io уведомление всем участникам
+    const roomName = `nexphere:${nexphereId}`;
+    io.to(roomName).emit("nexphere:deleted", { nexphereId });
+    
+    // Также уведомляем каждого участника персонально
+    memberIds.forEach(memberId => {
+      io.to(`user:${memberId}`).emit("nexphere:deleted", { nexphereId });
+    });
+
     res.json({ ok: true });
   } catch (err) {
     console.error("Ошибка при удалении нексферы:", err);
