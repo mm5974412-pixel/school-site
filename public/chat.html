@@ -2869,6 +2869,9 @@
               if (leaveData.ok) {
                 loadChats();
                 closeNexusProfileModal();
+                // Закрываем панель просмотра нексуса
+                nexusPanel.style.display = 'none';
+                chatPanel.style.display = 'none';
               } else {
                 alert('Ошибка при выходе из нексуса');
               }
