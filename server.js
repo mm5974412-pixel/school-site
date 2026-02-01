@@ -1542,6 +1542,16 @@ app.post("/api/nexpheres", requireAuth, async (req, res) => {
       return res.status(400).json({ ok: false, error: "Название нексферы не должно быть больше 100 символов" });
     }
 
+    // Проверяем, существует ли нексфера с таким именем
+    const existingNexphere = await pool.query(
+      "SELECT id FROM nexpheres WHERE name = $1 LIMIT 1",
+      [name]
+    );
+
+    if (existingNexphere.rowCount > 0) {
+      return res.status(400).json({ ok: false, error: "Нексфера с таким именем уже существует" });
+    }
+
     // Создаём нексферу
     const result = await pool.query(
       "INSERT INTO nexpheres (name, owner_id, visibility) VALUES ($1, $2, 'public') RETURNING id, name, owner_id, visibility, created_at",
