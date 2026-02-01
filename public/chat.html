@@ -1356,7 +1356,7 @@
         fetch(`/api/nexus/search/all?q=${encodeURIComponent(query)}`)
           .then(r => r.json())
           .catch(() => ({ nexus: [] })),
-        fetch(`/api/nexpheres?search=${encodeURIComponent(query)}`)
+        fetch(`/api/nexpheres/search/all?q=${encodeURIComponent(query)}`)
           .then(r => r.json())
           .catch(() => ({ ok: false, nexpheres: [] }))
       ]);
@@ -1431,19 +1431,75 @@
 
       nexpheres.forEach((nexphere) => {
         const item = document.createElement("div");
-        item.style.cssText = "padding: 8px; border-bottom: 1px solid #333; cursor: pointer; display: flex; align-items: center; gap: 8px;";
-        item.innerHTML = `<span>🔗</span> <span>${nexphere.name}</span>`;
-        item.onclick = () => {
-          nexusSearchModalEl.classList.add("closing");
-          setTimeout(() => {
-            nexusSearchModalEl.style.display = "none";
-            nexusSearchModalEl.classList.remove("closing");
-            if (nexusSearchInputEl) nexusSearchInputEl.value = "";
-            if (nexusSearchResultsEl) nexusSearchResultsEl.innerHTML = "";
-            loadChats();
-            openNexphere(nexphere);
-          }, 200);
+        item.style.cssText = "padding: 8px; border-bottom: 1px solid #333; display: flex; align-items: center; justify-content: space-between; gap: 8px;";
+        
+        const contentEl = document.createElement("div");
+        contentEl.style.cssText = "display: flex; align-items: center; gap: 8px; flex: 1; cursor: pointer;";
+        contentEl.innerHTML = `<span>🔗</span> <span>${nexphere.name}</span> <span style="color: #a78bfa; font-size: 12px;">${nexphere.members_count} участников</span>`;
+        
+        const actionBtn = document.createElement("button");
+        actionBtn.style.cssText = "padding: 4px 12px; border: none; border-radius: 6px; font-size: 12px; cursor: pointer;";
+        
+        if (nexphere.is_member) {
+          actionBtn.textContent = "Открыть";
+          actionBtn.style.background = "#10b981";
+          actionBtn.style.color = "#fff";
+          contentEl.onclick = () => {
+            nexusSearchModalEl.classList.add("closing");
+            setTimeout(() => {
+              nexusSearchModalEl.style.display = "none";
+              nexusSearchModalEl.classList.remove("closing");
+              if (nexusSearchInputEl) nexusSearchInputEl.value = "";
+              if (nexusSearchResultsEl) nexusSearchResultsEl.innerHTML = "";
+              loadChats();
+              openNexphere(nexphere);
+            }, 200);
+          };
+        } else {
+          actionBtn.textContent = "Присоединиться";
+          actionBtn.style.background = "#3b82f6";
+          actionBtn.style.color = "#fff";
+        }
+        
+        actionBtn.onclick = async (e) => {
+          e.stopPropagation();
+          
+          if (nexphere.is_member) {
+            nexusSearchModalEl.classList.add("closing");
+            setTimeout(() => {
+              nexusSearchModalEl.style.display = "none";
+              nexusSearchModalEl.classList.remove("closing");
+              if (nexusSearchInputEl) nexusSearchInputEl.value = "";
+              if (nexusSearchResultsEl) nexusSearchResultsEl.innerHTML = "";
+              loadChats();
+              openNexphere(nexphere);
+            }, 200);
+          } else {
+            // Присоединяемся к нексфере
+            try {
+              const res = await fetch(`/api/nexpheres/${nexphere.id}/members`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ userId: currentUser.id })
+              });
+              const data = await res.json();
+              
+              if (data.ok) {
+                actionBtn.textContent = "Открыть";
+                actionBtn.style.background = "#10b981";
+                nexphere.is_member = true;
+                showAlert("Вы присоединились к нексфере!", "Успех", "ОК", "primary");
+              } else {
+                showAlert(data.error || "Не удалось присоединиться", "Ошибка", "ОК", "danger");
+              }
+            } catch (err) {
+              showAlert("Произошла ошибка", "Ошибка", "ОК", "danger");
+            }
+          }
         };
+        
+        item.appendChild(contentEl);
+        item.appendChild(actionBtn);
         nexusSearchResultsEl.appendChild(item);
       });
 

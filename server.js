@@ -1613,6 +1613,54 @@ app.get("/api/nexpheres", requireAuth, async (req, res) => {
   }
 });
 
+// Поиск всех нексфер (не только в которых пользователь участник)
+app.get("/api/nexpheres/search/all", requireAuth, async (req, res) => {
+  try {
+    const userId = req.session.user.id;
+    const search = req.query.q ? `%${req.query.q}%` : null;
+
+    let query = `
+      SELECT
+        n.id,
+        n.name,
+        n.owner_id,
+        n.created_at,
+        u.username AS owner_username,
+        u.display_name AS owner_display_name,
+        COUNT(DISTINCT nm.user_id)::int AS members_count,
+        CASE WHEN EXISTS(SELECT 1 FROM nexphere_members WHERE nexphere_id = n.id AND user_id = $1) 
+             THEN true ELSE false END AS is_member
+      FROM nexpheres n
+      JOIN users u ON u.id = n.owner_id
+      LEFT JOIN nexphere_members nm ON nm.nexphere_id = n.id
+    `;
+
+    const params = [userId];
+
+    // Добавляем фильтр поиска по названию нексферы
+    if (search) {
+      query += ` WHERE n.name ILIKE $2`;
+      params.push(search);
+    }
+
+    query += `
+      GROUP BY n.id, n.name, n.owner_id, n.created_at, u.username, u.display_name
+      ORDER BY n.created_at DESC
+      LIMIT 10
+    `;
+
+    const result = await pool.query(query, params);
+
+    res.json({
+      ok: true,
+      nexpheres: result.rows
+    });
+  } catch (err) {
+    console.error("Ошибка при поиске нексфер:", err);
+    res.status(500).json({ ok: false, error: "Ошибка сервера" });
+  }
+});
+
 // Получить конкретную нексферу с информацией
 app.get("/api/nexpheres/:nexphereId", requireAuth, async (req, res) => {
   try {
