@@ -1794,10 +1794,11 @@ app.post("/api/nexpheres/:nexphereId/members", requireAuth, async (req, res) => 
     }
 
     // Проверяем, что целевой пользователь есть в контактах владельца (в нексоленте)
-    // Проверяем наличие чата между владельцем и целевым пользователем
+    // Проверяем наличие общего чата между владельцем и целевым пользователем
     const chatCheck = await pool.query(
-      `SELECT 1 FROM chats 
-       WHERE ((user1_id = $1 AND user2_id = $2) OR (user1_id = $2 AND user2_id = $1))
+      `SELECT DISTINCT c.id FROM chats c
+       JOIN chat_members cm1 ON c.id = cm1.chat_id AND cm1.user_id = $1
+       JOIN chat_members cm2 ON c.id = cm2.chat_id AND cm2.user_id = $2
        LIMIT 1`,
       [userId, targetUserId]
     );
