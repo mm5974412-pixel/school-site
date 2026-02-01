@@ -1869,6 +1869,16 @@ app.delete("/api/nexpheres/:nexphereId/members/:userId", requireAuth, async (req
       return res.status(400).json({ ok: false, error: "Нельзя удалить владельца" });
     }
 
+    // Проверяем, что пользователь действительно состоит в этой нексфере
+    const memberCheck = await pool.query(
+      "SELECT 1 FROM nexphere_members WHERE nexphere_id = $1 AND user_id = $2 LIMIT 1",
+      [nexphereId, targetUserId]
+    );
+
+    if (memberCheck.rowCount === 0) {
+      return res.status(404).json({ ok: false, error: "Пользователь не найден в этой нексфере" });
+    }
+
     await pool.query(
       "DELETE FROM nexphere_members WHERE nexphere_id = $1 AND user_id = $2",
       [nexphereId, targetUserId]
