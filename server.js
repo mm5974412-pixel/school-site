@@ -1696,6 +1696,7 @@ app.get("/api/nexpheres/:nexphereId", requireAuth, async (req, res) => {
         n.id,
         n.name,
         n.owner_id,
+        n.visibility,
         n.created_at,
         u.username AS owner_username,
         u.display_name AS owner_display_name,
